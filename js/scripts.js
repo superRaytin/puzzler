@@ -1634,12 +1634,8 @@ var mass = {
             }
         });
 
-        $('.toolbar2').find('.toolbar-item').attr('data-placement', 'bottom').end().tooltip({
+        $('.toolbar').find('.toolbar-item').attr('data-placement', 'bottom').end().tooltip({
             selector: '.toolbar-item'
-        });
-
-        $('#J-test').click(function(){
-            console.log(444);
         });
 
         $('#J-reset').click(function(){
