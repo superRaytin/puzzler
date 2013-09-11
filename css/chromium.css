@@ -1,0 +1,305 @@
+/* buttons ============================================ */
+button:not(.custom-appearance),
+input[type='button']:not(.custom-appearance),
+input[type='submit']:not(.custom-appearance) {
+    -webkit-border-radius: 3px;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    -webkit-user-select: none;
+    background: -webkit-linear-gradient(#fafafa, #f4f4f4 40%, #e5e5e5);
+    border: 1px solid #aaa;
+    color: #444;
+    font-size: inherit;
+    margin-bottom: 0;
+    min-width: 4em;
+    padding: 3px 12px;
+}
+
+button:not(.custom-appearance):hover,
+input[type='button']:not(.custom-appearance):hover,
+input[type='submit']:not(.custom-appearance):hover {
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    background: #ebebeb -webkit-linear-gradient(#fefefe, #f8f8f8 40%, #e9e9e9);
+    border-color: #999;
+    color: #222;
+}
+
+button:not(.custom-appearance):active,
+input[type='button']:not(.custom-appearance):active,
+input[type='submit']:not(.custom-appearance):active {
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    background: #ebebeb -webkit-linear-gradient(#f4f4f4, #efefef 40%, #dcdcdc);
+    color: #333;
+}
+
+button[disabled]:not(.custom-appearance),
+input[type='button'][disabled]:not(.custom-appearance),
+input[type='submit'][disabled]:not(.custom-appearance),
+button[disabled]:not(.custom-appearance):hover,
+input[type='button'][disabled]:not(.custom-appearance):hover,
+input[type='submit'][disabled]:not(.custom-appearance):hover {
+    -webkit-box-shadow: none;
+    background: -webkit-linear-gradient(#fafafa, #f4f4f4 40%, #e5e5e5);
+    border-color: #aaa;
+    color: #888;
+}
+
+button:not(.custom-appearance):focus,
+input[type='submit']:not(.custom-appearance):focus,
+    /*input[type='text']:not(.custom-appearance):focus,*/
+select:not(.custom-appearance):focus {
+    -webkit-box-shadow: inset 0 1px 2px white,
+    0 1px 2px rgba(0, 0, 0, .2),
+    0 0 1px #c0c0c0,
+    0 0 1px #c0c0c0,
+    0 0 1px #c0c0c0;
+    -webkit-transition: border-color 200ms;
+    /* We use border color because it follows the border radius (unlike outline).
+     * This is particularly noticeable on mac. */
+    border-color: rgb(64, 128, 250);
+    outline: none;
+}
+
+/* Search boxes use an outline because it follows the contours of the box.
+input[type='search']:not(.custom-appearance):focus {
+  outline-color: rgb(64, 128, 250);
+}*/
+
+/* TODO(jhawkins): Refactor button styling and remove !important here. This is
+ * currently necessary because individual page button element selectors have
+ * higher specificity.
+ */
+.link-button,
+.link-button:focus {
+    -webkit-box-shadow: none !important;
+    background: transparent none !important;
+    border: none !important;
+    color: rgb(17, 85, 204) !important;
+    cursor: pointer;
+    /* Input elements have -webkit-small-control which overrides the body font.
+     * Resolve this by using 'inherit'. */
+    font-family: inherit;
+    margin: 0;
+    padding: 0 4px !important;
+}
+
+.link-button:hover {
+    text-decoration: underline;
+}
+
+.link-button:active {
+    color: rgb(5, 37, 119) !important;
+    text-decoration: underline;
+}
+
+/* checkbox ============================================ */
+input[type='checkbox']:not(.custom-appearance) {
+    -webkit-box-shadow: inset 0 1px 2px white,
+    0 1px 2px rgba(0, 0, 0, .2);
+    -webkit-appearance: none;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 3px;
+    background: -webkit-linear-gradient(#fafafa, #dcdcdc);
+    border-radius: 3px;
+    border: 1px solid #a0a0a0;
+    display: inline-block;
+    height: 16px;
+    margin-bottom: 0;
+    margin-top: 0;
+    position: relative;
+    top: 3px;
+    vertical-align: baseline;
+    width: 16px;
+}
+
+input[type='checkbox']:not(.custom-appearance):disabled {
+    opacity: .75;
+}
+
+input[type='checkbox']:not(.custom-appearance):not(:disabled):not(:active):hover {
+    background: -webkit-linear-gradient(#fff, #e6e6e6);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+input[type='checkbox']:not(.custom-appearance):not(:disabled):active {
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2);
+    background: -webkit-linear-gradient(#f0f0f0, #bebebe);
+    border: 1px solid #808080;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .25);
+}
+
+input[type='checkbox']:not(.custom-appearance):checked::before {
+    color: #808080;
+    content: url('../img/checkmark.png');
+    font-size: 13px;  /* Explicitly set the font size so that the positioning
+                       of the checkmark is correct. */
+    height: 16px;
+    left: 2px;
+    position: absolute;
+}
+
+input[type='radio'] {
+    -webkit-box-shadow: inset 0 1px 2px white,
+    0 1px 2px rgba(0, 0, 0, .2);
+    -webkit-appearance: none;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 3px;
+    -webkit-transition: border 500ms;
+    background: -webkit-linear-gradient(#fafafa, #dcdcdc);
+    border-radius: 100%;
+    border: 1px solid #a0a0a0;
+    display: inline-block;
+    height: 15px;
+    margin-bottom: 0;
+    position: relative;
+    top: 3px;
+    vertical-align: baseline;
+    width: 15px;
+}
+
+input[type='radio']:disabled {
+    opacity: .75;
+}
+
+input[type='radio']:not(:disabled):not(:active):hover {
+    background: -webkit-linear-gradient(#fff, #e6e6e6);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+input[type='radio']:not(:disabled):active {
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2);
+    background: -webkit-linear-gradient(#f0f0f0, #bebebe);
+    border: 1px solid #808080;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .25);
+}
+
+input[type='radio']:checked::before {
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+    -webkit-margin-start: 4px;
+    background: #808080;
+    border-radius: 10px;
+    content: '';
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 400;
+    height: 5px;
+    left: 0;
+    margin-top: 4px;
+    opacity: 1;
+    position: absolute;
+    top: 0;
+    vertical-align: top;
+    width: 5px;
+}
+
+html[dir='rtl'] input[type='radio']:checked::before {
+    right: 0;
+}
+
+input[type='radio']:active:checked::before {
+    background: #606060;
+}
+
+/* .checkbox and .radio classes wrap labels. */
+
+.checkbox,
+.radio {
+    margin: 9px 0;
+}
+
+.checkbox label,
+.radio label {
+    display: -webkit-inline-box;
+}
+
+/* Make sure long spans wrap at the same place they start. */
+.checkbox label input ~ span,
+.radio label input ~ span {
+    -webkit-box-flex: 1;
+    -webkit-margin-start: 0.4em;
+    display: block;
+}
+
+.checkbox label input[type=checkbox],
+.radio label input[type=radio] {
+    margin-top: 1px;
+    margin-left: 1px;
+    top: 0;
+    vertical-align: top;
+}
+
+/* These rules are copied from button.css */
+input[type='checkbox']:not(.custom-appearance):focus,
+input[type='radio']:not(.custom-appearance):focus {
+    -webkit-box-shadow: inset 0 1px 2px white,
+    0 1px 2px rgba(0, 0, 0, .2),
+    0 0 1px #c0c0c0,
+    0 0 1px #c0c0c0,
+    0 0 1px #c0c0c0;
+    -webkit-transition: border-color 200ms;
+    border-color: #4080fa;
+    outline: none;
+}
+
+label > input[type=radio] ~ span,
+label > input[type=checkbox] ~ span,
+input[type=checkbox] ~ label {
+    color: #444;
+}
+
+label:hover > input[type=checkbox]:disabled ~ span,
+label:hover > input[type=radio]:disabled ~ span,
+input[type=checkbox]:disabled ~ label:hover {
+    color: #888;
+}
+
+label:hover > input[type=checkbox]:not(:disabled) ~ span,
+label:hover > input[type=radio]:not(:disabled) ~ span,
+input[type=checkbox]:not(:disabled) ~ label:hover {
+    color: #222;
+}
+
+/* select ============================================ */
+select {
+    -webkit-appearance: button;
+    -webkit-border-radius: 3px;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    -webkit-padding-end: 20px;
+    -webkit-padding-start: 8px;
+    -webkit-user-select: none;
+    background-image: url("../img/select.png"),
+    -webkit-linear-gradient(#fafafa, #f4f4f4 40%, #e5e5e5);
+    background-position: center right;
+    background-repeat: no-repeat;
+    border: 1px solid #aaa;
+    color: #555;
+    font-size: inherit;
+    margin: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+html[dir='rtl'] select {
+    background-position: center left;
+}
+
+select:disabled {
+    color: graytext;
+    background-image: url("../img/disabled_select.png"),
+    -webkit-linear-gradient(#fefefe, #f8f8f8 40%, #e9e9e9);
+}
+
+select:enabled:hover {
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    background-image: url("../img/select.png"),
+    -webkit-linear-gradient(#fefefe, #f8f8f8 40%, #e9e9e9);
+    color: #333;
+}
+
+select:enabled:active {
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    background-image: url("../img/select.png"),
+    -webkit-linear-gradient(#f4f4f4, #efefef 40%, #dcdcdc);
+    color: #444;
+}

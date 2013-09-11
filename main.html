@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rock! ImageMass Beta</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="css/chromium.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-glyphicons.css">
+    <link rel="stylesheet" type="text/css" href="css/aero.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div id="wrapper" class="wrapper">
+    <img id="J-Calculate" src="./img/hold.png" class="hide init">
+    <div class="toolbar">
+        <div class="clearfix">
+            <div id="J-selectFile" class="toolbar-item" title="选择图片">
+                <span class="glyphicon glyphicon-folder-open"></span>
+            </div>
+            <div class="separate"></div>
+            <div id="J-exportPet" class="toolbar-item" title="导出 (仅图片)">
+                <span class="glyphicon glyphicon-picture"></span>
+            </div>
+            <div id="J-exportHTML" class="toolbar-item" title="导出 (图片和HTML)">
+                <span class="glyphicon glyphicon-file"></span>
+            </div>
+            <div class="separate"></div>
+            <div id="J-mapArea" class="toolbar-item" title="画热区">
+                <span class="glyphicon glyphicon-link"></span>
+            </div>
+            <div class="separate"></div>
+            <div id="J-reset" class="toolbar-item warning" title="刷子，将会清空切线、热区等操作记录">
+                <span class="glyphicon glyphicon-ban-circle"></span>
+            </div>
+            <div class="separate"></div>
+            <div id="J-getLastLine" class="toolbar-item" title="应用上一次退出时的切线记录">
+                <span class="glyphicon glyphicon-align-justify"></span>
+            </div>
+            <div id="J-luffy" class="toolbar-item" title="小试牛刀切路飞">
+                <span class="glyphicon glyphicon-flag"></span>
+            </div>
+            <div id="J-help" class="toolbar-item fn-right" title="关于">
+                <span class="glyphicon glyphicon-question-sign"></span>
+            </div>
+            <div id="J-userSettings" class="toolbar-item fn-right" title="设置">
+                <span class="glyphicon glyphicon-wrench"></span>
+            </div>
+            <div id="J-copyCode" class="toolbar-item hide fn-right" title="导出成功，复制代码">
+                <span class="glyphicon glyphicon-euro"></span>
+            </div>
+        </div>
+    </div>
+    <input type="file" class="hide" id="J-hi-select">
+    <input type="file" class="hide" id="J-hi-saveDiretory" nwdirectory>
+    <input type="file" class="hide" id="J-hi-saveDiretoryForHtml" nwdirectory>
+    <div class="main clearfix">
+        <div class="ruler-x" data-type="X"></div>
+        <div class="ruler-y" data-type="Y"></div>
+        <div class="main_right">
+            <div class="main_right_con">
+                <div class="addImg btn btn-success">选择图片文件</div>
+                <div class="imgItem">
+                    <img id="previewImg" class="init hide" src="./img/hold.png">
+                    <div id="J-imgCover" class="imgCover"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="statusBar">
+        <div id="J-statusBar-inner" class="hide">
+            <div class="lineStatus">
+                <span class="inputing">
+                    <input type="text" id="J-offset" class="custom-appearance" value="0">
+                </span>
+                <span class="status-span" id="J-imgInfo"></span>
+            </div>
+        </div>
+    </div>
+    <div id="backing"><img src="./img/blue.jpg"></div>
+    <div id="overlay"></div>
+</div>
+<!-- template start -->
+<script type="template/dialog" id="J-settings">
+    <div id="dialogWrap" class="dialogWrap">
+        <div class="tab_trigger clearfix">
+            <span class="tab_tigger_item on">模板</span>
+            <span class="tab_tigger_item">常用</span>
+            <span class="tab_tigger_item">高级</span>
+        </div>
+        <div class="tab_content">
+            <div class="tab_content_item">
+                <div class="tab_content_column">
+                    <input type="radio" name="widthsmallbig" id="width_small" class="column_radio_template" value="small" checked>
+                    <label for="width_small" class="column_label_radio">宽度 < 990</label>
+                    <input type="radio" name="widthsmallbig" id="width_big" class="column_radio_template" value="big">
+                    <label for="width_big" class="column_label_radio">宽度 > 990</label>
+                </div>
+                <div class="tab_content_column">
+                    <textarea id="J-templateArea" class="column_textarea form-control" data-name="template"></textarea>
+                </div>
+            </div>
+            <div class="tab_content_item hide">
+                <div class="tab_content_column">
+                    占坑
+                    <!--<fieldset class="hide">
+                        <legend>标签栏</legend>
+                        <div class="fieldset_content">
+                            <div class="tab_content_column">
+                                <input id="dblclickClose" type="checkbox" class="column_checkbox" data-name="tag_dblclickClose">
+                                <label for="dblclickClose" class="column_label_check">双击关闭标签</label>
+                            </div>
+                            <div class="tab_content_column">
+                                <input id="lockTag" type="checkbox" class="column_checkbox" data-name="tag_lock">
+                                <label for="lockTag" class="column_label_check">锁定(不允许拖放)</label>
+                            </div>
+                        </div>
+                    </fieldset>-->
+                </div>
+            </div>
+            <div class="tab_content_item hide">
+                <div class="tab_content_column">
+                    <fieldset>
+                        <legend>保存路径</legend>
+                        <div class="fieldset_content">
+                            <div class="fieldset_column">
+                                <input type="radio" name="filePath" id="filePath_last" class="column_radio" data-name="mode" data-belong="savePath" value="last">
+                                <label for="filePath_last" class="column_label_radio">记住最后的操作路径</label>
+                            </div>
+                            <div class="fieldset_column">
+                                <input type="radio" name="filePath" id="filePath_custom" class="column_radio" data-name="mode" data-belong="savePath" data-noclick="yes" value="custom">
+                                <label for="filePath_custom" class="column_label_radio">
+                                    <input type="text" class="column_input J-filePath_custom" >
+                                    <input type="file" class="hide" nwdirectory>
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <!--
+                <div class="tab_content_column">
+                    <fieldset>
+                        <legend>主 题</legend>
+                        <div class="fieldset_content">
+                            <select id="theme_preview" class="column_select" data-name="theme">
+                                <option value="default">default</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>升 级</legend>
+                        <div class="fieldset_content">
+                            <input type="radio" name="update" id="update_tip" class="column_radio" data-name="update" value="tip" checked>
+                            <label for="update_tip" class="column_label_radio">有更新提示我升级</label>
+                            <input type="radio" name="update" id="update_auto" class="column_radio" data-name="update" value="auto">
+                            <label for="update_auto" class="column_label_radio">自动更新</label>
+                            <input type="radio" name="update" id="update_never" class="column_radio" data-name="update" value="never">
+                            <label for="update_never" class="column_label_radio">从不自动更新</label>
+                        </div>
+                    </fieldset>
+                </div>
+                -->
+            </div>
+        </div>
+    </div>
+</script>
+<div id="J-template-rect-setting" class="setting-area hide">
+    <div class="rect-setting-column rect-url">
+        <input type="text" class="rect-input custom-appearance" value="#" data-type="url">
+    </div>
+    <div class="rect-setting-column rect-open">
+        <input type="checkbox" class="custom-appearance" data-type="open"> 新窗口打开
+    </div>
+    <div class="rect-setting-column rect-width-height">
+        宽：<input type="text" class="rect-input custom-appearance" value="0" data-type="width">
+        &nbsp;高：<input type="text" class="rect-input custom-appearance" value="0" data-type="height">
+    </div>
+</div>
+<!-- template end -->
+<script type="text/javascript" src="js/src/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="js/src/jquery.artDialog.min.js"></script>
+<script type="text/javascript" src="js/src/artDialog.plugins.min.js"></script>
+<script type="text/javascript" src="js/src/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/src/kibo.js"></script>
+<script type="text/javascript" src="js/src/underscore.js"></script>
+<script type="text/javascript" src="js/scripts.js"></script>
+</body>
+</html>
+

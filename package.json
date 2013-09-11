@@ -1,0 +1,16 @@
+{
+  "name": "Rock ImageMass",
+  "version": "0.1",
+  "main": "main.html",
+  "window": {
+    "icon": "img/mass.png",
+    "show": false,
+    "position": "center",
+    "toolbar": true,
+    "frame": true,
+    "min_width": 700,
+    "min_height": 500,
+    "width": 800,
+    "height": 600
+  }
+}
