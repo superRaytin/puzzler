@@ -690,15 +690,18 @@ var mass = {
 
         mass.setImgCoverWidth();
     },
-    getCutBlocks: function(){
+    getCutBlocks: function(children){
         var cache = mass.cache,
             lineX = cache.lineX,
             lineY = cache.lineY,
             plusTop = 0, plusLeft,
             blocks = [],
+            allChildBlocks = [],
             posArrX, posArrY, curX, curY;
 
-        var isBig2 = !!(cache.img.width > 990 && lineY > 1), temp;
+        var isBig2 = !!(cache.img.width > 990 && lineY > 1), temp,
+            parentBlockIndex = 0,
+            option;
 
         posArrX = mass.getSortPos('X');
         posArrY = mass.getSortPos('Y');
@@ -729,15 +732,23 @@ var mass = {
 
                         for(var y = 1, yLen = posArrY.length - 1; y < yLen; y++){
                             curY = posArrY[y];
-                            temp.children.push({
+                            option = {
                                 width: curY - plusLeft,
                                 height: curX - plusTop,
                                 x: plusLeft,
-                                y: x == 0 ? 0 : plusTop
-                            });
+                                y: x == 0 ? 0 : plusTop,
+                                left: y == 1 ? 0 : plusLeft - posArrY[0],
+                                top: 0,
+                                parentBlockIndex: parentBlockIndex,
+                                index: y - 1
+                            };
+                            temp.children.push(option);
+                            allChildBlocks.push(option);
 
                             plusLeft = curY;
                         }
+
+                        parentBlockIndex++;
                     }
                     else{
                         for(var y = 0, yLen = posArrY.length; y < yLen; y++){
@@ -782,7 +793,7 @@ var mass = {
             }
         }
 
-        return blocks;
+        return children ? allChildBlocks : blocks;
     },
     // 切割
     cutImg: function(dir, callback){
@@ -862,7 +873,7 @@ var mass = {
                 };
 
                 if(item.children){
-                    img.fill("#fff").drawRectangle(item.cleanArea.x0, item.cleanArea.y0, item.cleanArea.x1, item.cleanArea.y1).crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
+                    img.fill("#fff").drawRectangle(item.cleanArea.x0 + 20, item.cleanArea.y0, item.cleanArea.x1 - 20, item.cleanArea.y1).crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
                         if(err){
                             return console.log(err);
                         }
@@ -887,6 +898,7 @@ var mass = {
         var cache = mass.cache,
             lines = cache.line,
             rects = cache.rect,
+            isBig2 = !!(cache.img.width > 990 && cache.lineY > 1),
             critical = {
                 X:{},
                 Y:{}
@@ -916,26 +928,52 @@ var mass = {
         });
 
         if(res){
-            blocks = mass.getCutBlocks();
-            $.each(blocks, function(i, block){
-                $.each(rects, function(rectId, rect){
-                    var topAndSelfHeight = block.y + block.height,
-                        leftAndSelfWidth = block.x + block.width;
+            if(isBig2){
+                blocks = mass.getCutBlocks('children');
 
-                    if(block.width > rect.width && block.x < rect.left && block.y < rect.top && (topAndSelfHeight > rect.top + rect.height) && (leftAndSelfWidth > rect.left + rect.width)){
-                        rectInBlock[i] = rectInBlock[i] || [];
-                        rectInBlock[i].push({
-                            rect: rect,
-                            left: rect.left - block.x,
-                            top: rect.top - block.y
-                        });
-                    }
+                $.each(blocks, function(i, block){
+                    var blockParentIndex = block.parentBlockIndex;
+                    $.each(rects, function(rectId, rect){
+                        var topAndSelfHeight = block.y + block.height,
+                            leftAndSelfWidth = block.x + block.width;
+
+                        if(block.width > rect.width && block.x < rect.left && block.y < rect.top && (topAndSelfHeight > rect.top + rect.height) && (leftAndSelfWidth > rect.left + rect.width)){
+                            rectInBlock[blockParentIndex] = rectInBlock[blockParentIndex] || [];
+                            rectInBlock[blockParentIndex].push({
+                                rect: rect,
+                                left: rect.left - block.x,
+                                top: rect.top - block.y,
+                                belongBlockIndex: block.index
+                            });
+                        }
+                    });
                 });
-            });
+            }
+            else{
+                blocks = mass.getCutBlocks();
+
+                $.each(blocks, function(i, block){
+                    $.each(rects, function(rectId, rect){
+                        var topAndSelfHeight = block.y + block.height,
+                            leftAndSelfWidth = block.x + block.width;
+
+                        if(block.width > rect.width && block.x < rect.left && block.y < rect.top && (topAndSelfHeight > rect.top + rect.height) && (leftAndSelfWidth > rect.left + rect.width)){
+                            rectInBlock[i] = rectInBlock[i] || [];
+                            rectInBlock[i].push({
+                                rect: rect,
+                                left: rect.left - block.x,
+                                top: rect.top - block.y
+                            });
+                        }
+                    });
+                });
+            }
         }
         cache.rectInBlock = rectInBlock;
+        console.log(mass.getCutBlocks())
 
         return res;
+        //return false;
     },
     // 生成HTML
     buildHTML: function(blocks, path){
@@ -943,6 +981,7 @@ var mass = {
             isBig = !!(cache.img.width > 990 && cache.lineY === 0),
             isBig2 = !!(cache.img.width > 990 && cache.lineY > 1);
 
+        console.log(blocks);
         mass.loadFile('./preview.html', function(data){
             var cheer = cheerio.load(data),
                 blockLen = blocks.length,
@@ -995,23 +1034,21 @@ var mass = {
                 }
 
                 if(cache.rectInBlock && cache.rectInBlock[i]){
-                    temp.rect = cache.rectInBlock[i];
+                    if(isBig2){
+                        /*_.each(cache.rectInBlock[i], function(curRect){
+                            temp.children[curRect.belongBlockIndex].rect = curRect;
+                        });*/
+                        temp.children[cache.rectInBlock[i][0].belongBlockIndex].rect = cache.rectInBlock[i];
+                    }else{
+                        temp.rect = cache.rectInBlock[i];
+                    }
                 }
 
                 allBlockStyles.push(temp);
 
             });
 
-            if(!isBig){
-                localTemplateSet = mass.rockSettings.getItemInSetting('small', 'template');
-                !localTemplateSet && (localTemplateSet = template.style);
-                bodyCon = _.template(localTemplateSet)({
-                    blockStyles: allBlockStyles,
-                    classHeaders: classHeaders,
-                    blocks: allBlockStyles
-                });
-            }
-            else if(isBig){
+            if(isBig){
                 localTemplateSet = mass.rockSettings.getItemInSetting('big', 'template');
                 !localTemplateSet && (localTemplateSet = template.styleBig);
                 bodyCon = _.template(localTemplateSet)({
@@ -1027,7 +1064,17 @@ var mass = {
                     blocks: allBlockStyles
                 });
             }
+            else{
+                localTemplateSet = mass.rockSettings.getItemInSetting('small', 'template');
+                !localTemplateSet && (localTemplateSet = template.style);
+                bodyCon = _.template(localTemplateSet)({
+                    blockStyles: allBlockStyles,
+                    classHeaders: classHeaders,
+                    blocks: allBlockStyles
+                });
+            }
 
+            console.log(allBlockStyles);
             //cheer('#imageMasStyle').append(styleCon);
             cheer('body').append(bodyCon);
             cache.clipboard = bodyCon;

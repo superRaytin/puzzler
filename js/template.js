@@ -94,18 +94,26 @@ module.exports = {
                 '\t\tmargin-right: auto;\n' +
                 '\t\tposition: relative;\n' +
             '\t}\n' +
+            '\t.ui-rect{\n' +
+                '\t\tposition: absolute;\n' +
+                '\t\tdisplay:inline-block;\n' +
+                '\t\tbackground: url("https://i.alipayobjects.com/e/201309/11htyhgbGn.gif") repeat;\n' +
+            '\t}\n' +
+            '\t.ui-position-absolute{\n' +
+                '\t\tposition: absolute;\n' +
+            '\t}\n' +
             '<% _.each(blockStyles, function(blockStyle) { %>' +
             '\t.ui-<%= blockStyle.name %>{\n' +
                 '\t\theight: <%= blockStyle.height %>px;\n' +
                 '\t\tbackground: url("img/section-<%= blockStyle.num %>.<%= blockStyle.format %>") center top no-repeat;\n' +
             '\t}\n' +
             '<% _.each(blockStyle.children, function(child, childIndex) { %>' +
-            '\t.ui-<%= blockStyle.name %>-<%= childIndex %>{\n' +
+            '\t.ui-<%= blockStyle.name %>-<%= childIndex + 1 %>{\n' +
                 '\t\twidth: <%= child.width %>px;\n' +
                 '\t\theight: <%= child.height %>px;\n' +
-                '\t\tbackground: url("img/section-<%= blockStyle.num %>-<%= childIndex %>.<%= blockStyle.format %>") center top no-repeat;\n' +
-                '\t\tleft: <%= child.x %>px;\n' +
-                '\t\ttop: <%= child.y %>px;\n' +
+                '\t\tbackground: url("img/section-<%= blockStyle.num %>-<%= childIndex + 1 %>.<%= blockStyle.format %>") center top no-repeat;\n' +
+                '\t\tleft: <%= child.left %>px;\n' +
+                '\t\ttop: <%= child.top %>px;\n' +
             '\t}\n' +
             '<% }); %>' +
             '<% }); %>' +
@@ -114,9 +122,17 @@ module.exports = {
         '<div class="ui-<%= block.name %> wid100">\n' +
             '\t<div class="wid990">\n' +
             '<% _.each(block.children, function(child, childIndex) { %>' +
-            '\t\t<div class="ui-<%= block.name %>-<%= childIndex %>"></div>\n' +
+                '<% if(!child.rect){ %>' +
+                    '\t\t<div class="ui-position-absolute ui-<%= block.name %>-<%= childIndex + 1 %>"></div>\n' +
+                '<% }else{ %>' +
+                    '\t\t<div class="ui-position-absolute ui-<%= block.name %>-<%= childIndex + 1 %>">\n' +
+                    '<% _.each(child.rect, function(rect) { %>' +
+                        '\t\t\t<a href="<%= rect.rect.url %>"<% if(rect.rect.open){ %> target="_blank"<% }; %> class="ui-rect" style="width: <%= rect.rect.width %>px; height: <%= rect.rect.height %>px; left: <%= rect.left %>px; top: <%= rect.top %>px;"></a>\n' +
+                    '<% }); %>' +
+                    '\t\t</div>\n' +
+                '<% }; %>' +
             '<% }); %>' +
-            '</div>\n' +
+            '\t</div>\n' +
         '</div>\n' +
         '<% }); %>'
 };
