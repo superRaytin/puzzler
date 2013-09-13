@@ -199,6 +199,8 @@ var mass = {
     rockSettings: {
         // 显示界面之前初始化
         init: function(){
+            var cache = mass.cache;
+
             var localSetting = localStorage.setting,
                 setting = localSetting ? $.extend(true, settings.setting, JSON.parse(localSetting)) : settings.setting;
 
@@ -233,9 +235,14 @@ var mass = {
                     this.value = valueInSet;
                     console.log(that);
                 }else if(name === 'template'){
-                    if(mass.cache.img && mass.cache.img.width > 990){
-                        this.value = valueInSet.big;
-                        $('#width_big').trigger('click');
+                    if(cache.img && cache.img.width > 990){
+                        if(cache.lineY > 1){
+                            this.value = valueInSet.big2;
+                            $('#width_big2').trigger('click');
+                        }else{
+                            this.value = valueInSet.big;
+                            $('#width_big').trigger('click');
+                        }
                     }else{
                         this.value = valueInSet.small;
                     }
@@ -691,6 +698,8 @@ var mass = {
             blocks = [],
             posArrX, posArrY, curX, curY;
 
+        var isBig2 = !!(cache.img.width > 990 && lineY > 1), temp;
+
         posArrX = mass.getSortPos('X');
         posArrY = mass.getSortPos('Y');
         posArrX.push(cache.img.height);
@@ -701,16 +710,47 @@ var mass = {
                 curX = posArrX[x];
                 plusLeft = 0;
                 if(lineY){
-                    for(var y = 0, yLen = posArrY.length; y < yLen; y++){
-                        curY = posArrY[y];
-                        blocks.push({
-                            width: curY - plusLeft,
+                    if(isBig2){
+                        plusLeft = posArrY[0];
+                        temp = {
+                            width: cache.img.width,
                             height: curX - plusTop,
-                            x: plusLeft,
-                            y: x == 0 ? 0 : plusTop
-                        });
+                            x: 0,
+                            y: x == 0 ? 0 : plusTop,
+                            children: [],
+                            cleanArea: {
+                                x0: posArrY[0],
+                                y0: x == 0 ? 0 : plusTop,
+                                x1: posArrY[posArrY.length - 2],
+                                y1: curX
+                            }
+                        };
+                        blocks.push(temp);
 
-                        plusLeft = curY;
+                        for(var y = 1, yLen = posArrY.length - 1; y < yLen; y++){
+                            curY = posArrY[y];
+                            temp.children.push({
+                                width: curY - plusLeft,
+                                height: curX - plusTop,
+                                x: plusLeft,
+                                y: x == 0 ? 0 : plusTop
+                            });
+
+                            plusLeft = curY;
+                        }
+                    }
+                    else{
+                        for(var y = 0, yLen = posArrY.length; y < yLen; y++){
+                            curY = posArrY[y];
+                            blocks.push({
+                                width: curY - plusLeft,
+                                height: curX - plusTop,
+                                x: plusLeft,
+                                y: x == 0 ? 0 : plusTop
+                            });
+
+                            plusLeft = curY;
+                        }
                     }
                 }
                 // 只有X轴的情况
@@ -759,6 +799,30 @@ var mass = {
         blocks = mass.getCutBlocks();
 
         markBlocks = blocks.slice();
+
+        var cutChild = function(children, index, callback){
+            var target = children.slice(),
+                num = 1;
+            (function(){
+                var arg = arguments;
+                var item = target.shift();
+                var exportFileName = exportPath + folder + '\\section-' + index + '-' + (num++) + '.' + cache.fileFormat;
+
+                if(!item){
+                    callback();
+                    return;
+                }
+
+                img.crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
+                    if(err){
+                        return console.log(err);
+                    }
+                    console.log('z-success:', exportFileName);
+                    arg.callee();
+                });
+            })();
+        };
+
         if(blocks.length){
             // 不存在img文件夹就新建一个
             if(callback && !fs.existsSync(exportPath + folder)){
@@ -770,6 +834,7 @@ var mass = {
                 var arg = arguments;
                 var item = blocks.shift();
                 var exportFileName = exportPath + folder + '\\section-' + (i++) + '.' + cache.fileFormat;
+                //var exportFileNameBg = exportPath + folder + '\\bg-section-' + (i++) + '.' + cache.fileFormat;
                 if(!item){
                     // 导出图片和HTML
                     if(callback){
@@ -796,13 +861,24 @@ var mass = {
                     return;
                 };
 
-                img.crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
-                    if(err){
-                        return console.log(err);
-                    }
-                    console.log('success:', exportFileName);
-                    arg.callee();
-                });
+                if(item.children){
+                    img.fill("#fff").drawRectangle(item.cleanArea.x0, item.cleanArea.y0, item.cleanArea.x1, item.cleanArea.y1).crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
+                        if(err){
+                            return console.log(err);
+                        }
+                        console.log('success:', exportFileName);
+                        cutChild(item.children, i - 1, arg.callee);
+                    });
+                }
+                else{
+                    img.crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
+                        if(err){
+                            return console.log(err);
+                        }
+                        console.log('success:', exportFileName);
+                        arg.callee();
+                    });
+                }
             })();
         }
     },
@@ -864,7 +940,8 @@ var mass = {
     // 生成HTML
     buildHTML: function(blocks, path){
         var cache = mass.cache,
-            isBig = !!(cache.img.width > 990 && cache.lineY === 0);
+            isBig = !!(cache.img.width > 990 && cache.lineY === 0),
+            isBig2 = !!(cache.img.width > 990 && cache.lineY > 1);
 
         mass.loadFile('./preview.html', function(data){
             var cheer = cheerio.load(data),
@@ -885,6 +962,15 @@ var mass = {
                         height: item.height,
                         num: i + 1,
                         format: cache.fileFormat
+                    };
+                }
+                else if(isBig2){
+                    temp = {
+                        name: name,
+                        height: item.height,
+                        num: i + 1,
+                        format: cache.fileFormat,
+                        children: item.children
                     };
                 }
                 // 宽度小于990
@@ -924,9 +1010,18 @@ var mass = {
                     classHeaders: classHeaders,
                     blocks: allBlockStyles
                 });
-            }else{
+            }
+            else if(isBig){
                 localTemplateSet = mass.rockSettings.getItemInSetting('big', 'template');
                 !localTemplateSet && (localTemplateSet = template.styleBig);
+                bodyCon = _.template(localTemplateSet)({
+                    blockStyles: allBlockStyles,
+                    blocks: allBlockStyles
+                });
+            }
+            else if(isBig2){
+                localTemplateSet = mass.rockSettings.getItemInSetting('big2', 'template');
+                !localTemplateSet && (localTemplateSet = template.styleBig2);
                 bodyCon = _.template(localTemplateSet)({
                     blockStyles: allBlockStyles,
                     blocks: allBlockStyles
@@ -1645,12 +1740,15 @@ var mass = {
         });
 
         $('#J-luffy').click(function(){
-            var path = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\test.jpg';
+            /*var path = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\test.jpg';
             var outpath = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\';
-            gm(path).fill("#fff").drawRectangle(100,100, 200, 200).write(outpath + 'test11.jpg', function(err){
+            gm(path).fill("#fff").drawRectangle(100,55, 290, 180).write(outpath + 'test12.jpg', function(err){
                 if(err) return console.log(err);
                 console.log('success!');
-            });
+            });*/
+            //console.log( mass.getCutBlocks() );
+            var path2 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t9';
+            mass.cutImg(path2);
         });
 
         $('#J-copyCode').click(function(){

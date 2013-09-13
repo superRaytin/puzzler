@@ -78,5 +78,45 @@ module.exports = {
         '<div class="ui-<%= block.name %> wid100">\n' +
             '\t<div class="wid990"></div>\n' +
         '</div>\n' +
+        '<% }); %>',
+    styleBig2:
+        '<style type="text/css">\n' +
+            '\t.wid100{\n' +
+                '\t\twidth: 100%;\n' +
+                '\t\theight: auto;\n' +
+                '\t\tmargin-left: auto;\n' +
+                '\t\tmargin-right: auto;\n' +
+            '\t}\n' +
+            '\t.wid990{\n' +
+                '\t\twidth: 990px;\n' +
+                '\t\theight: auto;\n' +
+                '\t\tmargin-left: auto;\n' +
+                '\t\tmargin-right: auto;\n' +
+                '\t\tposition: relative;\n' +
+            '\t}\n' +
+            '<% _.each(blockStyles, function(blockStyle) { %>' +
+            '\t.ui-<%= blockStyle.name %>{\n' +
+                '\t\theight: <%= blockStyle.height %>px;\n' +
+                '\t\tbackground: url("img/section-<%= blockStyle.num %>.<%= blockStyle.format %>") center top no-repeat;\n' +
+            '\t}\n' +
+            '<% _.each(blockStyle.children, function(child, childIndex) { %>' +
+            '\t.ui-<%= blockStyle.name %>-<%= childIndex %>{\n' +
+                '\t\twidth: <%= child.width %>px;\n' +
+                '\t\theight: <%= child.height %>px;\n' +
+                '\t\tbackground: url("img/section-<%= blockStyle.num %>-<%= childIndex %>.<%= blockStyle.format %>") center top no-repeat;\n' +
+                '\t\tleft: <%= child.x %>px;\n' +
+                '\t\ttop: <%= child.y %>px;\n' +
+            '\t}\n' +
+            '<% }); %>' +
+            '<% }); %>' +
+        '</style>\n' +
+        '<% _.each(blocks, function(block, blockIndex) { %>' +
+        '<div class="ui-<%= block.name %> wid100">\n' +
+            '\t<div class="wid990">\n' +
+            '<% _.each(block.children, function(child, childIndex) { %>' +
+            '\t\t<div class="ui-<%= block.name %>-<%= childIndex %>"></div>\n' +
+            '<% }); %>' +
+            '</div>\n' +
+        '</div>\n' +
         '<% }); %>'
 };

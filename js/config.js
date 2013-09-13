@@ -19,7 +19,8 @@ module.exports = {
     "setting": {
         "template": {
             small: template.style,
-            big: template.styleBig
+            big: template.styleBig,
+            big2: template.styleBig2
         },
         "theme": "default", // 预览区主题
         "tag_dblclickClose": false, // 双击关闭
