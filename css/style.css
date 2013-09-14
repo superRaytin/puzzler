@@ -92,7 +92,7 @@ img {
   color: #fa6767;
 }
 .toolbar .toolbar-item.current {
-  background-color: rgba(100, 100, 100, 0.8);
+  background-color: rgba(226, 166, 60, 0.8);
 }
 .toolbar .toolbar-item:not(.current):hover {
   background-color: rgba(100, 100, 100, 0.8);

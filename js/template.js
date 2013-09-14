@@ -12,7 +12,7 @@ module.exports = {
                 '\t\tmargin-left: auto;\n' +
                 '\t\tmargin-right: auto;\n' +
             '\t}\n' +
-            '\t.wid990{\n' +
+            '\t.ui-block-inner{\n' +
                 '\t\twidth: 990px;\n' +
                 '\t\theight: auto;\n' +
                 '\t\tmargin-left: auto;\n' +
@@ -38,7 +38,7 @@ module.exports = {
             '<% }); %>' +
         '</style>\n' +
         '<div class="wid100">\n' +
-            '\t<div class="wid990">\n' +
+            '\t<div class="ui-block-inner">\n' +
                 '<% _.each(blocks, function(block) { %>' +
                     '<% if(!block.rect){ %>' +
                     '\t\t<div class="ui-<%= block.name %>"></div>\n' +
@@ -60,7 +60,7 @@ module.exports = {
                 '\t\tmargin-left: auto;\n' +
                 '\t\tmargin-right: auto;\n' +
             '\t}\n' +
-            '\t.wid990{\n' +
+            '\t.ui-block-inner{\n' +
                 '\t\twidth: 990px;\n' +
                 '\t\theight: auto;\n' +
                 '\t\tmargin-left: auto;\n' +
@@ -76,7 +76,7 @@ module.exports = {
         '</style>\n' +
         '<% _.each(blocks, function(block) { %>' +
         '<div class="ui-<%= block.name %> wid100">\n' +
-            '\t<div class="wid990"></div>\n' +
+            '\t<div class="ui-block-inner"></div>\n' +
         '</div>\n' +
         '<% }); %>',
     styleBig2:
@@ -87,7 +87,7 @@ module.exports = {
                 '\t\tmargin-left: auto;\n' +
                 '\t\tmargin-right: auto;\n' +
             '\t}\n' +
-            '\t.wid990{\n' +
+            '\t.ui-block-inner{\n' +
                 '\t\twidth: 990px;\n' +
                 '\t\theight: auto;\n' +
                 '\t\tmargin-left: auto;\n' +
@@ -99,9 +99,6 @@ module.exports = {
                 '\t\tdisplay:inline-block;\n' +
                 '\t\tbackground: url("https://i.alipayobjects.com/e/201309/11htyhgbGn.gif") repeat;\n' +
             '\t}\n' +
-            '\t.ui-position-absolute{\n' +
-                '\t\tposition: absolute;\n' +
-            '\t}\n' +
             '<% _.each(blockStyles, function(blockStyle) { %>' +
             '\t.ui-<%= blockStyle.name %>{\n' +
                 '\t\theight: <%= blockStyle.height %>px;\n' +
@@ -112,6 +109,7 @@ module.exports = {
                 '\t\twidth: <%= child.width %>px;\n' +
                 '\t\theight: <%= child.height %>px;\n' +
                 '\t\tbackground: url("img/section-<%= blockStyle.num %>-<%= childIndex + 1 %>.<%= blockStyle.format %>") center top no-repeat;\n' +
+                '\t\tposition: absolute;\n' +
                 '\t\tleft: <%= child.left %>px;\n' +
                 '\t\ttop: <%= child.top %>px;\n' +
             '\t}\n' +
@@ -120,12 +118,12 @@ module.exports = {
         '</style>\n' +
         '<% _.each(blocks, function(block, blockIndex) { %>' +
         '<div class="ui-<%= block.name %> wid100">\n' +
-            '\t<div class="wid990">\n' +
+            '\t<div class="ui-block-inner">\n' +
             '<% _.each(block.children, function(child, childIndex) { %>' +
                 '<% if(!child.rect){ %>' +
-                    '\t\t<div class="ui-position-absolute ui-<%= block.name %>-<%= childIndex + 1 %>"></div>\n' +
+                    '\t\t<div class="ui-<%= block.name %>-<%= childIndex + 1 %>"></div>\n' +
                 '<% }else{ %>' +
-                    '\t\t<div class="ui-position-absolute ui-<%= block.name %>-<%= childIndex + 1 %>">\n' +
+                    '\t\t<div class="ui-<%= block.name %>-<%= childIndex + 1 %>">\n' +
                     '<% _.each(child.rect, function(rect) { %>' +
                         '\t\t\t<a href="<% if(rect.rect.url){ %><%= rect.rect.url %><% }else{ %><%= rect.rect %><% }; %>"<% if(rect.rect.open){ %> target="_blank"<% }; %> class="ui-rect" style="width: <%= rect.rect.width %>px; height: <%= rect.rect.height %>px; left: <%= rect.left %>px; top: <%= rect.top %>px;"></a>\n' +
                     '<% }); %>' +

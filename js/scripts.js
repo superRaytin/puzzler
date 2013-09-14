@@ -235,7 +235,7 @@ var mass = {
                     this.value = valueInSet;
                     console.log(that);
                 }else if(name === 'template'){
-                    if(cache.img && cache.img.width > 990){
+                    if(cache.isBig){
                         if(cache.lineY > 1){
                             this.value = valueInSet.big2;
                             $('#width_big2').trigger('click');
@@ -251,7 +251,8 @@ var mass = {
         },
         // 监听设置中的用户交互
         listen: function(){
-            var dialogWrap = $('#dialogWrap'),
+            var cache = mass.cache,
+                dialogWrap = $('#dialogWrap'),
                 tabCon = dialogWrap.find('.tab_content');
 
             var userSet = this.userSet;
@@ -297,7 +298,16 @@ var mass = {
 
                 if(name === 'template'){
                     belong = 'template';
-                    name = mass.cache.img && mass.cache.img.width > 990 ? 'big' : 'small';
+                    //name = cache.img && cache.img.width > 990 ? 'big' : 'small';
+                    if(cache.isBig){
+                        if(cache.lineY > 1){
+                            name = 'big2';
+                        }else{
+                            name = 'big';
+                        }
+                    }else{
+                        name = 'small';
+                    }
                 }
 
                 console.log('change:crs')
@@ -820,6 +830,8 @@ var mass = {
         this.previewInit();
 
         mass.setImgCoverWidth();
+
+        mass.cache.isBig = mass.cache.img && mass.cache.img.width > 990;
     },
     getCutBlocks: function(children){
         var cache = mass.cache,
@@ -828,10 +840,6 @@ var mass = {
             plusTop = 0, plusLeft,
             blocks = [],
             allChildBlocks = [],
-            allLineHash = {
-                X: {},
-                Y: {}
-            },
             posArrX, posArrY, curX, curY;
 
         var isBig2 = !!(cache.img.width > 990 && lineY > 1), temp,
@@ -1877,7 +1885,9 @@ var mass = {
 
         $('#J-reset').click(function(){
             if(cache.lineX || cache.lineY || cache.rectNum){
-                mass.reset();
+                if(window.confirm('将清空切线、热区等操作记录，确定吗？')){
+                    mass.reset();
+                }
             }
         });
 
