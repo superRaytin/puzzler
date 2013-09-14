@@ -601,10 +601,17 @@ var mass = {
     },
     // 获取排好序的X Y坐标
     getSortPos: function(type){
-        var res = [];
-        $.each(mass.cache.line, function(i, line){
+        var res = [],
+            lineHash = {};
+        $.each(mass.cache.line, function(key, line){
             if(line.type === type){
-                res.push(line.pos);
+                // 过滤重合的切线
+                if(lineHash[type + '' + line.pos]){
+                    mass.delLine(key);
+                }else{
+                    res.push(line.pos);
+                    lineHash[type + '' + line.pos] = true;
+                }
             }
         });
         return res.sort(function(a, b){return a - b > 0});
@@ -683,6 +690,130 @@ var mass = {
             window.localStorage.line = JSON.stringify(cache.line);
         }
     },
+    // 拉取最后一次的切线记录
+    getLastLines: function(){
+        var localLine = window.localStorage.line,
+            cache = mass.cache,
+            imgCover = $('#J-imgCover'),
+            lineObj, temp = [],
+            lineNum = 1,
+            lineX = 0,
+            lineY = 0,
+            flowLines = [];
+
+        if(!cache.img) return;
+
+        if(!localLine){
+            return mass.dialog('没有切线记录。');
+        }
+
+        if(cache.lineX || cache.lineY){
+            if(!window.confirm('检测到当前已有切线存在，此操作将会清空目前的切线，确定吗？')){
+                return;
+            }
+
+            mass.resetLine();
+        }
+
+        lineObj = JSON.parse(localLine);
+        _.each(lineObj, function(line, lineId){
+            var type = line.type,
+                pos = line.pos,
+                styleIn;
+
+            if(type === 'X'){
+                // 上次的记录中超出了图片区域
+                if(pos > cache.img.height){
+                    flowLines.push(lineId);
+                    return;
+                };
+                styleIn = 'top';
+                lineX++;
+            }else{
+                if(pos > cache.img.width){
+                    flowLines.push(lineId);
+                    return;
+                };
+                styleIn = 'left';
+                lineY++;
+            }
+
+            lineNum++;
+
+            temp.push('<div class="line'+ type +'" id="'+ lineId +'" style="'+ styleIn +': '+ pos +'px"></div>');
+        });
+
+        // 上次所有切线都超出了当前图片区域
+        if(temp.length === 0){
+            return mass.dialog('上次所有切线记录都超出了当前图片区域，此次操作无效。', true);
+        }
+        else if(flowLines.length){
+            mass.dialog('记录应用成功。但记录中有 '+ flowLines.length +' 条切线超出当前图片范围，已失效。', true);
+            _.each(flowLines, function(id){
+                delete lineObj[id];
+            });
+        };
+
+        imgCover.append(temp.join(''));
+
+        cache.line = lineObj;
+        cache.lineNum = lineNum;
+        cache.lineX = lineX;
+        cache.lineY = lineY;
+    },
+    // 工具栏下拉菜单
+    dropMenu: function(e){
+        var target = $(e.target),
+            type = target.data('type'),
+            param = target.data('param');
+
+        if(type){
+            mass[type](param);
+        }
+    },
+    golden_section: function(param){
+        var cache = mass.cache,
+            img = cache.img,
+            imgCover = $('#J-imgCover'),
+            ylines = mass.getSortPos('Y'),
+            lineY = cache.lineY,
+            //lineNum = cache.lineNum,
+            pendLine = [],
+            temp = [];
+
+        if(!img) return;
+
+        if(img.width < 990){
+            return mass.dialog('图片宽度少于990像素就算了吧~', true);
+        }
+
+        if(param === 'custom'){
+
+        }else{
+            pendLine.push({
+                pos: (img.width - param) / 2,
+                type: 'Y'
+            });
+            pendLine.push({
+                pos: (img.width - param) / 2 + param,
+                type: 'Y'
+            });
+        }
+
+        _.each(pendLine, function(line){
+            var lineNum = cache.lineNum++;
+            temp.push('<div class="lineY" id="line-'+ lineNum +'" style="left: '+ line.pos +'px"></div>');
+            cache.line['line-' + lineNum] = {
+                type: 'Y',
+                pos: line.pos
+            }
+        });
+
+        imgCover.append(temp.join(''));
+
+        cache.lineY = lineY + 2;
+        //cache.lineNum = lineNum + 3;
+    },
     // 选择图片时触发
     imgChange: function(){
         this.storeLine();
@@ -697,6 +828,10 @@ var mass = {
             plusTop = 0, plusLeft,
             blocks = [],
             allChildBlocks = [],
+            allLineHash = {
+                X: {},
+                Y: {}
+            },
             posArrX, posArrY, curX, curY;
 
         var isBig2 = !!(cache.img.width > 990 && lineY > 1), temp,
@@ -711,6 +846,7 @@ var mass = {
         if(lineX){
             for(var x = 0, xLen = posArrX.length; x < xLen; x++){
                 curX = posArrX[x];
+
                 plusLeft = 0;
                 if(lineY){
                     if(isBig2){
@@ -732,6 +868,7 @@ var mass = {
 
                         for(var y = 1, yLen = posArrY.length - 1; y < yLen; y++){
                             curY = posArrY[y];
+
                             option = {
                                 width: curY - plusLeft,
                                 height: curX - plusTop,
@@ -753,6 +890,7 @@ var mass = {
                     else{
                         for(var y = 0, yLen = posArrY.length; y < yLen; y++){
                             curY = posArrY[y];
+
                             blocks.push({
                                 width: curY - plusLeft,
                                 height: curX - plusTop,
@@ -782,6 +920,7 @@ var mass = {
             plusLeft = 0;
             for(var y = 0, yLen = posArrY.length; y < yLen; y++){
                 curY = posArrY[y];
+
                 blocks.push({
                     width: curY - plusLeft,
                     height: cache.img.height,
@@ -1035,10 +1174,11 @@ var mass = {
 
                 if(cache.rectInBlock && cache.rectInBlock[i]){
                     if(isBig2){
-                        /*_.each(cache.rectInBlock[i], function(curRect){
-                            temp.children[curRect.belongBlockIndex].rect = curRect;
-                        });*/
-                        temp.children[cache.rectInBlock[i][0].belongBlockIndex].rect = cache.rectInBlock[i];
+                        _.each(cache.rectInBlock[i], function(curRect){
+                            temp.children[curRect.belongBlockIndex].rect = temp.children[curRect.belongBlockIndex].rect || [];
+                            temp.children[curRect.belongBlockIndex].rect.push(curRect);
+                        });
+                        //temp.children[cache.rectInBlock[i][0].belongBlockIndex].rect = cache.rectInBlock[i];
                     }else{
                         temp.rect = cache.rectInBlock[i];
                     }
@@ -1047,6 +1187,27 @@ var mass = {
                 allBlockStyles.push(temp);
 
             });
+
+            //return console.log(allBlockStyles);
+            /*_.each(allBlockStyles, function(block, blockIndex){
+                //console.log(1);
+                _.each(block.children, function(child, childIndex){
+                    //return console.log(child.rect);
+                    if(!child.rect){
+                        console.log('norect')
+                    }else{
+                        //console.log(child.rect);
+                        _.each(child.rect, function(rect){
+                            //console.log(rect.rect.url);
+                            console.log('hasrect============');
+                            console.log(rect.rect);
+                            console.log(rect.rect.url);
+                            //console.log(rect.rect);
+                            console.log('hasrect============ end');
+                        });
+                    }
+                });
+            });*/
 
             if(isBig){
                 localTemplateSet = mass.rockSettings.getItemInSetting('big', 'template');
@@ -1074,7 +1235,7 @@ var mass = {
                 });
             }
 
-            console.log(allBlockStyles);
+
             //cheer('#imageMasStyle').append(styleCon);
             cheer('body').append(bodyCon);
             cache.clipboard = bodyCon;
@@ -1526,76 +1687,6 @@ var mass = {
         });
         this.drawMap();
 
-        // 拉取最后一次的切线记录
-        $('#J-getLastLine').click(function(){
-            var localLine = window.localStorage.line,
-                lineObj, temp = [],
-                lineNum = 1,
-                lineX = 0,
-                lineY = 0,
-                flowLines = [];
-
-            if(!cache.img) return;
-
-            if(!localLine){
-                return mass.dialog('没有切线记录。');
-            }
-
-            if(cache.lineX || cache.lineY){
-                if(!window.confirm('检测到当前已有切线存在，此操作将会清空目前的切线，确定吗？')){
-                    return;
-                }
-
-                mass.resetLine();
-            }
-
-            lineObj = JSON.parse(localLine);
-            _.each(lineObj, function(line, lineId){
-                var type = line.type,
-                    pos = line.pos,
-                    styleIn;
-
-                if(type === 'X'){
-                    // 上次的记录中超出了图片区域
-                    if(pos > cache.img.height){
-                        flowLines.push(lineId);
-                        return;
-                    };
-                    styleIn = 'top';
-                    lineX++;
-                }else{
-                    if(pos > cache.img.width){
-                        flowLines.push(lineId);
-                        return;
-                    };
-                    styleIn = 'left';
-                    lineY++;
-                }
-
-                lineNum++;
-
-                temp.push('<div class="line'+ type +'" id="'+ lineId +'" style="'+ styleIn +': '+ pos +'px"></div>');
-            });
-
-            // 上次所有切线都超出了当前图片区域
-            if(temp.length === 0){
-                return mass.dialog('上次所有切线记录都超出了当前图片区域，此次操作无效。', true);
-            }
-            else if(flowLines.length){
-                mass.dialog('记录应用成功。但记录中有 '+ flowLines.length +' 条切线超出当前图片范围，已失效。', true);
-                _.each(flowLines, function(id){
-                    delete lineObj[id];
-                });
-            };
-
-            imgCover.append(temp.join(''));
-
-            cache.line = lineObj;
-            cache.lineNum = lineNum;
-            cache.lineX = lineX;
-            cache.lineY = lineY;
-        });
-
         // setting
         $('#J-userSettings').click(function(){
             $.artDialog({
@@ -1771,13 +1862,17 @@ var mass = {
         $('body').delegate('a', 'click', function(e){
             var that = $(this);
             if(!that.attr('nopen')){
-                e.preventDefault();
                 cache.gui.Shell.openExternal(that.attr('href'));
             }
+            e.preventDefault();
         });
 
-        $('.toolbar').find('.toolbar-item').attr('data-placement', 'bottom').end().tooltip({
+        $('.toolbar').find('.toolbar-item:not(.toolbar-dropmenu)').attr('data-placement', 'bottom').end().tooltip({
             selector: '.toolbar-item'
+        });
+
+        $('.dropdown-menu li a').attr('nopen', 1).click(function(e){
+            mass.dropMenu(e);
         });
 
         $('#J-reset').click(function(){
@@ -1794,8 +1889,8 @@ var mass = {
                 console.log('success!');
             });*/
             //console.log( mass.getCutBlocks() );
-            var path2 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t9';
-            mass.cutImg(path2);
+            //var path2 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t9';
+            //mass.cutImg(path2);
         });
 
         $('#J-copyCode').click(function(){

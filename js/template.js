@@ -127,7 +127,7 @@ module.exports = {
                 '<% }else{ %>' +
                     '\t\t<div class="ui-position-absolute ui-<%= block.name %>-<%= childIndex + 1 %>">\n' +
                     '<% _.each(child.rect, function(rect) { %>' +
-                        '\t\t\t<a href="<%= rect.rect.url %>"<% if(rect.rect.open){ %> target="_blank"<% }; %> class="ui-rect" style="width: <%= rect.rect.width %>px; height: <%= rect.rect.height %>px; left: <%= rect.left %>px; top: <%= rect.top %>px;"></a>\n' +
+                        '\t\t\t<a href="<% if(rect.rect.url){ %><%= rect.rect.url %><% }else{ %><%= rect.rect %><% }; %>"<% if(rect.rect.open){ %> target="_blank"<% }; %> class="ui-rect" style="width: <%= rect.rect.width %>px; height: <%= rect.rect.height %>px; left: <%= rect.left %>px; top: <%= rect.top %>px;"></a>\n' +
                     '<% }); %>' +
                     '\t\t</div>\n' +
                 '<% }; %>' +

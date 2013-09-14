@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Rock! ImageMass Beta</title>
+    <title>MarkTool Beta V3</title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="css/chromium.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
@@ -29,12 +29,27 @@
                 <span class="glyphicon glyphicon-link"></span>
             </div>
             <div class="separate"></div>
-            <div id="J-reset" class="toolbar-item warning" title="刷子，将会清空切线、热区等操作记录">
+            <div id="J-reset" class="toolbar-item warning" title="刷子">
                 <span class="glyphicon glyphicon-ban-circle"></span>
             </div>
             <div class="separate"></div>
-            <div id="J-getLastLine" class="toolbar-item" title="应用上一次退出时的切线记录">
-                <span class="glyphicon glyphicon-align-justify"></span>
+            <div id="J-getLastLine" class="toolbar-item toolbar-dropmenu" title="应用上一次退出时的切线记录">
+                <span class="glyphicon glyphicon-pencil dropdown-toggle" data-toggle="dropdown"></span>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <li><a data-type="storeLine" tabindex="-1" href="#this">立即保存当前记录</a></li>
+                    <li class="divider"></li>
+                    <li class="dropdown-submenu">
+                        <a tabindex="-1" href="#">黄金分割</a>
+                        <ul class="dropdown-menu">
+                            <li><a data-type="golden_section" data-param="990" tabindex="-1" href="#">990(默认)</a></li>
+                            <li><a data-type="golden_section" data-param="980" tabindex="-1" href="#">980</a></li>
+                            <li><a data-type="golden_section" data-param="960" tabindex="-1" href="#">960</a></li>
+                            <li><a data-type="golden_section" data-param="950" tabindex="-1" href="#">950</a></li>
+                            <li><a data-type="golden_section" data-param="custom" tabindex="-1" href="#">自定义</a></li>
+                        </ul>
+                    </li>
+                    <li><a data-type="getLastLines" tabindex="-1" href="#this">拉取最后的切线记录</a></li>
+                </ul>
             </div>
             <div id="J-luffy" class="toolbar-item" title="小试牛刀切路飞">
                 <span class="glyphicon glyphicon-flag"></span>
