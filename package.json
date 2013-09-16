@@ -1,6 +1,6 @@
 {
   "name": "MarkTool",
-  "version": "0.1",
+  "version": "0.1.3",
   "main": "main.html",
   "window": {
     "icon": "img/mass.png",

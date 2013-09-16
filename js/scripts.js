@@ -798,17 +798,24 @@ var mass = {
         }
 
         if(param === 'custom'){
+            var val = window.prompt('请输入');
+            console.log(val);
+            if(val === null) return;
 
-        }else{
-            pendLine.push({
-                pos: (img.width - param) / 2,
-                type: 'Y'
-            });
-            pendLine.push({
-                pos: (img.width - param) / 2 + param,
-                type: 'Y'
-            });
+            if(val < 10){
+                return mass.dialog('至少给个10像素吧~', true);
+            }
+            param = parseInt(val);
         }
+
+        pendLine.push({
+            pos: (img.width - param) / 2,
+            type: 'Y'
+        });
+        pendLine.push({
+            pos: (img.width - param) / 2 + param,
+            type: 'Y'
+        });
 
         _.each(pendLine, function(line){
             var lineNum = cache.lineNum++;
@@ -1761,6 +1768,8 @@ var mass = {
             that.val(val);
         });
         kibo.down(['left', 'right', 'up', 'down'], function(e){
+            if(offset.is(':focus')) return;
+
             if(cache.focusLineId || cache.focusRectId){
                 e.preventDefault();
                 var key = e.which,
