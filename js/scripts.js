@@ -20,7 +20,7 @@ var mass = {
         statusHeight: 20,
         line: {},
         focusLineId: null,
-        lineNum: 1,
+        lineuuid: 1,
         lineX: 0,
         lineY: 0,
         rect: {},
@@ -442,10 +442,10 @@ var mass = {
                         if(e.clientY + scrollTop > minusY + cache.img.height - 4) return;
 
                         if(!currentMoveLineId){
-                            var line = $('<div class="lineX" id="line-'+ cache.lineNum +'"></div>');
+                            var line = $('<div class="lineX" id="line-'+ cache.lineuuid +'"></div>');
                             imgCover.append(line);
-                            currentMoveLineId = 'line-' + cache.lineNum;
-                            cache.lineNum++;
+                            currentMoveLineId = 'line-' + cache.lineuuid;
+                            cache.lineuuid++;
                             cache.lineX++;
                         }
 
@@ -460,10 +460,10 @@ var mass = {
                         if(e.clientX + scrollLeft > minusX + cache.img.width - 4) return;
 
                         if(!currentMoveLineId){
-                            var line = $('<div class="lineY" id="line-'+ cache.lineNum +'"></div>');
+                            var line = $('<div class="lineY" id="line-'+ cache.lineuuid +'"></div>');
                             imgCover.append(line);
-                            currentMoveLineId = 'line-' + cache.lineNum;
-                            cache.lineNum++;
+                            currentMoveLineId = 'line-' + cache.lineuuid;
+                            cache.lineuuid++;
                             cache.lineY++;
                         }
 
@@ -490,6 +490,9 @@ var mass = {
                         };
 
                         mass.focusLine(currentMoveLineId);
+
+                        // 把切线的信息保存到本地
+                        mass.storeLine();
                     }
                 }
                 imgCover.removeClass('lineMoving' + _type);
@@ -532,6 +535,8 @@ var mass = {
         cache.focusLineId = null;
 
         curLine.remove();
+
+        this.storeLine();
         //$('#J-imgCover').removeClass('lineMovingX').removeClass('lineMovingY');
     },
     delRect: function(rectId){
@@ -564,6 +569,43 @@ var mass = {
         imgCover.find('.lineX, .lineY').removeClass('line-focus');
         imgCover.find('.rect').removeClass('rect-focus');
         $('#' + rectId).addClass('rect-focus');
+    },
+    /*
+    * option:
+    * {
+    *     lineId: String, // not necessary
+    *     type: String,
+    *     pos: Number
+    * }
+    * */
+    addLine: function(option){
+        var cache = mass.cache,
+            imgCover = $('#J-imgCover'),
+            lineuuid = cache.lineuuid,
+            lineId = option.lineId,
+            type = option.type,
+            pos = option.pos,
+            styleIn;
+
+        if(!lineId){
+            lineId = 'line-' + lineuuid;
+        }
+
+        cache.line[lineId] = {
+            type: type,
+            pos: pos
+        };
+        cache.lineuuid++;
+
+        if(type === 'X'){
+            cache.lineX++;
+            styleIn = 'top';
+        }else{
+            cache.lineY++;
+            styleIn = 'left';
+        }
+
+        imgCover.append('<div class="line'+ type +'" id="'+ lineId +'" style="'+ styleIn +': '+ pos +'px"></div>');
     },
     // 对话框
     dialog: function(msg, buttons){
@@ -632,7 +674,7 @@ var mass = {
 
         $.extend(true, this.cache, {
             focusLineId: null,
-            lineNum: 1,
+            lineuuid: 1,
             lineX: 0,
             lineY: 0
         });
@@ -704,11 +746,7 @@ var mass = {
     getLastLines: function(){
         var localLine = window.localStorage.line,
             cache = mass.cache,
-            imgCover = $('#J-imgCover'),
-            lineObj, temp = [],
-            lineNum = 1,
-            lineX = 0,
-            lineY = 0,
+            lineObj, temp = 0,
             flowLines = [];
 
         if(!cache.img) return;
@@ -728,8 +766,7 @@ var mass = {
         lineObj = JSON.parse(localLine);
         _.each(lineObj, function(line, lineId){
             var type = line.type,
-                pos = line.pos,
-                styleIn;
+                pos = line.pos;
 
             if(type === 'X'){
                 // 上次的记录中超出了图片区域
@@ -737,24 +774,23 @@ var mass = {
                     flowLines.push(lineId);
                     return;
                 };
-                styleIn = 'top';
-                lineX++;
             }else{
                 if(pos > cache.img.width){
                     flowLines.push(lineId);
                     return;
                 };
-                styleIn = 'left';
-                lineY++;
             }
 
-            lineNum++;
+            temp++;
 
-            temp.push('<div class="line'+ type +'" id="'+ lineId +'" style="'+ styleIn +': '+ pos +'px"></div>');
+            mass.addLine({
+                type: type,
+                pos: pos
+            });
         });
 
         // 上次所有切线都超出了当前图片区域
-        if(temp.length === 0){
+        if(temp == 0){
             return mass.dialog('上次所有切线记录都超出了当前图片区域，此次操作无效。', true);
         }
         else if(flowLines.length){
@@ -762,14 +798,7 @@ var mass = {
             _.each(flowLines, function(id){
                 delete lineObj[id];
             });
-        };
-
-        imgCover.append(temp.join(''));
-
-        cache.line = lineObj;
-        cache.lineNum = lineNum;
-        cache.lineX = lineX;
-        cache.lineY = lineY;
+        }
     },
     // 工具栏下拉菜单
     dropMenu: function(e){
@@ -787,7 +816,7 @@ var mass = {
             imgCover = $('#J-imgCover'),
             ylines = mass.getSortPos('Y'),
             lineY = cache.lineY,
-            //lineNum = cache.lineNum,
+            //lineuuid = cache.lineuuid,
             pendLine = [],
             temp = [];
 
@@ -818,9 +847,9 @@ var mass = {
         });
 
         _.each(pendLine, function(line){
-            var lineNum = cache.lineNum++;
-            temp.push('<div class="lineY" id="line-'+ lineNum +'" style="left: '+ line.pos +'px"></div>');
-            cache.line['line-' + lineNum] = {
+            var lineuuid = cache.lineuuid++;
+            temp.push('<div class="lineY" id="line-'+ lineuuid +'" style="left: '+ line.pos +'px"></div>');
+            cache.line['line-' + lineuuid] = {
                 type: 'Y',
                 pos: line.pos
             }
@@ -829,11 +858,10 @@ var mass = {
         imgCover.append(temp.join(''));
 
         cache.lineY = lineY + 2;
-        //cache.lineNum = lineNum + 3;
+        //cache.lineuuid = lineuuid + 3;
     },
     // 选择图片时触发
     imgChange: function(){
-        this.storeLine();
         this.previewInit();
 
         mass.setImgCoverWidth();
@@ -958,12 +986,23 @@ var mass = {
 
         var imgCover = $('#J-imgCover'),
             cache = mass.cache,
-            folder = callback ? '\\img' : '',
-            blocks, markBlocks;
+            newFolder = mass.rockSettings.getItemInSetting('exportOption'),
+            folder = callback ? '\\images' : '',
+            imgName, exportPathByImgName, blocks, markBlocks;
 
         blocks = mass.getCutBlocks();
 
         markBlocks = blocks.slice();
+
+        // 根据用户设置是否创建新文件夹存放
+        if(newFolder && newFolder === 'newfolder'){
+            imgName = modPath.basename(cache.img.path, '.' + cache.fileFormat);
+            exportPathByImgName = exportPath + '\\' + imgName;
+            if(!fs.existsSync(exportPathByImgName)){
+                fs.mkdirSync(exportPathByImgName);
+            }
+            exportPath = exportPathByImgName;
+        }
 
         var cutChild = function(children, index, callback){
             var target = children.slice(),
@@ -989,7 +1028,7 @@ var mass = {
         };
 
         if(blocks.length){
-            // 不存在img文件夹就新建一个
+            // 不存在images文件夹就新建一个
             if(callback && !fs.existsSync(exportPath + folder)){
                 fs.mkdirSync(exportPath + folder);
             }
@@ -1124,7 +1163,6 @@ var mass = {
             }
         }
         cache.rectInBlock = rectInBlock;
-        console.log(mass.getCutBlocks())
 
         return res;
         //return false;
@@ -1132,10 +1170,11 @@ var mass = {
     // 生成HTML
     buildHTML: function(blocks, path){
         var cache = mass.cache,
-            isBig = !!(cache.img.width > 990 && cache.lineY === 0),
-            isBig2 = !!(cache.img.width > 990 && cache.lineY > 1);
+            img = cache.img,
+            isBig = !!(img.width > 990 && cache.lineY === 0),
+            isBig2 = !!(img.width > 990 && cache.lineY > 1);
 
-        console.log(blocks);
+        //console.log(blocks);
         mass.loadFile('./preview.html', function(data){
             var cheer = cheerio.load(data),
                 blockLen = blocks.length,
@@ -1203,7 +1242,6 @@ var mass = {
 
             });
 
-            //return console.log(allBlockStyles);
             /*_.each(allBlockStyles, function(block, blockIndex){
                 //console.log(1);
                 _.each(block.children, function(child, childIndex){
@@ -1255,13 +1293,13 @@ var mass = {
             cheer('body').append(bodyCon);
             cache.clipboard = bodyCon;
 
-            fs.writeFile(path + '\\preview.html', cheer.html(), function(err){
+            fs.writeFile(path + '\\index.html', cheer.html(), function(err){
                 if(err) return console.log(err);
                 mass.dialog('导出图像和HTML成功！<br>文件位置：' + path, [
                     {
                         value: '浏览器中预览',
                         callback: function(){
-                            gui.Shell.openExternal(path + '\\preview.html');
+                            gui.Shell.openExternal(path + '\\index.html');
                             return false;
                         },
                         focus: true
@@ -1269,7 +1307,7 @@ var mass = {
                     {
                         value: '打开文件位置',
                         callback: function(){
-                            gui.Shell.showItemInFolder(path + '\\preview.html');
+                            gui.Shell.showItemInFolder(path + '\\index.html');
                             return false;
                         }
                     },
@@ -1279,6 +1317,28 @@ var mass = {
                 ]);
 
                 $('#J-copyCode').removeClass('hide');
+
+                // 生成origin图片
+                var readStream = fs.createReadStream(img.path),
+                    writeStream = fs.createWriteStream(path + '\\origin.' + cache.fileFormat);
+
+                readStream.pipe(writeStream);
+                writeStream.on('close', function(){
+                    console.log('original file created!');
+                });
+
+                // 生成config文件
+                var configContent = '{\n' +
+                        '\tline: '+ JSON.stringify(cache.line) +',\n' +
+                        '\tlineuuid: '+ cache.lineuuid +',\n' +
+                        '\tlineX: '+ cache.lineX +',\n' +
+                        '\tlineY: '+ cache.lineY +',\n' +
+                        '\trect: '+ JSON.stringify(cache.rect) +',\n' +
+                        '\trectNum: '+ cache.rectNum +',\n' +
+                        '\trectuuid: '+ cache.rectuuid +'\n' +
+                    '}';
+
+                fs.createWriteStream(path + '\\config.json').write(configContent);
             });
         });
     },
@@ -1611,7 +1671,9 @@ var mass = {
 
         //1. 先在隐藏img中检查图片宽高
         hideImgCalculate.load(function(){
-            var that = $(this);
+            var that = $(this),
+                imgPath = that.attr('src');
+
             if(that.attr('src') === './img/hold.png'){
                 return that.removeClass('init');
             }
@@ -1622,9 +1684,10 @@ var mass = {
                 cache.fileFormat = fileFormat;
                 cache.img = {
                     width: that.width(),
-                    height: that.height()
+                    height: that.height(),
+                    path: imgPath
                 };
-                previewImg.attr('src', that.attr('src'));
+                previewImg.attr('src', imgPath);
                 mass.rockSettings.itemInMemory('lastDirectory', modPath.dirname(that.attr('src')));
             }
             $('#J-hi-select').val('');
@@ -1681,6 +1744,7 @@ var mass = {
 
             $('#J-hi-saveDiretoryForHtml').trigger('click');
         });
+
         $('#J-hi-saveDiretoryForHtml').change(function(){
             mass.cutImg(this.value, function(blocks, path){
                 $('#J-hi-saveDiretoryForHtml').val('');
@@ -1746,7 +1810,7 @@ var mass = {
         $('#J-help').click(function(){
             mass.dialog({
                 title: '关于',
-                content: 'Rock! ImageMass基于 <a href="https://github.com/rogerwang/node-webkit/">Node-Webkit</a> 开源项目<br><br>By 支付宝-综合前端组 <a href="http://jsfor.com">@柳裟</a>'
+                content: 'MarkTool 基于 <a href="https://github.com/rogerwang/node-webkit/">Node-Webkit</a> 开源项目<br><br>By 支付宝-综合前端组 <a href="http://jsfor.com">@柳裟</a>'
             }, true)
         });
 
@@ -1766,14 +1830,16 @@ var mass = {
             lt = cacheLine.type === 'X' ? 'top' : 'left';
             $('#' + cache.focusLineId).css(lt, val + 'px');
             that.val(val);
+
+            mass.storeLine();
         });
         kibo.down(['left', 'right', 'up', 'down'], function(e){
             if(offset.is(':focus')) return;
 
+            var key = e.which, direction;
+
             if(cache.focusLineId || cache.focusRectId){
                 e.preventDefault();
-                var key = e.which,
-                    direction;
             }
             else{
                 return;
@@ -1802,6 +1868,8 @@ var mass = {
                 }
                 offset.val(curLine.pos);
                 line.style[direction] = curLine.pos + 'px';
+
+                mass.storeLine();
             }else if(cache.focusRectId){
                 var recter = document.getElementById(cache.focusRectId),
                     curRect = cache.rect[cache.focusRectId];
@@ -1901,15 +1969,38 @@ var mass = {
         });
 
         $('#J-luffy').click(function(){
-            /*var path = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\test.jpg';
-            var outpath = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\';
+            var path = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\test.jpg';
+            /*var outpath = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\';
             gm(path).fill("#fff").drawRectangle(100,55, 290, 180).write(outpath + 'test12.jpg', function(err){
                 if(err) return console.log(err);
                 console.log('success!');
             });*/
             //console.log( mass.getCutBlocks() );
-            //var path2 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t9';
+            var path2 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t10';
             //mass.cutImg(path2);
+            /*var readStream = fs.createReadStream(path),
+                writeStream = fs.createWriteStream(path2);
+            readStream.pipe(writeStream);
+            writeStream.on('close', function(){
+                console.log('success');
+            });*/
+
+            var cache = mass.cache;
+            var str = '{\n' +
+                    '\tline: '+ JSON.stringify(cache.line) +',\n' +
+                    '\tlineuuid: '+ cache.lineuuid +',\n' +
+                    '\tlineX: '+ cache.lineX +',\n' +
+                    '\tlineY: '+ cache.lineY +',\n' +
+                    '\trect: '+ JSON.stringify(cache.rect) +',\n' +
+                    '\trectNum: '+ cache.rectNum +',\n' +
+                    '\trectuuid: '+ cache.rectuuid +'\n' +
+                '}';
+
+            fs.createWriteStream(path2 + '\\config.json').write(str);
+            /*fs.rename(path, path2, function(err){
+                if(err) return console.log(err);
+                console.log('success');
+            });*/
         });
 
         $('#J-copyCode').click(function(){

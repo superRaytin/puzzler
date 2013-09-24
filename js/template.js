@@ -31,7 +31,7 @@ module.exports = {
             '\t.ui-<%= blockStyle.name %>{\n' +
                 '\t\twidth: <%= blockStyle.width %>px;\n' +
                 '\t\theight: <%= blockStyle.height %>px;\n' +
-                '\t\tbackground: url("img/section-<%= blockStyle.num %>.<%= blockStyle.format %>") center top no-repeat;\n' +
+                '\t\tbackground: url("images/section-<%= blockStyle.num %>.<%= blockStyle.format %>") center top no-repeat;\n' +
                 '\t\tleft: <%= blockStyle.left %>px;\n' +
                 '\t\ttop: <%= blockStyle.top %>px;\n' +
             '\t}\n' +
@@ -70,7 +70,7 @@ module.exports = {
             '<% _.each(blockStyles, function(blockStyle) { %>' +
             '\t.ui-<%= blockStyle.name %>{\n' +
                 '\t\theight: <%= blockStyle.height %>px;\n' +
-                '\t\tbackground: url("img/section-<%= blockStyle.num %>.<%= blockStyle.format %>") center top no-repeat;\n' +
+                '\t\tbackground: url("images/section-<%= blockStyle.num %>.<%= blockStyle.format %>") center top no-repeat;\n' +
             '\t}\n' +
             '<% }); %>' +
         '</style>\n' +
@@ -102,13 +102,13 @@ module.exports = {
             '<% _.each(blockStyles, function(blockStyle) { %>' +
             '\t.ui-<%= blockStyle.name %>{\n' +
                 '\t\theight: <%= blockStyle.height %>px;\n' +
-                '\t\tbackground: url("img/section-<%= blockStyle.num %>.<%= blockStyle.format %>") center top no-repeat;\n' +
+                '\t\tbackground: url("images/section-<%= blockStyle.num %>.<%= blockStyle.format %>") center top no-repeat;\n' +
             '\t}\n' +
             '<% _.each(blockStyle.children, function(child, childIndex) { %>' +
             '\t.ui-<%= blockStyle.name %>-<%= childIndex + 1 %>{\n' +
                 '\t\twidth: <%= child.width %>px;\n' +
                 '\t\theight: <%= child.height %>px;\n' +
-                '\t\tbackground: url("img/section-<%= blockStyle.num %>-<%= childIndex + 1 %>.<%= blockStyle.format %>") center top no-repeat;\n' +
+                '\t\tbackground: url("images/section-<%= blockStyle.num %>-<%= childIndex + 1 %>.<%= blockStyle.format %>") center top no-repeat;\n' +
                 '\t\tposition: absolute;\n' +
                 '\t\tleft: <%= child.left %>px;\n' +
                 '\t\ttop: <%= child.top %>px;\n' +

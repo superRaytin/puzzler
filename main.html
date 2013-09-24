@@ -14,6 +14,14 @@
     <img id="J-Calculate" src="./img/hold.png" class="hide init">
     <div class="toolbar">
         <div class="clearfix">
+            <div id="J-useful-menu" class="toolbar-item toolbar-dropmenu home" title="常用菜单">
+                <!--<span class="glyphicon glyphicon-home dropdown-toggle" data-toggle="dropdown"></span>-->
+                <span class="dropdown-toggle" data-toggle="dropdown"><img src='img/mass.png' width="20"></span>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                    <li><a data-type="exportUserSetting" tabindex="-1" href="#this">导出用户设置</a></li>
+                </ul>
+            </div>
+            <div class="separate"></div>
             <div id="J-selectFile" class="toolbar-item" title="选择图片">
                 <span class="glyphicon glyphicon-folder-open"></span>
             </div>
@@ -29,11 +37,9 @@
                 <span class="glyphicon glyphicon-ban-circle"></span>
             </div>
             <div class="separate"></div>
-            <div id="J-getLastLine" class="toolbar-item toolbar-dropmenu" title="应用上一次退出时的切线记录">
+            <div id="J-getLastLine" class="toolbar-item toolbar-dropmenu" title="切线">
                 <span class="glyphicon glyphicon-pencil dropdown-toggle" data-toggle="dropdown"></span>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                    <li><a data-type="storeLine" tabindex="-1" href="#this">立即保存当前记录</a></li>
-                    <li class="divider"></li>
                     <li class="dropdown-submenu">
                         <a tabindex="-1" href="#">黄金分割</a>
                         <ul class="dropdown-menu">
@@ -116,6 +122,21 @@
                 </div>
             </div>
             <div class="tab_content_item hide">
+                <div class="tab_content_column">
+                    <fieldset>
+                        <legend>导出选项</legend>
+                        <div class="fieldset_content">
+                            <div class="fieldset_column">
+                                <input type="radio" name="exportOption" id="set_export_default" class="column_radio" data-name="exportOption" value="default">
+                                <label for="set_export_default" class="column_label_radio">在选中文件夹里放置导出文件 (默认)</label>
+                            </div>
+                            <div class="fieldset_column">
+                                <input type="radio" name="exportOption" id="set_export_newfolder" class="column_radio" data-name="exportOption" value="newfolder">
+                                <label for="set_export_newfolder" class="column_label_radio">以图片名称创建新文件夹放置</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
                 <div class="tab_content_column">
                     占坑
                     <!--<fieldset class="hide">
