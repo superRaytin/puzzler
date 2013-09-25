@@ -402,7 +402,11 @@ var mass = {
     },
     // 导入导出用户设置
     exportUserSetting: function(){
-        $('#J-hi-saveDiretoryForUserExport').trigger('click');
+        if(window.localStorage.setting){
+            $('#J-hi-saveDiretoryForUserExport').trigger('click');
+        }else{
+            alertify.log('没有任何用户设置可导出。');
+        }
     },
     importUserSetting: function(){
         $('#J-hi-saveDiretoryForUserImport').trigger('click');
@@ -2007,7 +2011,7 @@ var mass = {
 
         // 导出切片
         $('#J-exportPet').click(function(){
-            if(!cache.img) return alertify.log('保存什么呢？别闹了，先切图吧...');
+            if(!cache.img) return alertify.log('没图，保存个球球啊？别闹了，先切图吧...');
             if(!cache.lineX && !cache.lineY) return alertify.log('啊嘞...是不是忘了划参考线了？');
 
             $('#J-hi-saveDiretory').trigger('click');
@@ -2018,7 +2022,7 @@ var mass = {
 
         // 导出HTML
         $('#J-exportHTML').click(function(){
-            if(!cache.img) return alertify.log('保存什么呢？别闹了，先切图吧...');
+            if(!cache.img) return alertify.log('没图，保存个球球啊？别闹了，先切图吧...');
             if(!cache.lineX && !cache.lineY) return alertify.log('啊嘞...是不是忘了划参考线了？');
 
             if(!mass.checkRect()){
