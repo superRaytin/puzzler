@@ -7,6 +7,9 @@
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap-glyphicons.css">
     <link rel="stylesheet" type="text/css" href="css/aero.css">
+    <link rel="stylesheet" type="text/css" href="css/aero.css">
+    <link rel="stylesheet" type="text/css" href="css/alertify/alertify.core.css">
+    <link rel="stylesheet" type="text/css" href="css/alertify/alertify.default.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
@@ -14,26 +17,27 @@
     <img id="J-Calculate" src="./img/hold.png" class="hide init">
     <div class="toolbar">
         <div class="clearfix">
-            <div id="J-useful-menu" class="toolbar-item toolbar-dropmenu home" title="常用菜单">
+            <div id="J-useful-menu" class="toolbar-item toolbar-dropmenu home" title="常用菜单 (Ctrl+Q)">
                 <!--<span class="glyphicon glyphicon-home dropdown-toggle" data-toggle="dropdown"></span>-->
                 <span class="dropdown-toggle" data-toggle="dropdown"><img src='img/mass.png' width="20"></span>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
                     <li><a data-type="exportUserSetting" tabindex="-1" href="#this">导出用户设置</a></li>
+                    <li><a data-type="importUserSetting" tabindex="-1" href="#this">导入用户设置</a></li>
                 </ul>
             </div>
             <div class="separate"></div>
-            <div id="J-selectFile" class="toolbar-item" title="选择图片">
+            <div id="J-selectFile" class="toolbar-item" title="选择图片 (Ctrl+N)">
                 <span class="glyphicon glyphicon-folder-open"></span>
             </div>
             <div class="separate"></div>
-            <div id="J-exportPet" class="toolbar-item" title="导出 (仅图片)">
+            <div id="J-exportPet" class="toolbar-item" title="仅导出图片 (Ctrl+Shift+S)">
                 <span class="glyphicon glyphicon-picture"></span>
             </div>
-            <div id="J-exportHTML" class="toolbar-item" title="导出 (图片和HTML)">
+            <div id="J-exportHTML" class="toolbar-item" title="导出HTML和图片 (Ctrl+S)">
                 <span class="glyphicon glyphicon-file"></span>
             </div>
             <div class="separate"></div>
-            <div id="J-reset" class="toolbar-item warning" title="刷子">
+            <div id="J-reset" class="toolbar-item warning" title="刷子 (Ctrl+D)">
                 <span class="glyphicon glyphicon-ban-circle"></span>
             </div>
             <div class="separate"></div>
@@ -53,7 +57,7 @@
                     <li><a data-type="getLastLines" tabindex="-1" href="#this">拉取最后的切线记录</a></li>
                 </ul>
             </div>
-            <div id="J-mapArea" class="toolbar-item" title="画热区">
+            <div id="J-mapArea" class="toolbar-item" title="画热区 (Ctrl+R)">
                 <span class="glyphicon glyphicon-link"></span>
             </div>
             <div id="J-luffy" class="toolbar-item" title="小试牛刀切路飞">
@@ -73,6 +77,8 @@
     <input type="file" class="hide" id="J-hi-select">
     <input type="file" class="hide" id="J-hi-saveDiretory" nwdirectory>
     <input type="file" class="hide" id="J-hi-saveDiretoryForHtml" nwdirectory>
+    <input type="file" class="hide" id="J-hi-saveDiretoryForUserExport" nwdirectory>
+    <input type="file" class="hide" id="J-hi-saveDiretoryForUserImport">
     <div class="main clearfix">
         <div class="ruler-x" data-type="X"></div>
         <div class="ruler-y" data-type="Y"></div>
@@ -137,9 +143,9 @@
                         </div>
                     </fieldset>
                 </div>
-                <div class="tab_content_column">
+                <!--<div class="tab_content_column">
                     占坑
-                    <!--<fieldset class="hide">
+                    <fieldset class="hide">
                         <legend>标签栏</legend>
                         <div class="fieldset_content">
                             <div class="tab_content_column">
@@ -151,8 +157,8 @@
                                 <label for="lockTag" class="column_label_check">锁定(不允许拖放)</label>
                             </div>
                         </div>
-                    </fieldset>-->
-                </div>
+                    </fieldset>
+                </div>-->
             </div>
             <div class="tab_content_item hide">
                 <div class="tab_content_column">
@@ -205,7 +211,7 @@
         <input type="text" class="rect-input custom-appearance" value="#" data-type="url">
     </div>
     <div class="rect-setting-column rect-open">
-        <input type="checkbox" class="custom-appearance" data-type="open"> 新窗口打开
+        <input type="checkbox" class="custom-appearance" data-type="open" value="0"> 新窗口打开
     </div>
     <div class="rect-setting-column rect-width-height">
         宽：<input type="text" class="rect-input custom-appearance" value="0" data-type="width">
@@ -214,6 +220,7 @@
 </div>
 <!-- template end -->
 <script type="text/javascript" src="js/src/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="js/src/alertify.min.js"></script>
 <script type="text/javascript" src="js/src/jquery.artDialog.min.js"></script>
 <script type="text/javascript" src="js/src/artDialog.plugins.min.js"></script>
 <script type="text/javascript" src="js/src/bootstrap.min.js"></script>
