@@ -36,7 +36,7 @@ var contextMenuInit = function(){
     lineMenu.append(menuMachine('delLine', {
         label: '删除切线',
         click: function(){
-            mass.delLine(cache.focusLineId);
+            mass.Line.delLine(cache.focusLineId);
         }
     }));
 
@@ -44,7 +44,7 @@ var contextMenuInit = function(){
     rectMenu.append(menuMachine('delRect', {
         label: '删除热区',
         click: function(){
-            mass.delRect(cache.focusRectId);
+            mass.Rect.delRect(cache.focusRectId);
         }
     }));
 
