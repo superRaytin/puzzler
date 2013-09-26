@@ -91,10 +91,13 @@ img {
 .toolbar .toolbar-item.warning .glyphicon {
   color: #fa6767;
 }
+.toolbar .toolbar-item.stat-success {
+  background: #82a734;
+}
 .toolbar .toolbar-item.current {
   background-color: rgba(226, 166, 60, 0.8);
 }
-.toolbar .toolbar-item:not(.current):hover {
+.toolbar .toolbar-item:not(.current):not(.stat-success):hover {
   background-color: rgba(100, 100, 100, 0.8);
   cursor: pointer;
 }
@@ -299,7 +302,8 @@ input.rect-input:focus {
 .rect-width-height .rect-input {
   width: 38px;
 }
-.rect-error {
+.rect-error,
+.textzone-error {
   background-color: rgba(255, 0, 0, 0.4);
 }
 .lineX {
@@ -400,6 +404,63 @@ input.rect-input:focus {
   background: rgba(255, 255, 255, 0.2);
   z-index: 100;
   display: none;
+}
+/* text zone */
+.textzone {
+  position: absolute;
+  left: 100px;
+  top: 100px;
+  z-index: 1;
+  border: 1px solid #42A72E;
+  background: transparent;
+  width: 100px;
+  height: 100px;
+}
+.textzone textarea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border: none;
+  background: transparent;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 0;
+}
+.textzone .cover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.2);
+}
+.textzone .resize_textarea {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.9);
+  cursor: nw-resize;
+  border-radius: 8px 0 0 0;
+  z-index: 1;
+}
+.textzone .setting_textarea {
+  position: absolute;
+  left: -1px;
+  top: -16px;
+  width: 16px;
+  height: 15px;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  border-radius: 2px 2px 0 0;
+  text-align: center;
+  color: #fff;
+}
+.textzone-focus {
+  border-color: #ff2222;
 }
 /* settings */
 .dialogWrap {

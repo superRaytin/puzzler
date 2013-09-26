@@ -58,7 +58,10 @@
                 </ul>
             </div>
             <div id="J-mapArea" class="toolbar-item" title="画热区 (Ctrl+R)">
-                <span class="glyphicon glyphicon-link"></span>
+                <span class="glyphicon glyphicon-retweet"></span>
+            </div>
+            <div id="J-textArea" class="toolbar-item" title="自定义区域 (Ctrl+W)">
+                <span class="glyphicon glyphicon-text-width"></span>
             </div>
             <div id="J-luffy" class="toolbar-item" title="小试牛刀切路飞">
                 <span class="glyphicon glyphicon-flag"></span>
@@ -69,8 +72,8 @@
             <div id="J-userSettings" class="toolbar-item fn-right" title="设置">
                 <span class="glyphicon glyphicon-wrench"></span>
             </div>
-            <div id="J-copyCode" class="toolbar-item hide fn-right" title="导出成功，复制代码！">
-                <span class="glyphicon glyphicon-euro"></span>
+            <div id="J-copyCode" class="toolbar-item stat-success hide fn-right" title="导出成功，复制代码！">
+                <span class="glyphicon glyphicon-ok-circle"></span>
             </div>
         </div>
     </div>
@@ -104,6 +107,12 @@
     </div>
     <div id="backing"><img src="./img/blue.jpg"></div>
     <div id="overlay"></div>
+    <!--<div class="textzone">
+        <textarea>1212</textarea>
+        <div class="resize"></div>
+        <div class="setting"><span class="glyphicon glyphicon-eye-open"></span></div>
+        <div class="cover hide"></div>
+    </div>-->
 </div>
 <!-- template start -->
 <script type="template/dialog" id="J-settings">
@@ -216,6 +225,11 @@
     <div class="rect-setting-column rect-width-height">
         宽：<input type="text" class="rect-input custom-appearance" value="0" data-type="width">
         &nbsp;高：<input type="text" class="rect-input custom-appearance" value="0" data-type="height">
+    </div>
+</div>
+<div id="J-template-text-preview" class="text-preview-area hide">
+    <div class="text-preview-parse">
+        212
     </div>
 </div>
 <!-- template end -->

@@ -33,9 +33,11 @@ var main = {
             imgCover = $('#J-imgCover');
 
         cache.focusRectId = null;
+        cache.focusTextAreaId = null;
         cache.focusLineId = lineId;
         imgCover.find('.lineX, .lineY').removeClass('line-focus');
         imgCover.find('.rect').removeClass('rect-focus');
+        imgCover.find('.textzone').removeClass('textzone-focus');
         $('#' + lineId).addClass('line-focus');
     },
     /*

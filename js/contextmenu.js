@@ -48,10 +48,19 @@ var contextMenuInit = function(){
         }
     }));
 
+    var textAreaMenu = new gui.Menu();
+    textAreaMenu.append(menuMachine('delTextArea', {
+        label: '删除此自定义区域',
+        click: function(){
+            mass.TextArea.delete(cache.focusTextAreaId);
+        }
+    }));
+
     var menu = {};
     menu.previewMenu = previewMenu;
     menu.lineMenu = lineMenu;
     menu.rectMenu = rectMenu;
+    menu.textAreaMenu = textAreaMenu;
 
     exports.contextMenuSource = source;
 

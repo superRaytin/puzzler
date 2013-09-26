@@ -27,6 +27,10 @@ var mass = {
         rectNum: 0,
         rectuuid: 1,
         focusRectId: null,
+        textArea: {},
+        textAreaNum: 0,
+        textAreauuid: 1,
+        focusTextAreaId: null,
         mainResizeFlag: false,
         // 与package.json中保持一致
         minWidth: 700,
@@ -621,6 +625,7 @@ var mass = {
     reset: function(mainResizeFlag){
         this.Line.resetLine();
         this.Rect.resetRect();
+        this.TextArea.reset();
 
         if(mainResizeFlag){
             this.cache.mainResizeFlag = false;
@@ -685,7 +690,7 @@ var mass = {
         mass.Line.importLines(lineObj, function(availableLineNum, flowLineNum){
             // 上次所有切线都超出了当前图片区域
             if(availableLineNum == 0){
-                return alertify.log('上次所有切线记录都超出了当前图片区域，此次操作无效。','error',10000);
+                return alertify.log('所有切线记录都超出了当前图片区域，此次操作无效。','error',10000);
             }
             else if(flowLineNum){
                 alertify.log('记录应用成功。但记录中有 '+ flowLineNum +' 条切线超出当前图片范围，已失效。','',10000);
@@ -781,7 +786,7 @@ var mass = {
                 var decodeData = iconv.decode(data), parseData;
 
                 try{
-                    parseData = JSON.parse(decodeData);
+                    parseData = JSON.parse(decodeURIComponent(decodeData));
                 }catch(e){
                     mass.dialog('配置文件解析出错！请检查是否Json格式<br>' + e, true);
                     return console.log(e);
@@ -801,6 +806,9 @@ var mass = {
 
                 // 导入热区
                 mass.Rect.importRects(parseData.rect);
+
+                // 导入文字区
+                mass.TextArea.import(parseData.textArea);
 
                 cache.quickSavePath = imgDirectory;
             });
@@ -1208,7 +1216,8 @@ var mass = {
                         //'\t"lineY": '+ cache.lineY +',\n' +
                         //'\t"rectNum": '+ cache.rectNum +',\n' +
                         //'\t"rectuuid": '+ cache.rectuuid +',\n' +
-                        '\t"rect": '+ JSON.stringify(cache.rect) +'\n' +
+                        '\t"rect": '+ JSON.stringify(cache.rect) +',\n' +
+                        '\t"textArea": '+ encodeURIComponent(JSON.stringify(cache.textArea)) +'\n' +
                     '}';
 
                 fs.createWriteStream(path + '\\config.json').write(configContent);
@@ -1233,14 +1242,15 @@ var mass = {
     },
     keyboardMonitor: function(){
         var kibo = new Kibo(),
-            cache = this.cache;
+            cache = this.cache,
+            offset = $('#J-offset');
 
         kibo.down(['left', 'right', 'up', 'down'], function(e){
-            if(offset.is(':focus') || $('#' + cache.focusRectId).find('input').is(':focus')) return;
+            if(offset.is(':focus') || $('#' + cache.focusRectId).find('input').is(':focus') || $('#' + cache.focusTextAreaId).find('textarea').is(':focus')) return;
 
             var key = e.which, direction;
 
-            if(cache.focusLineId || cache.focusRectId){
+            if(cache.focusLineId || cache.focusRectId || cache.focusTextAreaId){
                 e.preventDefault();
             }
             else{
@@ -1305,6 +1315,38 @@ var mass = {
 
                 offset.val(0);
                 recter.style[direction] = curRect[direction] + 'px';
+            }else if(cache.focusTextAreaId){
+                var textArea = document.getElementById(cache.focusTextAreaId),
+                    curTextArea = cache.textArea[cache.focusTextAreaId];
+
+                direction = (key === 37 || key === 39) ? (e.shiftKey ? 'width' : 'left') : (e.shiftKey ? 'height' : 'top');
+
+                // 留4px的边界
+                var case1 = key === 37 && curTextArea.left < 1,
+                    case2 = key === 39 && curTextArea.left > cache.img.width - curTextArea.width - 3,
+                    case3 = key === 38 && curTextArea.top < 1,
+                    case4 = key === 40 && curTextArea.top > cache.img.height - curTextArea.height - 3;
+
+                if(case1 || case2 || case3 || case4) return;
+
+                if(key === 37){
+                    curTextArea[e.shiftKey ? 'width' : 'left']--;
+                }else if(key === 39){
+                    curTextArea[e.shiftKey ? 'width' : 'left']++;
+                }else if(key === 38){
+                    curTextArea[e.shiftKey ? 'height' : 'top']--;
+                }else if(key === 40){
+                    curTextArea[e.shiftKey ? 'height' : 'top']++;
+                }
+
+                if(e.shiftKey){
+                    if(curTextArea[direction] < 10){
+                        curTextArea[direction] = 10;
+                    }
+                }
+
+                offset.val(0);
+                textArea.style[direction] = curTextArea[direction] + 'px';
             };
         });
         kibo.down('delete', function(e){
@@ -1314,6 +1356,9 @@ var mass = {
                 }
                 else if(cache.focusRectId){
                     mass.Rect.delRect(cache.focusRectId);
+                }
+                else if(cache.focusTextAreaId){
+                    mass.TextArea.delete(cache.focusTextAreaId);
                 }
             }
         });
@@ -1342,16 +1387,21 @@ var mass = {
         });
         kibo.down('ctrl r', function(){
             $('#J-mapArea').trigger('click');
+        })
+        kibo.down('ctrl w', function(){
+            $('#J-textArea').trigger('click');
         });
     },
     observer: function(){
         var cache = this.cache,
             context = require('./js/contextmenu').init(),
             Rect = require('./js/rect'),
-            Line = require('./js/line');
+            Line = require('./js/line'),
+            TextArea = require('./js/textarea');
 
         mass.Rect = Rect;
         mass.Line = Line;
+        mass.TextArea = TextArea;
 
         var imgCover = $('#J-imgCover'),
             offset = $('#J-offset'),
@@ -1448,6 +1498,7 @@ var mass = {
             $('#J-hi-saveDiretory').trigger('click');
         });
         $('#J-hi-saveDiretory').change(function(){
+            alertify.log('正在导出切片...');
             mass.cutImg(this.value);
         });
 
@@ -1461,10 +1512,11 @@ var mass = {
             };
 
             if(cache.saveLock){
-                alertify.log('正在保存，请等待...');
+                alertify.log('保存进行中，请稍作等待...');
             }
             else{
                 if(cache.quickSavePath){
+                    alertify.log('正在导出HTML包...');
                     mass.exportHTML(cache.quickSavePath);
                 }
                 else{
@@ -1535,9 +1587,16 @@ var mass = {
             }
         });
 
+        var mapArea = $('#J-mapArea'),
+            textArea = $('#J-textArea');
         // 画热区
-        $('#J-mapArea').click(function(){
-            if(imgCover.hasClass('mapCursor')){
+        mapArea.click(function(){
+            if(cache.drawText){
+                textArea.removeClass('current');
+                cache.drawText = false;
+            }
+
+            if(cache.drawMap){
                 cache.drawMap = false;
                 imgCover.removeClass('mapCursor');
                 $(this).removeClass('current');
@@ -1548,6 +1607,24 @@ var mass = {
             }
         });
         this.Rect.drawMap();
+        // 自定义区
+        textArea.click(function(){
+            if(cache.drawMap){
+                mapArea.removeClass('current');
+                cache.drawMap = false;
+            }
+
+            if(cache.drawText){
+                cache.drawText = false;
+                imgCover.removeClass('mapCursor');
+                $(this).removeClass('current');
+            }else{
+                cache.drawText = true;
+                imgCover.addClass('mapCursor');
+                $(this).addClass('current');
+            }
+        });
+        this.TextArea.drawText();
 
         // setting
         $('#J-userSettings').click(function(){
@@ -1711,7 +1788,9 @@ var mass = {
                 }
             });*/
 
-            alertify.log('aaaa', 5000);
+            //alertify.log('aaaa', 5000);
+            var imgpath = 'D:\\UserData\\wb-shil\\Pictures\\1680-05-10-01各航空公司页面1.jpg';
+            hideImgCalculate.attr('src', imgpath);
         });
 
         $('#J-copyCode').click(function(){

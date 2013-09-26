@@ -1,5 +1,5 @@
 /**
- * rect.
+ * custom.
  * User: raytin
  * Date: 13-9-26
  */
@@ -11,18 +11,18 @@ var window = global.window,
     console = window.console;
 
 var main = {
-    // 画热区
-    drawMap: function(){
+    // 画文字区
+    drawText: function(){
         var cache = mass.cache,
             imgCover = $('#J-imgCover'),
             imgItem = imgCover.parent(),
-            newRect = $('<div class="rect"></div>'),
+            newTextArea = $('<div class="textzone"></div>'),
             _drawMove = false,
             _drawMoving = false,
             scrollTop = 0,
             scrollLeft = 0,
             imgWidth, imgHeight,
-            left, top, distX, distY, rect, rectCreated;
+            left, top, distX, distY, textarea, rectCreated;
 
         var _rectMove = false,
             _rectMoving = false,
@@ -37,7 +37,10 @@ var main = {
         imgCover.mousedown(function(e){
             // 右键不触发
             if(e.button === 2) return;
-            if(cache.drawMap){
+
+            if(imgCover.find('textarea').is(':focus')) return;
+
+            if(cache.drawText){
                 _drawMove = true;
                 left = e.clientX - cache.minusX + imgItem.scrollLeft();
                 top = e.clientY - cache.minusY + imgItem.scrollTop();
@@ -64,16 +67,16 @@ var main = {
 
             if(_drawMove){
                 if(!rectCreated){
-                    rect = newRect.clone().attr('id', 'rect-' + cache.rectuuid);
-                    imgCover.append(rect);
+                    textarea = newTextArea.clone().attr('id', 'textarea-' + cache.textAreauuid);
+                    imgCover.append(textarea);
                     rectCreated = true;
-                    main.focusRect('rect-' + cache.rectuuid);
+                    main.focus('textarea-' + cache.textAreauuid);
 
-                    cache.rectuuid++;
-                    cache.rectNum++;
+                    cache.textAreauuid++;
+                    cache.textAreaNum++;
                 }
 
-                rect.css({
+                textarea.css({
                     left: left,
                     top: top,
                     width: distX - left,
@@ -85,7 +88,6 @@ var main = {
             else if(_rectMove){
                 trueLeft = distX - rectAddX;
                 trueTop = distY - rectAddY;
-                //cacheRect = cache.rect[currentRectId];
 
                 // 子欲拖出图片区域之外，我偏不让
                 // 拖到图像区域外松手时，将left值替换成边界值
@@ -108,6 +110,7 @@ var main = {
                 _rectMoving = true;
             }
             else if(_rectResize){
+                console.log(99999)
                 trueWidth = distX - currentRectLeft;
                 trueHeight = distY - currentRectTop;
 
@@ -129,10 +132,10 @@ var main = {
                 });
 
                 // 热区设置层同步赋值
-                if(!$currentRect.find('.setting-area').hasClass('hide')){
+                /*if(!$currentRect.find('.setting-area').hasClass('hide')){
                     $currentRect.find('input[data-type="width"]').val(trueWidth);
                     $currentRect.find('input[data-type="height"]').val(trueHeight);
-                }
+                }*/
 
                 _rectResizing = true;
             }
@@ -140,7 +143,7 @@ var main = {
                 if(_drawMove){
                     if(_drawMoving){
                         if(distX < left || distY < top){
-                            main.delRect(cache.focusRectId);
+                            main.delRect(cache.focusTextAreaId);
                         }
                         else{
                             // 超出图片区域之外，将dist值替换成边界值
@@ -151,18 +154,16 @@ var main = {
                                 distY = imgHeight - 2;
                             }
 
-                            cache.rect[cache.focusRectId] = {
+                            cache.textArea[cache.focusTextAreaId] = {
                                 left: left,
                                 top: top,
                                 width: Math.max(distX - left, 10),
                                 height: Math.max(distY - top, 10),
-                                url: '#',
-                                open: false
+                                content: '#'
                             };
 
-                            rect.css('cursor', 'move')
-                                .append($('#J-template-rect-setting').clone().removeAttr('id'))
-                                .append('<div class="setting"><span class="glyphicon glyphicon-cog"></span></div><div class="resize"></div>');
+                            textarea.css('cursor', 'move')
+                                .append('<textarea></textarea><div class="setting_textarea"><span class="glyphicon glyphicon-eye-open"></span></div><div class="resize_textarea"></div><div class="cover"></div>');
                         }
                     }
 
@@ -173,8 +174,8 @@ var main = {
 
                 if(_rectMove){
                     if(_rectMoving){
-                        cache.rect[currentRectId].left = trueLeft;
-                        cache.rect[currentRectId].top = trueTop;
+                        cache.textArea[currentRectId].left = trueLeft;
+                        cache.textArea[currentRectId].top = trueTop;
 
                         _rectMoving = false;
                     }
@@ -183,26 +184,26 @@ var main = {
 
                 if(_rectResize){
                     if(_rectResizing){
-                        cache.rect[currentRectId].width = trueWidth;
-                        cache.rect[currentRectId].height = trueHeight;
+                        cache.textArea[currentRectId].width = trueWidth;
+                        cache.textArea[currentRectId].height = trueHeight;
 
                         _rectResizing = false;
                     }
                     _rectResize = false;
 
-                    if(cache.drawMap){
+                    if(cache.drawText){
                         imgCover.removeClass('resizing');
                     }
                 }
             });
 
-        // 热区移动
-        imgCover.delegate('.rect', 'mousedown', function(e){
+        // 文字区移动
+        imgCover.delegate('.cover', 'mousedown', function(e){
             e.stopPropagation();
             //if(e.button === 2) return;
-            currentRectId = this.id;
-            main.focusRect(currentRectId);
-            currentRect = cache.rect[cache.focusRectId];
+            currentRectId = this.parentNode.id;
+            main.focus(currentRectId);
+            currentRect = cache.textArea[cache.focusTextAreaId];
 
             _rectMove = true;
             left = e.clientX - cache.minusX + imgItem.scrollLeft();
@@ -216,20 +217,33 @@ var main = {
             rectAddY = top - currentRect.top;
 
             var $curRect = $('#' + currentRectId);
-            if($curRect.hasClass('rect-error')){
-                $curRect.removeClass('rect-error');
+            if($curRect.hasClass('textzone-error')){
+                $curRect.removeClass('textzone-error');
             }
-
-            //$curRect.find('.setting-area').addClass('hide');
         });
 
-        // 热区收缩
-        imgCover.delegate('.resize', 'mousedown', function(e){
+        // 编辑
+        imgCover.delegate('.cover', 'dblclick', function(e){
+            e.stopPropagation();
+            $(this).addClass('hide').siblings('textarea').focus();
+        });
+
+        // 失去焦点加上遮罩
+        imgCover.delegate('textarea', 'blur', function(e){
+            e.stopPropagation();
+            $(this).siblings('.cover').removeClass('hide');
+        }).delegate('textarea', 'change', function(e){
+                var that = $(this);
+                cache.textArea[that.parent().attr('id')].content = that.val();
+            });
+
+        // 文字区收缩
+        imgCover.delegate('.resize_textarea', 'mousedown', function(e){
             e.stopPropagation();
             _rectResize = true;
             currentRectId = this.parentNode.id;
-            main.focusRect(currentRectId);
-            currentRect = cache.rect[cache.focusRectId];
+            main.focus(currentRectId);
+            currentRect = cache.textArea[cache.focusTextAreaId];
 
             left = e.clientX - cache.minusX + imgItem.scrollLeft();
             top = e.clientY - cache.minusY + imgItem.scrollTop();
@@ -243,85 +257,44 @@ var main = {
             currentRectLeft = currentRect.left;
             currentRectTop = currentRect.top;
 
-            if(cache.drawMap){
+            if(cache.drawText){
                 imgCover.addClass('resizing');
             }
 
             var $curRect = $('#' + currentRectId);
-            if($curRect.hasClass('rect-error')){
-                $curRect.removeClass('rect-error');
+            if($curRect.hasClass('textzone-error')){
+                $curRect.removeClass('textzone-error');
             }
         });
 
-        // 热区设置
-        imgCover.delegate('.setting', 'mousedown', function(e){
+        // 文字区设置
+        imgCover.delegate('.setting_textarea', 'mousedown', function(e){
             e.stopPropagation();
-            var that = $(this),
-                area = that.prev(),
-                rectId = that.parent().attr('id'),
-                rect = cache.rect[rectId];
-
-            if(area.hasClass('hide')){
-                area.removeClass('hide');
-                area.find('input').each(function(){
-                    var curInput = $(this),
-                        type = curInput.data('type');
-                    if(curInput.is(':checkbox')){
-                        if(rect[type]){
-                            curInput.attr('checked', true);
-                        }else{
-                            curInput.removeAttr('checked');
-                        }
-                    }else{
-                        rect[type] && curInput.val(rect[type]);
-                    }
-                });
-            }else{
-                area.addClass('hide');
-            }
-        }).delegate('.setting-area', 'mousedown', function(e){
-                e.stopPropagation();
-            }).delegate('.rect-setting-column input', 'change', function(e){
-                var that = $(this),
-                    value = parseInt(that.val()),
-                    type = that.data('type'),
-                    rectId = that.parents('.rect').attr('id'),
-                    curRect = $('#' + rectId),
-                    rect = cache.rect[rectId];
-
-                if(type === 'open'){
-                    value = that.is(':checked');
-                }
-                else if(type === 'width'){
-                    if(value > cache.img.width - rect.left - 2){
-                        value = cache.img.width - rect.left - 2;
-                    }
-                    curRect.width(value)
-                }
-                else if(type === 'height'){
-                    if(value > cache.img.height - rect.top - 2){
-                        value = cache.img.height - rect.top - 2;
-                    }
-                    curRect.height(value)
-                }
-
-                rect[type] = value;
-                that.val(value);
-
-                e.stopPropagation();
-            });
+            console.log('setting textzone')
+        });
     },
-    resetRect: function(){
-        // 清除旧的热区
-        $('#J-imgCover').find('.rect').remove();
+    focus: function(textAreaId){
+        var cache = mass.cache,
+            imgCover = $('#J-imgCover');
+
+        cache.focusTextAreaId = textAreaId;
+        cache.focusLineId = null;
+        cache.focusRectId = null;
+        imgCover.find('.lineX, .lineY').removeClass('line-focus');
+        imgCover.find('.rect').removeClass('rect-focus');
+        imgCover.find('.textzone').removeClass('textzone-focus');
+        $('#' + textAreaId).addClass('textzone-focus');
+    },
+    reset: function(){
+        $('#J-imgCover').find('.textzone').remove();
 
         $.extend(true, mass.cache, {
-            rectuuid: 1,
-            rectNum: 0,
-            focusRectId: null
+            textAreauuid: 1,
+            textAreaNum: 0,
+            focusTextAreaId: null
         });
 
-        mass.cache.rect = {};
+        mass.cache.textArea = {};
     },
     /*
      * option:
@@ -330,18 +303,17 @@ var main = {
      *     top: Number,
      *     width: Number,
      *     height: Number,
-     *     url: String,
-     *     open: Boolean
+     *     content: String
      * }
      * */
-    addRect: function(option){
+    add: function(option){
         var cache = mass.cache,
-            rectuuid = cache.rectuuid,
-            rectId = 'rect-' + rectuuid,
+            textAreauuid = cache.textAreauuid,
+            rectId = 'textarea-' + textAreauuid,
             imgCover = $('#J-imgCover'),
-            rectEntry = $('<div class="rect"></div>'),
-            settingArea = $('<div class="setting-area hide"></div>'),
-            resizeZone = $('<div class="setting"><span class="glyphicon glyphicon-cog"></span></div><div class="resize"></div>'),
+            rectEntry = $('<div class="textzone"></div>'),
+            contentArea = $('<textarea></textarea>'),
+            resizeZone = $('<div class="setting_textarea"><span class="glyphicon glyphicon-eye-open"></span></div><div class="resize_textarea"></div><div class="cover"></div>'),
             currentStyles;
 
         currentStyles = {
@@ -352,52 +324,40 @@ var main = {
             cursor: 'move'
         };
 
-        settingArea.append($('#J-template-rect-setting').html());
-        rectEntry.attr('id', rectId).css(currentStyles).append(settingArea).append(resizeZone);
+        contentArea.val(option.content);
+        rectEntry.attr('id', rectId).css(currentStyles).append(contentArea).append(resizeZone);
         imgCover.append(rectEntry);
 
-        cache.rectuuid++;
-        cache.rectNum++;
-        cache.rect[rectId] = option;
+        cache.textAreauuid++;
+        cache.textAreaNum++;
+        cache.textArea[rectId] = option;
     },
-    focusRect: function(rectId){
+    delete: function(textAreaId){
         var cache = mass.cache,
-            imgCover = $('#J-imgCover');
+            curTextArea = $('#' + textAreaId);
 
-        cache.focusRectId = rectId;
-        cache.focusLineId = null;
+        cache.textAreaNum--;
+
+        delete mass.cache.textArea[textAreaId];
         cache.focusTextAreaId = null;
-        imgCover.find('.lineX, .lineY').removeClass('line-focus');
-        imgCover.find('.textzone').removeClass('textzone-focus');
-        imgCover.find('.rect').removeClass('rect-focus');
-        $('#' + rectId).addClass('rect-focus');
+
+        curTextArea.remove();
     },
-    delRect: function(rectId){
-        var cache = mass.cache,
-            curRect = $('#' + rectId);
-
-        cache.rectNum--;
-
-        delete mass.cache.rect[rectId];
-        cache.focusRectId = null;
-
-        curRect.remove();
-    },
-    // 批量导入热区
-    importRects: function(rectObj, callback){
-        _.each(rectObj, function(rect){
-            main.addRect(rect);
+    // 批量导入
+    import: function(options, callback){
+        _.each(options, function(item){
+            main.add(item);
         });
 
         if(callback){
             callback();
         }
     },
-    // 检查热区位置
-    checkRect: function(){
+    // 检查文字区位置
+    check: function(){
         var cache = mass.cache,
             lines = cache.line,
-            rects = cache.rect,
+            rects = cache.textArea,
             isBig2 = !!(cache.img.width > 990 && cache.lineY > 1),
             critical = {
                 X:{},
@@ -407,7 +367,7 @@ var main = {
             blocks,
             res = true;
 
-        if(!cache.rectNum) return res;
+        if(!cache.textAreaNum) return res;
 
         $('.rect').removeClass('rect-error');
 
