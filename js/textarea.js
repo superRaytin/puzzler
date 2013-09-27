@@ -32,7 +32,27 @@ var main = {
 
         var _rectResize = false,
             _rectResizing = false,
-            trueWidth, trueHeight, currentRectLeft, currentRectTop;
+            trueWidth, trueHeight;
+
+        // 点击层或resize时，将焦点放在当前的层，同时赋值基础数据
+        var focusCurrentBlock = function(e, id){
+            main.focus(id);
+            currentRect = cache.textArea[cache.focusTextAreaId];
+
+            left = e.clientX - cache.minusX + imgItem.scrollLeft();
+            top = e.clientY - cache.minusY + imgItem.scrollTop();
+            distX = e.clientX - cache.minusX + scrollLeft;
+            distY = e.clientY - cache.minusY + scrollTop;
+            imgWidth = cache.img.width;
+            imgHeight = cache.img.height;
+            rectAddX = left - currentRect.left;
+            rectAddY = top - currentRect.top;
+
+            var $curRect = $('#' + id);
+            if($curRect.hasClass('textzone-error')){
+                $curRect.removeClass('textzone-error');
+            }
+        };
 
         imgCover.mousedown(function(e){
             // 右键不触发
@@ -110,9 +130,8 @@ var main = {
                 _rectMoving = true;
             }
             else if(_rectResize){
-                console.log(99999)
-                trueWidth = distX - currentRectLeft;
-                trueHeight = distY - currentRectTop;
+                trueWidth = distX - currentRect.left;
+                trueHeight = distY - currentRect.top;
 
                 // 子欲拖出图片区域之外，我偏不让
                 if(trueWidth > imgWidth - currentRect.left - 2){
@@ -159,7 +178,7 @@ var main = {
                                 top: top,
                                 width: Math.max(distX - left, 10),
                                 height: Math.max(distY - top, 10),
-                                content: '#'
+                                content: ''
                             };
 
                             textarea.css('cursor', 'move')
@@ -202,24 +221,9 @@ var main = {
             e.stopPropagation();
             //if(e.button === 2) return;
             currentRectId = this.parentNode.id;
-            main.focus(currentRectId);
-            currentRect = cache.textArea[cache.focusTextAreaId];
+            focusCurrentBlock(e, currentRectId);
 
             _rectMove = true;
-            left = e.clientX - cache.minusX + imgItem.scrollLeft();
-            top = e.clientY - cache.minusY + imgItem.scrollTop();
-            distX = e.clientX - cache.minusX + scrollLeft;
-            distY = e.clientY - cache.minusY + scrollTop;
-            imgWidth = cache.img.width;
-            imgHeight = cache.img.height;
-
-            rectAddX = left - currentRect.left;
-            rectAddY = top - currentRect.top;
-
-            var $curRect = $('#' + currentRectId);
-            if($curRect.hasClass('textzone-error')){
-                $curRect.removeClass('textzone-error');
-            }
         });
 
         // 编辑
@@ -240,31 +244,14 @@ var main = {
         // 文字区收缩
         imgCover.delegate('.resize_textarea', 'mousedown', function(e){
             e.stopPropagation();
-            _rectResize = true;
             currentRectId = this.parentNode.id;
-            main.focus(currentRectId);
-            currentRect = cache.textArea[cache.focusTextAreaId];
-
-            left = e.clientX - cache.minusX + imgItem.scrollLeft();
-            top = e.clientY - cache.minusY + imgItem.scrollTop();
-            distX = e.clientX - cache.minusX + scrollLeft;
-            distY = e.clientY - cache.minusY + scrollTop;
-            imgWidth = cache.img.width;
-            imgHeight = cache.img.height;
-            rectAddX = left - currentRect.left;
-            rectAddY = top - currentRect.top;
-
-            currentRectLeft = currentRect.left;
-            currentRectTop = currentRect.top;
+            focusCurrentBlock(e, currentRectId);
 
             if(cache.drawText){
                 imgCover.addClass('resizing');
             }
 
-            var $curRect = $('#' + currentRectId);
-            if($curRect.hasClass('textzone-error')){
-                $curRect.removeClass('textzone-error');
-            }
+            _rectResize = true;
         });
 
         // 文字区设置
@@ -369,7 +356,7 @@ var main = {
 
         if(!cache.textAreaNum) return res;
 
-        $('.rect').removeClass('rect-error');
+        $('.textzone').removeClass('textzone-error');
 
         $.each(rects, function(rectId, rect){
             critical.Y.x = rect.left;
@@ -385,7 +372,7 @@ var main = {
                     console.log(rectId, type, critical);
                     console.log(lineId, pos);
                     console.log('--------');
-                    $('#' + rectId).addClass('rect-error');
+                    $('#' + rectId).addClass('textzone-error');
                 }
             });
         });
@@ -432,7 +419,8 @@ var main = {
                 });
             }
         }
-        cache.rectInBlock = rectInBlock;
+        console.log(rectInBlock);
+        cache.textAreaInBlock = rectInBlock;
 
         return res;
         //return false;

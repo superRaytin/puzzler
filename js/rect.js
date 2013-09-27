@@ -32,7 +32,27 @@ var main = {
 
         var _rectResize = false,
             _rectResizing = false,
-            trueWidth, trueHeight, currentRectLeft, currentRectTop;
+            trueWidth, trueHeight;
+
+        // 点击层或resize时，将焦点放在当前的层，同时赋值基础数据
+        var focusCurrentBlock = function(e, id){
+            main.focus(id);
+            currentRect = cache.rect[cache.focusRectId];
+
+            left = e.clientX - cache.minusX + imgItem.scrollLeft();
+            top = e.clientY - cache.minusY + imgItem.scrollTop();
+            distX = e.clientX - cache.minusX + scrollLeft;
+            distY = e.clientY - cache.minusY + scrollTop;
+            imgWidth = cache.img.width;
+            imgHeight = cache.img.height;
+            rectAddX = left - currentRect.left;
+            rectAddY = top - currentRect.top;
+
+            var $curRect = $('#' + id);
+            if($curRect.hasClass('rect-error')){
+                $curRect.removeClass('rect-error');
+            }
+        };
 
         imgCover.mousedown(function(e){
             // 右键不触发
@@ -67,7 +87,7 @@ var main = {
                     rect = newRect.clone().attr('id', 'rect-' + cache.rectuuid);
                     imgCover.append(rect);
                     rectCreated = true;
-                    main.focusRect('rect-' + cache.rectuuid);
+                    main.focus('rect-' + cache.rectuuid);
 
                     cache.rectuuid++;
                     cache.rectNum++;
@@ -108,8 +128,8 @@ var main = {
                 _rectMoving = true;
             }
             else if(_rectResize){
-                trueWidth = distX - currentRectLeft;
-                trueHeight = distY - currentRectTop;
+                trueWidth = distX - currentRect.left;
+                trueHeight = distY - currentRect.top;
 
                 // 子欲拖出图片区域之外，我偏不让
                 if(trueWidth > imgWidth - currentRect.left - 2){
@@ -140,7 +160,7 @@ var main = {
                 if(_drawMove){
                     if(_drawMoving){
                         if(distX < left || distY < top){
-                            main.delRect(cache.focusRectId);
+                            main.delete(cache.focusRectId);
                         }
                         else{
                             // 超出图片区域之外，将dist值替换成边界值
@@ -201,56 +221,23 @@ var main = {
             e.stopPropagation();
             //if(e.button === 2) return;
             currentRectId = this.id;
-            main.focusRect(currentRectId);
-            currentRect = cache.rect[cache.focusRectId];
+            focusCurrentBlock(e, currentRectId);
 
             _rectMove = true;
-            left = e.clientX - cache.minusX + imgItem.scrollLeft();
-            top = e.clientY - cache.minusY + imgItem.scrollTop();
-            distX = e.clientX - cache.minusX + scrollLeft;
-            distY = e.clientY - cache.minusY + scrollTop;
-            imgWidth = cache.img.width;
-            imgHeight = cache.img.height;
-
-            rectAddX = left - currentRect.left;
-            rectAddY = top - currentRect.top;
-
-            var $curRect = $('#' + currentRectId);
-            if($curRect.hasClass('rect-error')){
-                $curRect.removeClass('rect-error');
-            }
-
-            //$curRect.find('.setting-area').addClass('hide');
         });
 
         // 热区收缩
         imgCover.delegate('.resize', 'mousedown', function(e){
             e.stopPropagation();
-            _rectResize = true;
+
             currentRectId = this.parentNode.id;
-            main.focusRect(currentRectId);
-            currentRect = cache.rect[cache.focusRectId];
-
-            left = e.clientX - cache.minusX + imgItem.scrollLeft();
-            top = e.clientY - cache.minusY + imgItem.scrollTop();
-            distX = e.clientX - cache.minusX + scrollLeft;
-            distY = e.clientY - cache.minusY + scrollTop;
-            imgWidth = cache.img.width;
-            imgHeight = cache.img.height;
-            rectAddX = left - currentRect.left;
-            rectAddY = top - currentRect.top;
-
-            currentRectLeft = currentRect.left;
-            currentRectTop = currentRect.top;
+            focusCurrentBlock(e, currentRectId);
 
             if(cache.drawMap){
                 imgCover.addClass('resizing');
             }
 
-            var $curRect = $('#' + currentRectId);
-            if($curRect.hasClass('rect-error')){
-                $curRect.removeClass('rect-error');
-            }
+            _rectResize = true;
         });
 
         // 热区设置
@@ -311,7 +298,7 @@ var main = {
                 e.stopPropagation();
             });
     },
-    resetRect: function(){
+    reset: function(){
         // 清除旧的热区
         $('#J-imgCover').find('.rect').remove();
 
@@ -334,7 +321,7 @@ var main = {
      *     open: Boolean
      * }
      * */
-    addRect: function(option){
+    add: function(option){
         var cache = mass.cache,
             rectuuid = cache.rectuuid,
             rectId = 'rect-' + rectuuid,
@@ -360,7 +347,7 @@ var main = {
         cache.rectNum++;
         cache.rect[rectId] = option;
     },
-    focusRect: function(rectId){
+    focus: function(rectId){
         var cache = mass.cache,
             imgCover = $('#J-imgCover');
 
@@ -372,7 +359,7 @@ var main = {
         imgCover.find('.rect').removeClass('rect-focus');
         $('#' + rectId).addClass('rect-focus');
     },
-    delRect: function(rectId){
+    delete: function(rectId){
         var cache = mass.cache,
             curRect = $('#' + rectId);
 
@@ -384,9 +371,9 @@ var main = {
         curRect.remove();
     },
     // 批量导入热区
-    importRects: function(rectObj, callback){
+    import: function(rectObj, callback){
         _.each(rectObj, function(rect){
-            main.addRect(rect);
+            main.add(rect);
         });
 
         if(callback){
@@ -394,7 +381,7 @@ var main = {
         }
     },
     // 检查热区位置
-    checkRect: function(){
+    check: function(){
         var cache = mass.cache,
             lines = cache.line,
             rects = cache.rect,

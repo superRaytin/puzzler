@@ -24,6 +24,9 @@ module.exports = {
                 '\t\tdisplay:inline-block;\n' +
                 '\t\tbackground: url("https://i.alipayobjects.com/e/201309/11htyhgbGn.gif") repeat;\n' +
             '\t}\n' +
+            '\t.ui-textarea{\n' +
+                '\t\tposition: absolute;\n' +
+            '\t}\n' +
             '\t<%- classHeaders %>{\n' +
                 '\t\tposition: absolute;\n' +
             '\t}\n' +
@@ -40,13 +43,20 @@ module.exports = {
         '<div class="wid100">\n' +
             '\t<div class="ui-block-inner">\n' +
                 '<% _.each(blocks, function(block) { %>' +
-                    '<% if(!block.rect){ %>' +
+                    '<% if(!block.rect && !block.textarea){ %>' +
                     '\t\t<div class="ui-<%= block.name %>"></div>\n' +
                     '<% }else{ %>' +
                     '\t\t<div class="ui-<%= block.name %>">\n' +
+                        '<% if(block.rect){ %>' +
                             '<% _.each(block.rect, function(rect) { %>' +
-                            '\t\t\t<a href="<%= rect.rect.url %>"<% if(rect.rect.open){ %> target="_blank"<% }; %> class="ui-rect" style="width: <%= rect.rect.width %>px; height: <%= rect.rect.height %>px; left: <%= rect.left %>px; top: <%= rect.top %>px;"></a>\n' +
+                                '\t\t\t<a href="<% if(rect.rect.url){ %><%= rect.rect.url %><% }else{ %><%= rect.rect %><% }; %>"<% if(rect.rect.open){ %> target="_blank"<% }; %> class="ui-rect" style="width: <%= rect.rect.width %>px; height: <%= rect.rect.height %>px; left: <%= rect.left %>px; top: <%= rect.top %>px;"></a>\n' +
                             '<% }); %>' +
+                        '<% }; %>' +
+                        '<% if(block.textarea){ %>' +
+                            '<% _.each(block.textarea, function(textarea) { %>' +
+                                '\t\t\t<div class="ui-textarea" style="width: <%= textarea.rect.width %>px; height: <%= textarea.rect.height %>px; left: <%= textarea.left %>px; top: <%= textarea.top %>px;"><%= textarea.rect.content %></div>\n' +
+                            '<% }); %>' +
+                        '<% }; %>' +
                     '\t\t</div>\n' +
                     '<% }; %>' +
                 '<% }); %>' +
@@ -99,6 +109,9 @@ module.exports = {
                 '\t\tdisplay:inline-block;\n' +
                 '\t\tbackground: url("https://i.alipayobjects.com/e/201309/11htyhgbGn.gif") repeat;\n' +
             '\t}\n' +
+            '\t.ui-textarea{\n' +
+                '\t\tposition: absolute;\n' +
+            '\t}\n' +
             '<% _.each(blockStyles, function(blockStyle) { %>' +
             '\t.ui-<%= blockStyle.name %>{\n' +
                 '\t\theight: <%= blockStyle.height %>px;\n' +
@@ -120,13 +133,20 @@ module.exports = {
         '<div class="ui-<%= block.name %> wid100">\n' +
             '\t<div class="ui-block-inner">\n' +
             '<% _.each(block.children, function(child, childIndex) { %>' +
-                '<% if(!child.rect){ %>' +
+                '<% if(!child.rect && !child.textarea){ %>' +
                     '\t\t<div class="ui-<%= block.name %>-<%= childIndex + 1 %>"></div>\n' +
                 '<% }else{ %>' +
                     '\t\t<div class="ui-<%= block.name %>-<%= childIndex + 1 %>">\n' +
-                    '<% _.each(child.rect, function(rect) { %>' +
-                        '\t\t\t<a href="<% if(rect.rect.url){ %><%= rect.rect.url %><% }else{ %><%= rect.rect %><% }; %>"<% if(rect.rect.open){ %> target="_blank"<% }; %> class="ui-rect" style="width: <%= rect.rect.width %>px; height: <%= rect.rect.height %>px; left: <%= rect.left %>px; top: <%= rect.top %>px;"></a>\n' +
-                    '<% }); %>' +
+                    '<% if(child.rect){ %>' +
+                        '<% _.each(child.rect, function(rect) { %>' +
+                            '\t\t\t<a href="<% if(rect.rect.url){ %><%= rect.rect.url %><% }else{ %><%= rect.rect %><% }; %>"<% if(rect.rect.open){ %> target="_blank"<% }; %> class="ui-rect" style="width: <%= rect.rect.width %>px; height: <%= rect.rect.height %>px; left: <%= rect.left %>px; top: <%= rect.top %>px;"></a>\n' +
+                        '<% }); %>' +
+                    '<% }; %>' +
+                    '<% if(child.textarea){ %>' +
+                        '<% _.each(child.textarea, function(textarea) { %>' +
+                            '\t\t\t<div class="ui-textarea" style="width: <%= textarea.rect.width %>px; height: <%= textarea.rect.height %>px; left: <%= textarea.left %>px; top: <%= textarea.top %>px;"><%= textarea.rect.content %></div>\n' +
+                        '<% }); %>' +
+                    '<% }; %>' +
                     '\t\t</div>\n' +
                 '<% }; %>' +
             '<% }); %>' +

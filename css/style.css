@@ -302,8 +302,7 @@ input.rect-input:focus {
 .rect-width-height .rect-input {
   width: 38px;
 }
-.rect-error,
-.textzone-error {
+.rect-error {
   background-color: rgba(255, 0, 0, 0.4);
 }
 .lineX {
@@ -461,6 +460,9 @@ input.rect-input:focus {
 }
 .textzone-focus {
   border-color: #ff2222;
+}
+.textzone-error {
+  background-color: rgba(255, 0, 0, 0.4);
 }
 /* settings */
 .dialogWrap {

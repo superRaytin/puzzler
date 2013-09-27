@@ -11,7 +11,7 @@ var window = global.window,
     console = window.console;
 
 var main = {
-    delLine: function(lineId){
+    delete: function(lineId){
         var cache = mass.cache,
             curLine = $('#' + lineId);
         if(curLine.hasClass('lineX')){
@@ -25,10 +25,10 @@ var main = {
 
         curLine.remove();
 
-        this.storeLine();
+        this.store();
         //$('#J-imgCover').removeClass('lineMovingX').removeClass('lineMovingY');
     },
-    focusLine: function(lineId){
+    focus: function(lineId){
         var cache = mass.cache,
             imgCover = $('#J-imgCover');
 
@@ -48,7 +48,7 @@ var main = {
      *     pos: Number
      * }
      * */
-    addLine: function(option){
+    add: function(option){
         var cache = mass.cache,
             imgCover = $('#J-imgCover'),
             lineuuid = cache.lineuuid,
@@ -77,7 +77,7 @@ var main = {
 
         imgCover.append('<div class="line'+ type +'" id="'+ lineId +'" style="'+ styleIn +': '+ pos +'px"></div>');
     },
-    resetLine: function(){
+    reset: function(){
         // 清除旧的参考线
         $('#J-imgCover').find('.lineX, .lineY').remove();
 
@@ -91,14 +91,14 @@ var main = {
         mass.cache.line = {};
     },
     // 保存切线列表
-    storeLine: function(){
+    store: function(){
         var cache = mass.cache;
         if(cache.lineX || cache.lineY){
             window.localStorage.line = JSON.stringify(cache.line);
         }
     },
     // 批量导入切线
-    importLines: function(lineObj, callback){
+    import: function(lineObj, callback){
         var cache = mass.cache,
             availableLineNum = 0,
             flowLineNum = 0;
@@ -122,7 +122,7 @@ var main = {
 
             availableLineNum++;
 
-            main.addLine({
+            main.add({
                 type: type,
                 pos: pos
             });

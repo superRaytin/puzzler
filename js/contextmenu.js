@@ -21,36 +21,36 @@ var contextMenuInit = function(){
     // 预览区 menu
     var previewMenu = new gui.Menu();
     previewMenu.append(menuMachine('exportPet', {
-        label: '导出 (仅图片)',
+        label: '仅导出图片 (Ctrl+Shift+S)',
         click: function(){
             $('#J-exportPet').trigger('click');
         }
     }));
     previewMenu.append(menuMachine('exportHTML', {
-        label: '导出 (图片和HTML)',
+        label: '导出HTML和图片 (Ctrl+S)',
         click: function(){
             $('#J-exportHTML').trigger('click');
         }
     }));
     var lineMenu = new gui.Menu();
     lineMenu.append(menuMachine('delLine', {
-        label: '删除切线',
+        label: '删除切线 (Del)',
         click: function(){
-            mass.Line.delLine(cache.focusLineId);
+            mass.Line.delete(cache.focusLineId);
         }
     }));
 
     var rectMenu = new gui.Menu();
     rectMenu.append(menuMachine('delRect', {
-        label: '删除热区',
+        label: '删除热区 (Del)',
         click: function(){
-            mass.Rect.delRect(cache.focusRectId);
+            mass.Rect.delete(cache.focusRectId);
         }
     }));
 
     var textAreaMenu = new gui.Menu();
     textAreaMenu.append(menuMachine('delTextArea', {
-        label: '删除此自定义区域',
+        label: '删除此自定义区域 (Del)',
         click: function(){
             mass.TextArea.delete(cache.focusTextAreaId);
         }

@@ -490,7 +490,7 @@ var mass = {
                 if(_moved){
                     // 删除切线
                     if((_type === 'X' && e.clientY < minusY) || (_type === 'Y' && e.clientX < minusX)){
-                        mass.Line.delLine(currentMoveLineId);
+                        mass.Line.delete(currentMoveLineId);
                     }
                     else{
                         // 把line 的偏移量存起来
@@ -499,10 +499,10 @@ var mass = {
                             pos: pos
                         };
 
-                        mass.Line.focusLine(currentMoveLineId);
+                        mass.Line.focus(currentMoveLineId);
 
                         // 把切线的信息保存到本地
-                        mass.Line.storeLine();
+                        mass.Line.store();
                     }
                 }
                 imgCover.removeClass('lineMoving' + _type);
@@ -520,7 +520,7 @@ var mass = {
             var that = $(this),
                 lineId = that.attr('id');
 
-            mass.Line.focusLine(lineId);
+            mass.Line.focus(lineId);
             var cacheLine = cache.line[lineId];
 
             currentMoveLineId = lineId;
@@ -613,7 +613,7 @@ var mass = {
             if(line.type === type){
                 // 过滤重合的切线
                 if(lineHash[type + '' + line.pos]){
-                    mass.Line.delLine(key);
+                    mass.Line.delete(key);
                 }else{
                     res.push(line.pos);
                     lineHash[type + '' + line.pos] = true;
@@ -623,8 +623,8 @@ var mass = {
         return res.sort(function(a, b){return a - b > 0});
     },
     reset: function(mainResizeFlag){
-        this.Line.resetLine();
-        this.Rect.resetRect();
+        this.Line.reset();
+        this.Rect.reset();
         this.TextArea.reset();
 
         if(mainResizeFlag){
@@ -682,12 +682,12 @@ var mass = {
                 return;
             }
 
-            mass.Line.resetLine();
+            mass.Line.reset();
         }
 
         lineObj = JSON.parse(localLine);
 
-        mass.Line.importLines(lineObj, function(availableLineNum, flowLineNum){
+        mass.Line.import(lineObj, function(availableLineNum, flowLineNum){
             // 上次所有切线都超出了当前图片区域
             if(availableLineNum == 0){
                 return alertify.log('所有切线记录都超出了当前图片区域，此次操作无效。','error',10000);
@@ -695,7 +695,7 @@ var mass = {
             else if(flowLineNum){
                 alertify.log('记录应用成功。但记录中有 '+ flowLineNum +' 条切线超出当前图片范围，已失效。','',10000);
             }
-            mass.Line.storeLine();
+            mass.Line.store();
         });
     },
     // 工具栏下拉菜单
@@ -788,24 +788,24 @@ var mass = {
                 try{
                     parseData = JSON.parse(decodeURIComponent(decodeData));
                 }catch(e){
-                    mass.dialog('配置文件解析出错！请检查是否Json格式<br>' + e, true);
+                    mass.dialog('配置文件解析出错！是不是修改过配置文件？请检查是否Json格式<br>' + e, true);
                     return console.log(e);
                 }
 
                 // 导入切线
-                mass.Line.importLines(parseData.line, function(availableLineNum, flowLineNum){
+                mass.Line.import(parseData.line, function(availableLineNum, flowLineNum){
                     // 上次所有切线都超出了当前图片区域
                     if(availableLineNum == 0){
-                        return alertify.log('是不是修改过origin图片或配置文件？所有切线都超出了当前图片区域，此次操作无切线导入。', 'error', 10000);
+                        return mass.dialog('所有切线都超出了当前图片区域，此次操作无切线导入，是不是修改过origin图片或配置文件？', true);
                     }
                     else if(flowLineNum){
-                        alertify.log('是不是修改过origin图片或配置文件？配置中有 '+ flowLineNum +' 条切线超出当前图片范围，已失效。', '', 10000);
+                        mass.dialog('导入成功，但有 '+ flowLineNum +' 条切线超出当前图片范围，已失效，是不是修改过origin图片或配置文件？', true);
                     }
-                    mass.Line.storeLine();
+                    mass.Line.store();
                 });
 
                 // 导入热区
-                mass.Rect.importRects(parseData.rect);
+                mass.Rect.import(parseData.rect);
 
                 // 导入文字区
                 mass.TextArea.import(parseData.textArea);
@@ -814,6 +814,7 @@ var mass = {
             });
         }
     },
+    // 获取切片
     getCutBlocks: function(children){
         var cache = mass.cache,
             lineX = cache.lineX,
@@ -846,6 +847,7 @@ var mass = {
                             x: 0,
                             y: x == 0 ? 0 : plusTop,
                             children: [],
+                            // 需要抹擦去的图片区域
                             cleanArea: {
                                 x0: posArrY[0],
                                 y0: x == 0 ? 0 : plusTop,
@@ -1103,15 +1105,27 @@ var mass = {
                     }
                 }
 
+                // 将所有热区信息写进每一个切片单元
                 if(cache.rectInBlock && cache.rectInBlock[i]){
                     if(isBig2){
                         _.each(cache.rectInBlock[i], function(curRect){
                             temp.children[curRect.belongBlockIndex].rect = temp.children[curRect.belongBlockIndex].rect || [];
                             temp.children[curRect.belongBlockIndex].rect.push(curRect);
                         });
-                        //temp.children[cache.rectInBlock[i][0].belongBlockIndex].rect = cache.rectInBlock[i];
                     }else{
                         temp.rect = cache.rectInBlock[i];
+                    }
+                }
+
+                // 将所有文字区信息写进每一个切片单元
+                if(cache.textAreaInBlock && cache.textAreaInBlock[i]){
+                    if(isBig2){
+                        _.each(cache.textAreaInBlock[i], function(curRect){
+                            temp.children[curRect.belongBlockIndex].textarea = temp.children[curRect.belongBlockIndex].textarea || [];
+                            temp.children[curRect.belongBlockIndex].textarea.push(curRect);
+                        });
+                    }else{
+                        temp.textarea = cache.textAreaInBlock[i];
                     }
                 }
 
@@ -1237,7 +1251,7 @@ var mass = {
         });
     },
     beforeClose: function(){
-        this.Line.storeLine();
+        this.Line.store();
         return true;
     },
     keyboardMonitor: function(){
@@ -1281,7 +1295,7 @@ var mass = {
                 offset.val(curLine.pos);
                 line.style[direction] = curLine.pos + 'px';
 
-                mass.Line.storeLine();
+                mass.Line.store();
             }else if(cache.focusRectId){
                 var recter = document.getElementById(cache.focusRectId),
                     curRect = cache.rect[cache.focusRectId];
@@ -1352,10 +1366,10 @@ var mass = {
         kibo.down('delete', function(e){
             if(cache.img){
                 if(cache.focusLineId){
-                    mass.Line.delLine(cache.focusLineId);
+                    mass.Line.delete(cache.focusLineId);
                 }
                 else if(cache.focusRectId){
-                    mass.Rect.delRect(cache.focusRectId);
+                    mass.Rect.delete(cache.focusRectId);
                 }
                 else if(cache.focusTextAreaId){
                     mass.TextArea.delete(cache.focusTextAreaId);
@@ -1507,8 +1521,10 @@ var mass = {
             if(!cache.img) return alertify.log('没图，保存个球球啊？别闹了，先切图吧...');
             if(!cache.lineX && !cache.lineY) return alertify.log('啊嘞...是不是忘了划参考线了？');
 
-            if(!mass.Rect.checkRect()){
+            if(!mass.Rect.check()){
                 return alertify.log('热区位置错误，不能与切线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
+            }else if(!mass.TextArea.check()){
+                return alertify.log('文字区位置错误，不能与切线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
             };
 
             if(cache.saveLock){
@@ -1691,7 +1707,7 @@ var mass = {
             $('#' + cache.focusLineId).css(lt, val + 'px');
             that.val(val);
 
-            mass.Line.storeLine();
+            mass.Line.store();
         });
 
         this.keyboardMonitor();
