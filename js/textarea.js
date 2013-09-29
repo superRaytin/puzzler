@@ -11,7 +11,7 @@ var window = global.window,
     console = window.console;
 
 var main = {
-    // 画文字区
+    // 自定义内容区
     drawText: function(){
         var cache = mass.cache,
             imgCover = $('#J-imgCover'),
@@ -162,7 +162,7 @@ var main = {
                 if(_drawMove){
                     if(_drawMoving){
                         if(distX < left || distY < top){
-                            main.delRect(cache.focusTextAreaId);
+                            main.delete(cache.focusTextAreaId);
                         }
                         else{
                             // 超出图片区域之外，将dist值替换成边界值
@@ -182,7 +182,7 @@ var main = {
                             };
 
                             textarea.css('cursor', 'move')
-                                .append('<textarea></textarea><div class="setting_textarea"><span class="glyphicon glyphicon-eye-open"></span></div><div class="resize_textarea"></div><div class="cover"></div>');
+                                .append('<textarea></textarea><div class="setting_textarea" title="预览"><span class="glyphicon glyphicon-eye-open"></span></div><div class="edit_textarea hide" title="编辑"><span class="glyphicon glyphicon-edit"></span></div><div class="resize_textarea"></div><div class="cover"></div><div class="preview_frame hide"><iframe src="proxy.html"></iframe></div>');
                         }
                     }
 
@@ -257,7 +257,28 @@ var main = {
         // 文字区设置
         imgCover.delegate('.setting_textarea', 'mousedown', function(e){
             e.stopPropagation();
-            console.log('setting textzone')
+            console.log('setting textzone');
+            var that = $(this),
+                preview_frame = that.siblings('.preview_frame'),
+                input = that.siblings('textarea'),
+                edit = that.siblings('.edit_textarea'),
+                value = input.val(),
+                frame = preview_frame.find('iframe'),
+                parseContent;
+
+            window.marked(value, function(err, content){
+                if(err){
+                    return alertify.error('markdown解析出错，请检查', 10000);
+                }
+                parseContent = content;
+            });
+
+            that.addClass('hide');
+            input.addClass('hide');
+
+            edit.removeClass('hide');
+            preview_frame.removeClass('hide');
+            frame.contents().find('body').append(parseContent);
         });
     },
     focus: function(textAreaId){

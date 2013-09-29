@@ -453,9 +453,9 @@ input.rect-input:focus{
     border-radius: 8px 0 0 0;
     z-index: 1;
   }
-  .setting_textarea{
+  .setting_textarea, .edit_textarea{
     position: absolute;
-    left: -1px;
+    right: -1px;
     top: -16px;
     width: 16px;
     height: 15px;
@@ -464,6 +464,18 @@ input.rect-input:focus{
     border-radius: 2px 2px 0 0;
     text-align: center;
     color: #fff;
+  }
+  .preview_frame{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    iframe{
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 .textzone-focus{

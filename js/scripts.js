@@ -927,6 +927,8 @@ var mass = {
     },
     // 切割
     cutImg: function(dir, callback){
+        alertify.log('正在导出切片...');
+
         // 保存锁，避免疯狂保存的情况
         mass.cache.saveLock = true;
 
@@ -955,7 +957,6 @@ var mass = {
                 imgName = modPath.basename(cache.img.path, '.' + cache.fileFormat);
                 exportPathByImgName = exportPath + '\\' + imgName;
                 if(!fs.existsSync(exportPathByImgName)){
-                    console.log(333, exportPathByImgName);
                     fs.mkdirSync(exportPathByImgName);
                 }
                 exportPath = exportPathByImgName;
@@ -1190,7 +1191,8 @@ var mass = {
                     {
                         value: '浏览器中预览',
                         callback: function(){
-                            gui.Shell.openExternal(path + '\\index.html');
+                            //gui.Shell.openExternal(path + '\\index.html');
+                            gui.Shell.openItem(path + '\\index.html');
                             return false;
                         },
                         focus: true
@@ -1245,6 +1247,7 @@ var mass = {
     },
     // 导出HTML
     exportHTML: function(exportPath){
+        alertify.log('正在导出HTML包...');
         mass.cutImg(exportPath, function(blocks, path){
             $('#J-hi-saveDiretoryForHtml').val('');
             mass.buildHTML(blocks, path);
@@ -1402,8 +1405,11 @@ var mass = {
         kibo.down('ctrl r', function(){
             $('#J-mapArea').trigger('click');
         })
-        kibo.down('ctrl w', function(){
+        kibo.down('ctrl t', function(){
             $('#J-textArea').trigger('click');
+        });
+        kibo.down('ctrl e', function(){
+            $('#J-getLastLine > .dropdown-toggle').trigger('click');
         });
     },
     observer: function(){
@@ -1512,7 +1518,6 @@ var mass = {
             $('#J-hi-saveDiretory').trigger('click');
         });
         $('#J-hi-saveDiretory').change(function(){
-            alertify.log('正在导出切片...');
             mass.cutImg(this.value);
         });
 
@@ -1532,7 +1537,6 @@ var mass = {
             }
             else{
                 if(cache.quickSavePath){
-                    alertify.log('正在导出HTML包...');
                     mass.exportHTML(cache.quickSavePath);
                 }
                 else{
