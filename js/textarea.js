@@ -6,15 +6,16 @@
 var window = global.window,
     $ = window.$,
     mass = global.mass,
+    cache = mass.cache,
     _ = window._,
     document = window.document,
-    console = window.console;
+    console = window.console,
+    alertify = window.alertify;
 
 var main = {
     // 自定义内容区
     drawText: function(){
-        var cache = mass.cache,
-            imgCover = $('#J-imgCover'),
+        var imgCover = $('#J-imgCover'),
             imgItem = imgCover.parent(),
             newTextArea = $('<div class="textzone"></div>'),
             _drawMove = false,
@@ -158,7 +159,7 @@ var main = {
 
                 _rectResizing = true;
             }
-        }).mouseup(function(){
+        }).mouseup(function(e){
                 if(_drawMove){
                     if(_drawMoving){
                         if(distX < left || distY < top){
@@ -181,8 +182,7 @@ var main = {
                                 content: ''
                             };
 
-                            textarea.css('cursor', 'move')
-                                .append('<textarea></textarea><div class="setting_textarea" title="预览"><span class="glyphicon glyphicon-eye-open"></span></div><div class="edit_textarea hide" title="编辑"><span class="glyphicon glyphicon-edit"></span></div><div class="resize_textarea"></div><div class="cover"></div><div class="preview_frame hide"><iframe src="proxy.html"></iframe></div>');
+                            textarea.css('cursor', 'move').append($('#J-template-textarea').html());
                         }
                     }
 
@@ -229,7 +229,22 @@ var main = {
         // 编辑
         imgCover.delegate('.cover', 'dblclick', function(e){
             e.stopPropagation();
-            $(this).addClass('hide').siblings('textarea').focus();
+            var that = $(this),
+                input = that.siblings('textarea'),
+                preview_frame = that.siblings('.preview_frame'),
+                edit = that.siblings('.edit_textarea'),
+                setting = that.siblings('.setting_textarea');
+
+            if(input.hasClass('hide')){
+                that.addClass('hide');
+                input.removeClass('hide').focus();
+                preview_frame.addClass('hide');
+                setting.removeClass('hide');
+                edit.addClass('hide');
+            }else{
+                that.addClass('hide');
+                input.focus();
+            }
         });
 
         // 失去焦点加上遮罩
@@ -238,7 +253,8 @@ var main = {
             $(this).siblings('.cover').removeClass('hide');
         }).delegate('textarea', 'change', function(e){
                 var that = $(this);
-                cache.textArea[that.parent().attr('id')].content = that.val();
+                cache.textArea[that.parent().attr('id')].originContent = that.val();
+                cache.textArea[that.parent().attr('id')].content = main.parseMarkdown(that.val());
             });
 
         // 文字区收缩
@@ -258,32 +274,69 @@ var main = {
         imgCover.delegate('.setting_textarea', 'mousedown', function(e){
             e.stopPropagation();
             console.log('setting textzone');
-            var that = $(this),
-                preview_frame = that.siblings('.preview_frame'),
-                input = that.siblings('textarea'),
-                edit = that.siblings('.edit_textarea'),
-                value = input.val(),
-                frame = preview_frame.find('iframe'),
-                parseContent;
-
-            window.marked(value, function(err, content){
-                if(err){
-                    return alertify.error('markdown解析出错，请检查', 10000);
-                }
-                parseContent = content;
+            main.preview($(this), 'setting');
+        }).delegate('.edit_textarea', 'mousedown', function(e){
+                e.stopPropagation();
+                console.log('edit textzone');
+                main.preview($(this), 'edit');
             });
+    },
+    parseMarkdown: function(content, res){
+        res = '';
+        window.marked(content, function(err, parsedData){
+            if(err){
+                return alertify.error('markdown解析出错，请检查', 10000);
+            }
+            res = parsedData;
+        });
 
+        return res;
+    },
+    preview: function(current, type){
+        var textzone = $('#' + cache.focusTextAreaId),
+            mode = type, that;
+
+        if(!current){
+            if(!cache.focusTextAreaId) return;
+            if(textzone.find('.setting_textarea').hasClass('hide')){
+                that = textzone.find('.edit_textarea');
+                mode = 'edit';
+            }else{
+                that = textzone.find('.setting_textarea');
+                mode = 'setting';
+            }
+        }else{
+            that = current;
+        }
+
+        var preview_frame = that.siblings('.preview_frame'),
+            input = that.siblings('textarea'),
+            cover = that.siblings('.cover'),
+            value = input.val(),
+            frame = preview_frame.find('iframe');
+
+        // 预览
+        if(mode === 'setting'){
             that.addClass('hide');
             input.addClass('hide');
 
-            edit.removeClass('hide');
+            that.siblings('.edit_textarea').removeClass('hide');
             preview_frame.removeClass('hide');
-            frame.contents().find('body').append(parseContent);
-        });
+
+            frame.contents().find('body').html(main.parseMarkdown(value));
+        }
+        // 编辑
+        else if(mode === 'edit'){
+            that.addClass('hide');
+            input.removeClass('hide');
+
+            that.siblings('.setting_textarea').removeClass('hide');
+            preview_frame.addClass('hide');
+        }
+
     },
     focus: function(textAreaId){
-        var cache = mass.cache,
-            imgCover = $('#J-imgCover');
+        var imgCover = $('#J-imgCover');
 
         cache.focusTextAreaId = textAreaId;
         cache.focusLineId = null;
@@ -302,7 +355,7 @@ var main = {
             focusTextAreaId: null
         });
 
-        mass.cache.textArea = {};
+        cache.textArea = {};
     },
     /*
      * option:
@@ -315,13 +368,12 @@ var main = {
      * }
      * */
     add: function(option){
-        var cache = mass.cache,
-            textAreauuid = cache.textAreauuid,
+        var textAreauuid = cache.textAreauuid,
             rectId = 'textarea-' + textAreauuid,
             imgCover = $('#J-imgCover'),
             rectEntry = $('<div class="textzone"></div>'),
             contentArea = $('<textarea></textarea>'),
-            resizeZone = $('<div class="setting_textarea"><span class="glyphicon glyphicon-eye-open"></span></div><div class="resize_textarea"></div><div class="cover"></div>'),
+            resizeZone = $('<div class="setting_textarea" title="预览"><span class="glyphicon glyphicon-eye-open"></span></div><div class="edit_textarea hide" title="编辑"><span class="glyphicon glyphicon-edit"></span></div><div class="resize_textarea"></div><div class="cover"></div><div class="preview_frame hide"><iframe src="proxy.html"></iframe></div>'),
             currentStyles;
 
         currentStyles = {
@@ -332,7 +384,7 @@ var main = {
             cursor: 'move'
         };
 
-        contentArea.val(option.content);
+        contentArea.val(option.originContent);
         rectEntry.attr('id', rectId).css(currentStyles).append(contentArea).append(resizeZone);
         imgCover.append(rectEntry);
 
@@ -341,8 +393,7 @@ var main = {
         cache.textArea[rectId] = option;
     },
     delete: function(textAreaId){
-        var cache = mass.cache,
-            curTextArea = $('#' + textAreaId);
+        var curTextArea = $('#' + textAreaId);
 
         cache.textAreaNum--;
 
@@ -363,8 +414,7 @@ var main = {
     },
     // 检查文字区位置
     check: function(){
-        var cache = mass.cache,
-            lines = cache.line,
+        var lines = cache.line,
             rects = cache.textArea,
             isBig2 = !!(cache.img.width > 990 && cache.lineY > 1),
             critical = {
@@ -445,6 +495,12 @@ var main = {
 
         return res;
         //return false;
+    },
+    // 查看HTML源代码
+    previewHTML: function(){
+        var currentTextarea = $('#' + cache.focusTextAreaId),
+            value = currentTextarea.find('textarea').val();
+        mass.dialog(main.parseMarkdown(value).replace(/</mg, '&lt;').replace(/>/mg, '&gt;'), true);
     }
 };
 module.exports = main;

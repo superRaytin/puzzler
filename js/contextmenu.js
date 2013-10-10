@@ -55,6 +55,12 @@ var contextMenuInit = function(){
             mass.TextArea.delete(cache.focusTextAreaId);
         }
     }));
+    textAreaMenu.append(menuMachine('delTextArea', {
+        label: '查看HTML源代码',
+        click: function(){
+            mass.TextArea.previewHTML();
+        }
+    }));
 
     var menu = {};
     menu.previewMenu = previewMenu;

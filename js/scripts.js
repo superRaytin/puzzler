@@ -1381,8 +1381,11 @@ var mass = {
         });
 
         // 禁止ctrl A操作
-        kibo.down('ctrl a', function(){
-            return false;
+        kibo.down('ctrl a', function(e){
+            if(!/input|textarea/i.test(e.target.tagName)){
+                return false;
+            }
+            $(e.target).select();
         });
 
         // 快捷键
@@ -1410,6 +1413,11 @@ var mass = {
         });
         kibo.down('ctrl e', function(){
             $('#J-getLastLine > .dropdown-toggle').trigger('click');
+        });
+
+        // F5 解析/还原 当前自定义内容区
+        kibo.down('f5', function(){
+            mass.TextArea.preview();
         });
     },
     observer: function(){
@@ -1731,7 +1739,10 @@ var mass = {
             else if(target.hasClass('rect')){
                 context.rectMenu.popup(ev.clientX, ev.clientY);
             }
-            else{
+            else if(target.parent().hasClass('textzone')){
+                context.textAreaMenu.popup(ev.clientX, ev.clientY);
+            }
+            else if(target.hasClass('lineX') || target.hasClass('lineY')){
                 context.lineMenu.popup(ev.clientX, ev.clientY);
             }
             return false;
@@ -1755,8 +1766,8 @@ var mass = {
         });
 
         $('#J-reset').click(function(){
-            if(cache.lineX || cache.lineY || cache.rectNum){
-                mass.confirmy('将清空切线、热区等操作记录，确定吗？', function(){
+            if(cache.lineX || cache.lineY || cache.rectNum || cache.textAreaNum){
+                mass.confirmy('将清空切线、热区、自定义区等操作记录，确定吗？', function(){
                     mass.reset();
                 });
             }

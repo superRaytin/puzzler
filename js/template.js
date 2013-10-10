@@ -26,6 +26,10 @@ module.exports = {
             '\t}\n' +
             '\t.ui-textarea{\n' +
                 '\t\tposition: absolute;\n' +
+                '\t\tfont: 12px/1.5 "simsun";\n' +
+            '\t}\n' +
+            '\t.ui-textarea p{\n' +
+                '\t\tmargin-bottom: 10px;\n' +
             '\t}\n' +
             '\t<%- classHeaders %>{\n' +
                 '\t\tposition: absolute;\n' +
@@ -111,6 +115,10 @@ module.exports = {
             '\t}\n' +
             '\t.ui-textarea{\n' +
                 '\t\tposition: absolute;\n' +
+                '\t\tfont: 12px/1.5 "simsun";\n' +
+            '\t}\n' +
+            '\t.ui-textarea p{\n' +
+                '\t\tmargin-bottom: 10px;\n' +
             '\t}\n' +
             '<% _.each(blockStyles, function(blockStyle) { %>' +
             '\t.ui-<%= blockStyle.name %>{\n' +
