@@ -63,9 +63,9 @@ gm version
 
 `大多数情况`会正确执行并返回，如果没有正确执行，可以尝试`重启电脑`，再次运行以上命令
 
-命令执行成功后，按照上面给出的地址下载 ImageMass，解压
+命令执行成功后，按照上面给出的地址下载 MarkTool，解压
 
-OK，现在可以运行RockImageMass.exe啦！
+OK，现在可以运行MarkTool.exe啦！
 
 ## 特别感谢
 - Node-Webkit：[https://github.com/rogerwang/node-webkit/](https://github.com/rogerwang/node-webkit/)
