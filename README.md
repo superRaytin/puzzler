@@ -3,7 +3,7 @@
 MarkTool
 ==============
 
-基于 [Node-Webkit](https://github.com/rogerwang/node-webkit/) 实现的自动化切图工具。
+基于 [Node-Webkit](https://github.com/rogerwang/node-webkit/) 实现的前端自动化切图工具。
 
 ![MarkTool](test/z.png)
 
@@ -45,7 +45,7 @@ MarkTool
 - 图片合成？
 
 ## 下载
-最新版本：Beta V4
+最新版本：Beta V4 (0.3.0)
 
 * Windows 32bit: [云盘下载](http://yunpan.cn/QbRQ2IjcZmxSQ)
 
