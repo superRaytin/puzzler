@@ -270,7 +270,7 @@ var main = {
                 e.stopPropagation();
             }).delegate('.rect-setting-column input', 'change', function(e){
                 var that = $(this),
-                    value = parseInt(that.val()),
+                    value = that.val(),
                     type = that.data('type'),
                     rectId = that.parents('.rect').attr('id'),
                     curRect = $('#' + rectId),
@@ -280,12 +280,14 @@ var main = {
                     value = that.is(':checked');
                 }
                 else if(type === 'width'){
+                    value = parseInt(value);
                     if(value > cache.img.width - rect.left - 2){
                         value = cache.img.width - rect.left - 2;
                     }
                     curRect.width(value)
                 }
                 else if(type === 'height'){
+                    value = parseInt(value);
                     if(value > cache.img.height - rect.top - 2){
                         value = cache.img.height - rect.top - 2;
                     }

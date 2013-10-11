@@ -372,8 +372,7 @@ var main = {
             rectId = 'textarea-' + textAreauuid,
             imgCover = $('#J-imgCover'),
             rectEntry = $('<div class="textzone"></div>'),
-            contentArea = $('<textarea></textarea>'),
-            resizeZone = $('<div class="setting_textarea" title="预览"><span class="glyphicon glyphicon-eye-open"></span></div><div class="edit_textarea hide" title="编辑"><span class="glyphicon glyphicon-edit"></span></div><div class="resize_textarea"></div><div class="cover"></div><div class="preview_frame hide"><iframe src="proxy.html"></iframe></div>'),
+            resizeZone = $('#J-template-textarea').html(),
             currentStyles;
 
         currentStyles = {
@@ -384,8 +383,8 @@ var main = {
             cursor: 'move'
         };
 
-        contentArea.val(option.originContent);
-        rectEntry.attr('id', rectId).css(currentStyles).append(contentArea).append(resizeZone);
+        rectEntry.attr('id', rectId).css(currentStyles).append(resizeZone);
+        rectEntry.find('textarea').val(option.originContent);
         imgCover.append(rectEntry);
 
         cache.textAreauuid++;
