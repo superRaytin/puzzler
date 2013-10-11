@@ -47,7 +47,7 @@ MarkTool
 ## 下载
 最新版本：Beta V4
 
-* Windows 32bit: [云盘下载](http://yunpan.cn/QXCv5mJB7Qe83)
+* Windows 32bit: [云盘下载](http://yunpan.cn/QbRQ2IjcZmxSQ)
 
 PS：以上32位版本，在64位系统上测试通过是可以使用的，不过不排除某些情况下失效，原因未知。
 
