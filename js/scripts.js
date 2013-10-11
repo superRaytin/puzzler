@@ -11,7 +11,7 @@ var gui = require('nw.gui'),
     fs = require('fs'),
     modPath = require('path'),
     template = require('./js/template'),
-    settings = require('./js/config');
+    config = require('./js/config');
 
 var mass = {
     cache: {
@@ -201,7 +201,7 @@ var mass = {
             var cache = mass.cache;
 
             var localSetting = localStorage.setting,
-                setting = localSetting ? $.extend(true, settings.setting, JSON.parse(localSetting)) : settings.setting;
+                setting = localSetting ? $.extend(true, config.setting, JSON.parse(localSetting)) : config.setting;
 
             console.log(setting);
 
@@ -282,7 +282,7 @@ var mass = {
             });
 
             // checkbox | radio | select | textarea
-            tabCon.find('.column_checkbox, .column_radio, .column_select, .column_textarea').on('change', function(e){
+            tabCon.find('.column_checkbox, .column_radio, .column_select').on('change', function(e){
                 var that = $(this),
                     name = that.attr('data-name'),
                     noclick = that.attr('data-noclick'),
@@ -293,20 +293,6 @@ var mass = {
 
                 if(that.is(':checkbox')){
                     value = this.checked;
-                }
-
-                if(name === 'template'){
-                    belong = 'template';
-                    //name = cache.img && cache.img.width > 990 ? 'big' : 'small';
-                    if(cache.isBig){
-                        if(cache.lineY > 1){
-                            name = 'big2';
-                        }else{
-                            name = 'big';
-                        }
-                    }else{
-                        name = 'small';
-                    }
                 }
 
                 console.log('change:crs')
@@ -322,9 +308,22 @@ var mass = {
             // 切换模板
             $('.column_radio_template').on('change', function(){
                 var localSetting = localStorage.setting,
-                    setting = localSetting ? $.extend(true, settings.setting, JSON.parse(localSetting)) : settings.setting;
+                    setting = localSetting ? $.extend(true, config.setting, JSON.parse(localSetting)) : config.setting;
 
                 $('#J-templateArea').val(setting.template[this.value]);
+            });
+            $('#J-templateArea').on('change', function(){
+                var checked = $('.column_radio_template:checked').val(),
+                    setting_template = userSet.setting.template;
+
+                setting_template[checked] = this.value;
+            });
+
+            // 模板重置
+            $('#J-template-reset').click(function(){
+                mass.confirmy('将会重置模板配置，此操作不可逆，确定吗？', function(){
+                    mass.templateReset();
+                }, false);
             });
         },
         userSet : {
@@ -536,7 +535,7 @@ var mass = {
     dialog: function(msg, buttons){
         var title = '提 示';
 
-        var config = {
+        var opt = {
             title: title,
             content: msg,
             lock: true,
@@ -547,18 +546,18 @@ var mass = {
         };
 
         if(typeof msg === 'object'){
-            config.title = msg.title;
-            config.content = msg.content;
+            opt.title = msg.title;
+            opt.content = msg.content;
             if(msg.width){
-                config.width = msg.width;
+                opt.width = msg.width;
             }
             if(msg.height){
-                config.height = msg.height;
+                opt.height = msg.height;
             }
         }
 
         if(buttons !== undefined){
-            config.button = buttons === true ? [
+            opt.button = buttons === true ? [
                 {
                     value: '确定',
                     callback: function(){},
@@ -567,7 +566,7 @@ var mass = {
             ] : buttons;
         }
         console.log('dialog: '+msg);
-        return $.artDialog(config);
+        return $.artDialog(opt);
     },
     dialog_commonInit: function(){
         var dialogParent = $('.d-outer').parent();
@@ -576,7 +575,12 @@ var mass = {
 
         dialogParent.find('.d-button').addClass('custom-appearance');
     },
-    confirmy: function(content, callback){
+    /*
+    * content: 文本
+    * callback: 点击确定回调
+    * fade: 淡出效果，默认淡出，传入false按正常效果
+    * */
+    confirmy: function(content, callback, fade){
         $.artDialog({
             title: '请确认',
             content: content,
@@ -598,10 +602,12 @@ var mass = {
                 mass.dialog_commonInit();
                 var dialogParent = $('.d-outer').parent();
 
-                dialogParent.hide();
                 $('.dialogWrap').parent().css('padding', 0);
 
-                dialogParent.fadeIn(300);
+                if(fade === undefined){
+                    dialogParent.hide();
+                    dialogParent.fadeIn(300);
+                }
             }
         });
     },
@@ -633,6 +639,27 @@ var mass = {
 
         this.cache.clipboard = null;
         $('#J-copyCode').addClass('hide');
+    },
+    templateReset: function(){
+        var setting = window.localStorage.setting ? JSON.parse(window.localStorage.setting) : {};
+        if(!setting.template){
+            setting.template = {};
+        }
+        $.extend(true, setting.template, {
+            small: template.style,
+            big: template.styleBig,
+            big2: template.styleBig2
+        });
+
+        $('#J-templateArea').val(setting.template[$('.column_radio_template:checked').val()]);
+        window.localStorage.setting = JSON.stringify(setting);
+
+        mass.rockSettings.userSet.setting = {
+            template: {},
+            savePath: {}
+        };
+
+        alertify.success('模板恢复成功。');
     },
     // 重新选择图片 初始化图片预览区
     previewInit: function(reset){
