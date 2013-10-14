@@ -34,7 +34,7 @@ MarkTool
     * 保存路径设置
     * more... ...
 
-## Feasures
+## Features
 - 标尺刻度
 - 导出图片质量可设置
 - 生成图片展示形式可选，背景或者img标签
