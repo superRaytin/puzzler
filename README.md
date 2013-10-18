@@ -3,7 +3,7 @@
 MarkTool
 ==============
 
-基于 [Node-Webkit](https://github.com/rogerwang/node-webkit/) 实现的前端自动化切图工具。
+基于 [Node-Webkit](https://github.com/rogerwang/node-webkit/) 实现的前端自动化切图小助手。
 
 ![MarkTool](test/z.png)
 
