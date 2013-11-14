@@ -3,7 +3,7 @@
 MarkTool
 ==============
 
-基于 [Node-Webkit](https://github.com/rogerwang/node-webkit/) 实现的前端切图小助手。
+基于 [Node-Webkit](https://github.com/rogerwang/node-webkit/) 实现的前端切图助手。
 
 ![MarkTool](test/z.png)
 
@@ -21,6 +21,7 @@ MarkTool
 	* 导出图像or导出图像和HTML，可选
     * 导出成功后，可在浏览器预览，支持一键复制源代码
     * 自定义导出模板
+    * 导出图像质量可设置
 - 用户足迹
 	* 记住最后一次的保存路径 and 选择路径
     * 记住用户最后一次设置的切线列表
@@ -36,13 +37,13 @@ MarkTool
 
 ## Features
 - 标尺刻度
-- 导出图片质量可设置
 - 生成图片展示形式可选，背景或者img标签
 - 新建自定义模板
 - 历史记录（撤销、重做）
 - 简单的图片处理
 - 多标签？
 - 图片合成？
+- 自动更新
 
 ## 下载
 最新版本：Beta V4 (0.3.0)
@@ -70,6 +71,24 @@ OK，现在可以运行MarkTool.exe啦！
 ## 特别感谢
 - Node-Webkit：[https://github.com/rogerwang/node-webkit/](https://github.com/rogerwang/node-webkit/)
 - GraphicsMagick for node: [http://aheckmann.github.com/gm/](http://aheckmann.github.com/gm/)
+
+##ChangeLog
+### 0.3.1
+- 【增加】导出图片质量设置（压缩范围0~100，只支持JPG/JPEG格式图片，因为PNG压缩一直是无损的）；
+
+### 0.3.0
+- 增加自定义内容区功能；
+- 导出HTML的情况，同时导出配置文件和初始图片文件；
+- 切线记录更改为实时保存，去掉【立即保存当前记录】功能；
+- 增加常用功能菜单 —— 点击菜单栏第一项MarkTool的logo即可显示；
+- 增加【导出选项】设置；
+- 重构【拉取最后的切线记录】功能，解决切线ID撞车的可能；
+- 增加快捷键支持；
+- 增加不影响操作的右下角提示功能；
+- 突出显示热区信息设置；
+
+### 0.1.3
+- 模板增加【宽度 > 990(挖空)】一项，可导出背景图；
 
 # License
 本项目基于MIT协议发布
