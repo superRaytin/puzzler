@@ -962,13 +962,15 @@ var mass = {
         var exportPath = dir,
             previewImg = $('#previewImg'),
             imgPath = previewImg.attr('src'),
+            quality = parseInt($('#J-quality').val()),
             img = gm(imgPath);
 
         var imgCover = $('#J-imgCover'),
             cache = mass.cache,
+            isJpg = /^jpg|jpeg/.test(cache.fileFormat),
             newFolder = mass.rockSettings.getItemInSetting('exportOption'),
             folder = callback ? '\\images' : '',
-            imgName, exportPathByImgName, blocks, markBlocks;
+            imgName, exportPathByImgName, blocks, markBlocks, gmdeal;
 
         blocks = mass.getCutBlocks();
 
@@ -1003,7 +1005,13 @@ var mass = {
                     return;
                 }
 
-                img.crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
+                gmdeal = img.crop(item.width, item.height, item.x, item.y);
+
+                if(isJpg){
+                    gmdeal = gmdeal.quality(quality);
+                }
+
+                gmdeal.write(exportFileName, function(err){
                     if(err){
                         return console.log(err);
                     }
@@ -1054,7 +1062,13 @@ var mass = {
                 };
 
                 if(item.children){
-                    img.fill("#fff").drawRectangle(item.cleanArea.x0 + 20, item.cleanArea.y0, item.cleanArea.x1 - 20, item.cleanArea.y1).crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
+                    gmdeal = img.fill("#fff").drawRectangle(item.cleanArea.x0 + 20, item.cleanArea.y0, item.cleanArea.x1 - 20, item.cleanArea.y1).crop(item.width, item.height, item.x, item.y);
+
+                    if(isJpg){
+                        gmdeal = gmdeal.quality(quality);
+                    }
+
+                    gmdeal.write(exportFileName, function(err){
                         if(err){
                             return console.log(err);
                         }
@@ -1063,7 +1077,13 @@ var mass = {
                     });
                 }
                 else{
-                    img.crop(item.width, item.height, item.x, item.y).write(exportFileName, function(err){
+                    gmdeal = img.crop(item.width, item.height, item.x, item.y);
+
+                    if(isJpg){
+                        gmdeal = gmdeal.quality(quality);
+                    }
+
+                    gmdeal.write(exportFileName, function(err){
                         if(err){
                             return console.log(err);
                         }
@@ -1725,7 +1745,7 @@ var mass = {
         $('#J-help').click(function(){
             mass.dialog({
                 title: '关于',
-                content: 'MarkTool 基于 <a href="https://github.com/rogerwang/node-webkit/">Node-Webkit</a> 开源项目<br><br>By 支付宝-综合前端组 <a href="http://jsfor.com">@柳裟</a>'
+                content: 'MarkTool 基于 <a href="https://github.com/rogerwang/node-webkit/">Node-Webkit</a> 开源项目<br><br>By 支付宝-综合前端组 <a href="http://blog.jsfor.com">@柳裟</a>'
             }, true)
         });
 
@@ -1810,6 +1830,13 @@ var mass = {
             //console.log( mass.getCutBlocks() );
             var path2 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t10';
             var path3 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t12\\h1\\config.json';
+            var path4 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\origin.jpg';
+            var outpath = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\';
+            // x0,y0,x1,y1 -- 矩形左上坐标，矩形左下坐标
+            gm(path4).crop(100,100,200,200).quality(0).write(outpath + 'origin10.jpg', function(err){
+                if(err) return console.log(err);
+                console.log('success!');
+            });
             //mass.cutImg(path2);
             /*var readStream = fs.createReadStream(path),
                 writeStream = fs.createWriteStream(path2);
@@ -1847,8 +1874,8 @@ var mass = {
             });*/
 
             //alertify.log('aaaa', 5000);
-            var imgpath = 'D:\\UserData\\wb-shil\\Pictures\\1680-05-10-01各航空公司页面1.jpg';
-            hideImgCalculate.attr('src', imgpath);
+            //var imgpath = 'D:\\UserData\\wb-shil\\Pictures\\1680-05-10-01各航空公司页面1.jpg';
+            //hideImgCalculate.attr('src', imgpath);
         });
 
         $('#J-copyCode').click(function(){

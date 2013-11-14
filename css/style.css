@@ -359,10 +359,10 @@ input.rect-input:focus {
 .inputing input[type=text] {
   border-radius: 0;
   border-color: rgba(240, 240, 240, 0.9);
-  color: #fff;
+  color: #FF0;
   text-shadow: 1px 1px 0px #000;
   height: 14px;
-  width: 40px;
+  width: 30px;
   line-height: normal;
   padding: 0 3px;
   margin: 0;
@@ -384,7 +384,7 @@ input.rect-input:focus {
   font-size: 12px;
   letter-spacing: 1px;
   white-space: nowrap;
-  overflow: hidden;
+  max-width: 500px;
 }
 .rect-status {
   position: absolute;
