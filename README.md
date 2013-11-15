@@ -33,10 +33,10 @@ MarkTool
 - 用户设置
 	* 模板编辑
     * 保存路径设置
+    * 标尺设置
     * more... ...
 
 ## Features
-- 标尺刻度
 - 生成图片展示形式可选，背景或者img标签
 - 新建自定义模板
 - 历史记录（撤销、重做）
@@ -46,9 +46,15 @@ MarkTool
 - 自动更新
 
 ## 下载
-最新版本：Beta V5 (0.3.1)
+### 最新版本
+Beta V5 (0.3.1) [changeLog](#changelog)
 
 * Windows 32bit: [云盘下载](http://yunpan.cn/Q9TJgbHLGzPcL)
+
+### 以往版本
+
+* Beta V4 (0.3.0) for Win32: [云盘下载](http://yunpan.cn/QbRQ2IjcZmxSQ)
+* Beta V3 (0.1.3) for Win32: [云盘下载](http://yunpan.cn/QGYhegYNxVta7)
 
 PS：以上32位版本，在64位系统上测试通过是可以使用的，不过不排除某些情况下失效，原因未知。
 
@@ -64,20 +70,18 @@ gm version
 
 `大多数情况`会正确执行并返回，如果没有正确执行，可以尝试`重启电脑`，再次运行以上命令
 
-命令执行成功后，按照上面给出的地址下载 MarkTool，解压
-
-OK，现在可以运行MarkTool.exe啦！
+命令执行成功后，运行MarkTool.exe
 
 ## 特别感谢
 - Node-Webkit：[https://github.com/rogerwang/node-webkit/](https://github.com/rogerwang/node-webkit/)
 - GraphicsMagick for node: [http://aheckmann.github.com/gm/](http://aheckmann.github.com/gm/)
 
 ##ChangeLog
-### 0.3.1
+### 0.3.1 (2013.11.15)
 - 【增加】导出图片质量设置（压缩范围0~100，只支持JPG/JPEG格式图片，因为PNG压缩一直是无损的）；
 - 【增加】标尺刻度值，标尺设置项；
 
-### 0.3.0
+### 0.3.0 (2013.10.11)
 - 增加自定义内容区功能；
 - 导出HTML的情况，同时导出配置文件和初始图片文件；
 - 切线记录更改为实时保存，去掉【立即保存当前记录】功能；
@@ -88,7 +92,7 @@ OK，现在可以运行MarkTool.exe啦！
 - 增加不影响操作的右下角提示功能；
 - 突出显示热区信息设置；
 
-### 0.1.3
+### 0.1.3 (2013.09.16)
 - 模板增加【宽度 > 990(挖空)】一项，可导出背景图；
 
 # License
