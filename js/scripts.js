@@ -228,7 +228,7 @@ var mass = {
                     }
                 }
                 else if(type === 'select'){
-                    this.checked = valueInSet;
+                    that.val(valueInSet);
                 }
                 else if(type === 'text' || type === 'password'){
                     this.value = valueInSet;
@@ -344,6 +344,12 @@ var mass = {
             $.extend(true, setting, this.userSet.setting);
             console.log(setting);
             window.localStorage.setting = JSON.stringify(setting);
+
+            // 改变了标尺选项，重新渲染标尺区域
+            if(this.userSet.setting.ruler_show !== undefined || this.userSet.setting.ruler_step !== undefined){
+                mass.ruler_convert();
+            }
+
             return true;
         },
         // 取得本地设置指定项
@@ -352,11 +358,20 @@ var mass = {
                 setting, res = false;
 
             if(localSet){
-                setting = JSON.parse(localSet);
+                setting = config.setting;
+
+                $.extend(true, setting, JSON.parse(localSet));
+
                 if(belong && setting[belong]){
                     res = setting[belong][key];
                 }else{
                     res = setting[key];
+                }
+            }else{
+                if(belong && config.setting[belong]){
+                    res = config.setting[belong][key];
+                }else{
+                    res = config.setting[key];
                 }
             }
 
@@ -440,6 +455,9 @@ var mass = {
             _move = true;
             imgCover.addClass('lineMoving' + type);
         });
+
+        // 刻度切换
+        this.ruler_convert();
 
         $(document).mousemove(function(e){
             if(_move){
@@ -530,6 +548,32 @@ var mass = {
 
             imgCover.addClass('lineMoving' + _type);
         });
+    },
+    ruler_convert: function(){
+        var scale = $('.scale'),
+            scaleNum = 0,
+            // 标尺步长
+            scaleStep = parseInt(mass.rockSettings.getItemInSetting('ruler_step')),
+            scaleIsShow = mass.rockSettings.getItemInSetting('ruler_show');
+
+        scaleIsShow = scaleIsShow === true || scaleIsShow === 'true';
+
+        if(scaleIsShow){
+            $('.ruler-x, .ruler-y').html('');
+
+            for(scaleNum = 0; scaleNum < screen.availWidth; scaleNum += scaleStep){
+                $('.ruler-x').append('<span class="scale" style="left: '+ (scaleNum + 2) +'px;">'+ scaleNum +'</span>');
+            }
+
+            for(scaleNum = 0; scaleNum < screen.availHeight; scaleNum += scaleStep){
+                $('.ruler-y').append('<span class="scale" style="top: '+ (scaleNum + 0) +'px">'+ scaleNum +'</span>');
+            }
+        }
+        else{
+            if(scale.length){
+                scale.hide();
+            }
+        }
     },
     // 对话框
     dialog: function(msg, buttons){

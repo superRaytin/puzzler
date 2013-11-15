@@ -23,6 +23,8 @@ module.exports = {
             big2: template.styleBig2
         },
         "exportOption": 'default', // 导出HTML选项
+        "ruler_show": true, // 是否显示标尺
+        "ruler_step": 100, // 标尺步长（100 || 50）
         "theme": "default", // 预览区主题
         "tag_dblclickClose": false, // 双击关闭
         "tag_lock": true, // 锁定标签
