@@ -2,6 +2,11 @@
   "name": "MarkTool",
   "version": "0.3.0",
   "main": "main.html",
+  "devDependencies": {
+      "cheerio": "*",
+      "gm": "*",
+      "iconv-lite": "*"
+  },
   "window": {
     "icon": "img/mass.png",
     "show": false,
