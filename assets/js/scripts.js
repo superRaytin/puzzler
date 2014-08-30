@@ -1182,7 +1182,7 @@ var mass = {
         var fileSeparator = this.clientInfo.fileSeparator;
 
         //console.log(blocks);
-        mass.loadFile('./preview.html', function(data){
+        mass.loadFile('./assets/preview.html', function(data){
             var cheer = cheerio.load(data),
                 blockLen = blocks.length,
                 bodyCon = '',

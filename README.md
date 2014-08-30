@@ -3,9 +3,7 @@
 MarkTool
 ==============
 
-基于 [Node-Webkit](https://github.com/rogerwang/node-webkit/) 实现的前端切图助手。
-
-![MarkTool](test/z.png)
+![MarkTool](assets/test/z.png)
 
 ## 具备的功能：
 
