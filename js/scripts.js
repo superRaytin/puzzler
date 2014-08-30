@@ -110,6 +110,7 @@ var mass = {
         };
     },
     setImgCoverWidth: function(){
+        var self = this;
         var cache = this.cache,
             previewImg = $('#previewImg'),
             src = previewImg.attr('src'),
@@ -120,20 +121,50 @@ var mass = {
         gm(src).size(function(err, value){
             if(err){
                 console.log(err);
-                return mass.dialog('还未安装 GraphicsMagick 吗？请尝试以下方法：<br>1. 如果已安装，请在CMD命令中运行gm version，如未正确执行，请重启电脑（初次安装需要）<br>2. 未安装，请到 ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/ 下载相应版本',
-                    [
-                        {
-                            value: '去往下载地址',
-                            callback: function(){
-                                gui.Shell.openExternal('ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/');
+
+                if(self.clientInfo.isMacOS){
+                    mass.dialog('还未安装 GraphicsMagick 服务吗？你是Mac用户，请打开终端命令并运行：<br>1. brew install imagemagick<br>2. brew install graphicsmagick',
+                        [
+                            {
+                                value: '确定'
+                            }
+                        ]
+                    );
+                }
+                else if(self.clientInfo.isLinux){
+                    mass.dialog('您还未安装 GraphicsMagick 服务，请先安装',
+                        [
+                            {
+                                value: '下载地址',
+                                callback: function(){
+                                    gui.Shell.openExternal('http://www.graphicsmagick.org/');
+                                },
+                                focus: true
                             },
-                            focus: true
-                        },
-                        {
-                            value: '确定'
-                        }
-                    ]
-                );
+                            {
+                                value: '确定'
+                            }
+                        ]
+                    );
+                }
+                else{
+                    mass.dialog('还未安装 GraphicsMagick 服务吗？你是Windows用户，请尝试以下方法：<br>1. 如果已安装，请在CMD命令中运行gm version，如未正确执行，请重启电脑（初次安装需要）<br>2. 未安装，请到 ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/ 下载相应版本',
+                        [
+                            {
+                                value: '下载地址',
+                                callback: function(){
+                                    gui.Shell.openExternal('ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/');
+                                },
+                                focus: true
+                            },
+                            {
+                                value: '确定'
+                            }
+                        ]
+                    );
+                }
+
+                return;
             }
 
             preWid = value.width;
@@ -845,7 +876,8 @@ var mass = {
         var cache = mass.cache,
             img = cache.img,
             imgDirectory = modPath.dirname(img.path),
-            configPath = imgDirectory + '\\config.json';
+            fileSeparator = this.clientInfo.fileSeparator,
+            configPath = imgDirectory + fileSeparator + 'config.json';
 
         if(fs.existsSync(configPath)){
             alertify.log('检测到配置文件，已自动适配：' + configPath);
@@ -1009,11 +1041,13 @@ var mass = {
             quality = parseInt($('#J-quality').val()),
             img = gm(imgPath);
 
+        var fileSeparator = this.clientInfo.fileSeparator;
+
         var imgCover = $('#J-imgCover'),
             cache = mass.cache,
             isJpg = /^jpg|jpeg/.test(cache.fileFormat),
             newFolder = mass.rockSettings.getItemInSetting('exportOption'),
-            folder = callback ? '\\images' : '',
+            folder = callback ? (fileSeparator + 'images') : '',
             imgName, exportPathByImgName, blocks, markBlocks, gmdeal;
 
         blocks = mass.getCutBlocks();
@@ -1028,7 +1062,7 @@ var mass = {
             // 根据用户设置是否创建新文件夹存放
             if(newFolder && newFolder === 'newfolder'){
                 imgName = modPath.basename(cache.img.path, '.' + cache.fileFormat);
-                exportPathByImgName = exportPath + '\\' + imgName;
+                exportPathByImgName = exportPath + fileSeparator + imgName;
                 if(!fs.existsSync(exportPathByImgName)){
                     fs.mkdirSync(exportPathByImgName);
                 }
@@ -1042,7 +1076,7 @@ var mass = {
             (function(){
                 var arg = arguments;
                 var item = target.shift();
-                var exportFileName = exportPath + folder + '\\section-' + index + '-' + (num++) + '.' + cache.fileFormat;
+                var exportFileName = exportPath + folder + fileSeparator + 'section-' + index + '-' + (num++) + '.' + cache.fileFormat;
 
                 if(!item){
                     callback();
@@ -1075,7 +1109,7 @@ var mass = {
             (function(){
                 var arg = arguments;
                 var item = blocks.shift();
-                var exportFileName = exportPath + folder + '\\section-' + (i++) + '.' + cache.fileFormat;
+                var exportFileName = exportPath + folder + fileSeparator + 'section-' + (i++) + '.' + cache.fileFormat;
                 //var exportFileNameBg = exportPath + folder + '\\bg-section-' + (i++) + '.' + cache.fileFormat;
                 if(!item){
                     // 导出图片和HTML
@@ -1088,7 +1122,7 @@ var mass = {
                             {
                                 value: '打开文件位置',
                                 callback: function(){
-                                    gui.Shell.showItemInFolder(exportPath + folder + '\\section-1.' + cache.fileFormat);
+                                    gui.Shell.showItemInFolder(exportPath + folder + fileSeparator + 'section-1.' + cache.fileFormat);
                                 },
                                 focus: true
                             },
@@ -1144,6 +1178,8 @@ var mass = {
             img = cache.img,
             isBig = !!(img.width > 990 && cache.lineY === 0),
             isBig2 = !!(img.width > 990 && cache.lineY > 1);
+
+        var fileSeparator = this.clientInfo.fileSeparator;
 
         //console.log(blocks);
         mass.loadFile('./preview.html', function(data){
@@ -1276,14 +1312,14 @@ var mass = {
             cheer('body').append(bodyCon);
             cache.clipboard = bodyCon;
 
-            fs.writeFile(path + '\\index.html', cheer.html(), function(err){
+            fs.writeFile(path + fileSeparator + 'index.html', cheer.html(), function(err){
                 if(err) return console.log(err);
                 mass.dialog('导出图像和HTML成功！<br>文件位置：' + path, [
                     {
                         value: '浏览器中预览',
                         callback: function(){
                             //gui.Shell.openExternal(path + '\\index.html');
-                            gui.Shell.openItem(path + '\\index.html');
+                            gui.Shell.openItem(path + fileSeparator + 'index.html');
                             return false;
                         },
                         focus: true
@@ -1291,7 +1327,7 @@ var mass = {
                     {
                         value: '打开文件位置',
                         callback: function(){
-                            gui.Shell.showItemInFolder(path + '\\index.html');
+                            gui.Shell.showItemInFolder(path + fileSeparator + 'index.html');
                             return false;
                         }
                     },
@@ -1307,7 +1343,7 @@ var mass = {
                 if(!cache.quickSavePath){
                     // 生成origin图片
                     var readStream = fs.createReadStream(img.path),
-                        writeStream = fs.createWriteStream(path + '\\origin.' + cache.fileFormat);
+                        writeStream = fs.createWriteStream(path + fileSeparator + 'origin.' + cache.fileFormat);
 
                     readStream.pipe(writeStream);
                     writeStream.on('close', function(){
@@ -1327,7 +1363,7 @@ var mass = {
                         '\t"textArea": '+ encodeURIComponent(JSON.stringify(cache.textArea)) +'\n' +
                     '}';
 
-                fs.createWriteStream(path + '\\config.json').write(configContent);
+                fs.createWriteStream(path + fileSeparator + 'config.json').write(configContent);
 
                 // 解锁
                 cache.saveLock = false;
@@ -1511,6 +1547,27 @@ var mass = {
             mass.TextArea.preview();
         });
     },
+    checkClient: function(){
+        var self = this;
+        var userAgent = window.navigator.userAgent;
+
+        self.clientInfo = {
+            isMacOS: false,
+            isLinux: false,
+            // 文件分隔符
+            fileSeparator: '\\'
+        };
+
+        if(userAgent.indexOf('Macintosh') !== -1){
+            self.clientInfo.isMacOS = true;
+            self.clientInfo.fileSeparator = '\/';
+        }
+
+        if(userAgent.indexOf('Linux') !== -1){
+            self.clientInfo.isLinux = true;
+            self.clientInfo.fileSeparator = '\/';
+        }
+    },
     observer: function(){
         var cache = this.cache,
             context = require('./js/contextmenu').init(),
@@ -1521,6 +1578,8 @@ var mass = {
         mass.Rect = Rect;
         mass.Line = Line;
         mass.TextArea = TextArea;
+
+        this.checkClient();
 
         var imgCover = $('#J-imgCover'),
             offset = $('#J-offset'),
@@ -1686,13 +1745,15 @@ var mass = {
                 that = this,
                 path = that.value;
 
+            var fileSeparator = this.clientInfo.fileSeparator;
+
             if(localSet){
-                fs.createWriteStream(path + '\\settings.json').write(localSet);
+                fs.createWriteStream(path + fileSeparator + 'settings.json').write(localSet);
                 mass.dialog('用户设置导出成功！<br>文件位置：' + path, [
                     {
                         value: '打开文件位置',
                         callback: function(){
-                            gui.Shell.showItemInFolder(path + '\\settings.json');
+                            gui.Shell.showItemInFolder(path + fileSeparator + 'settings.json');
                             return false;
                         },
                         focus: true
