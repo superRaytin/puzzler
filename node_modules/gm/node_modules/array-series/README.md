@@ -1,4 +1,4 @@
-# Array Series [![Build Status](https://travis-ci.org/jonathanong/array-series.png)](https://travis-ci.org/jonathanong/array-series)
+# Array Series [![Build Status](https://travis-ci.org/component/array-series.png)](https://travis-ci.org/component/array-series)
 
 Call an array of asynchronous functions in series
 

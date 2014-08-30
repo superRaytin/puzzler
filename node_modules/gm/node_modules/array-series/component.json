@@ -1,8 +1,8 @@
 {
   "name": "array-series",
   "description": "Call an array of asynchronous functions in series",
-  "repo": "jonathanong/array-series",
-  "version": "0.1.4",
+  "repo": "component/array-series",
+  "version": "0.1.5",
   "main": "index.js",
   "scripts": [
     "index.js"
