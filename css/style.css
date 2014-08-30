@@ -1,3 +1,4 @@
+util.print: Use console.log instead
 @charset "utf-8";
 /* public */
 .fn-left {
@@ -151,6 +152,7 @@ img {
   right: 0;
   top: 30px;
   bottom: 0px;
+  overflow: hidden;
 }
 .ruler-x {
   position: absolute;
@@ -161,13 +163,13 @@ img {
   background: url('../img/ruler_x.png') repeat;
   background-color: rgba(255, 255, 255, 0.2);
 }
-.scale{
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-size: 10px;
-    line-height: normal;
-    color: #000;
+.scale {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 10px;
+  line-height: normal;
+  color: #000;
 }
 .ruler-y {
   position: absolute;
@@ -199,6 +201,8 @@ img {
   position: absolute;
   left: 0;
   top: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
 }
 .imgCover.mapCursor {
