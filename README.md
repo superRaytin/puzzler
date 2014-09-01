@@ -1,4 +1,4 @@
-![MarkTool](img/mass.png)
+![MarkTool](assets/img/mass.png)
 
 MarkTool
 ==============
