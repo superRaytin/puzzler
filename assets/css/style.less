@@ -58,6 +58,7 @@ img{
 }
 .wrapper{
   cursor: default;
+  overflow: hidden;
 }
 .container{
   padding: 20px;
@@ -75,20 +76,26 @@ img{
   top: 0;
   left: 0;
   right: 0;
-  height: 30px;
+  height: 50px;
   padding-left: 0px;
   padding-right: 0px;
   background-color: rgba(100, 100, 100, 0.6);
+  border-bottom: 1px solid #000;
   .toolbar-item{
-    float: left;
-    padding: 4px 12px 0px 12px;
     position: relative;
+    float: left;
+    min-width: 40px;
+    height: 50px;
+    padding: 0 7px;
+    text-align: center;
+    .name{
+      display: block;
+      margin-top: 2px;
+      color: #fff;
+    }
   }
   .toolbar-item.fn-right{
     float: right;
-  }
-  .toolbar-item.warning .glyphicon{
-    color: #FA6767
   }
   .toolbar-item.stat-success{
     background: rgb(130, 167, 52);
@@ -101,12 +108,13 @@ img{
     cursor: pointer;
   }
   .glyphicon{
-    font-size: 18px;
+    display: inline-block;
+    height: 16px;
+    margin-top: 7px;
+    font-size: 16px;
     color: #fff;
     vertical-align: middle;
-    text-shadow: 1px 1px 0px #333;
-    padding: 2px 0;
-    display: inline-block;
+    text-shadow: 1px 1px 0px #666;
   }
   .desc{
     color: #fff;
@@ -120,25 +128,25 @@ img{
     float: left;
     border-right: 1px dotted #ccc;
     width: 1px;
-    height: 20px;
+    height: 40px;
     margin: 5px 8px 0px 8px;
   }
+  .dropdown-menu{
+    text-align: left;
+  }
   .toolbar-dropmenu:not(.home){
-    padding-left: 0;
-    padding-right: 0;
     .glyphicon{
-      padding: 2px 12px;
-    }
-    >span:after{
-      content: '+';
-      padding-left: 5px;
-      font-size: 14px;
-      color: #fff;
-      vertical-align: top;
+      &:after{
+        content: '+';
+        padding-left: 5px;
+        font-size: 14px;
+        color: #fff;
+        vertical-align: top;
+      }
     }
   }
   .home{
-    padding-bottom: 4px;
+    padding-bottom: 0px;
   }
 }
 
@@ -151,7 +159,7 @@ img{
   position: absolute;
   left: 0;
   right: 0;
-  top: 30px;
+  top: 50px;
   bottom: 0px;
   overflow: hidden;
 }
@@ -601,4 +609,16 @@ input.rect-input:focus{
   padding-left: 5px;
   color: #999;
   vertical-align: middle;
+}
+
+.about{
+  .logo{
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  p{
+    margin: 0;
+    line-height: 2em;
+    font-size: 14px;
+  }
 }

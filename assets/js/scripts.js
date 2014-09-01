@@ -16,7 +16,7 @@ var gui = require('nw.gui'),
 var mass = {
     cache: {
         minusX: 20, // 标尺X的宽度
-        minusY: 50, // 工具栏高度加标尺Y的高度
+        minusY: 70, // 工具栏高度加标尺Y的高度
         statusHeight: 20,
         line: {},
         focusLineId: null,
@@ -106,7 +106,7 @@ var mass = {
         // 图片区外层宽度
         if(cache.mainResizeFlag){
             preParent.width(Math.min(cache.img.width + 11, winWid - 20));
-            preParent.height(Math.min(cache.img.height + 11, winHei - 70));
+            preParent.height(Math.min(cache.img.height + 11, winHei - 90));
         };
     },
     setImgCoverWidth: function(){
@@ -173,10 +173,10 @@ var mass = {
             $('#J-imgCover').width(preWid).height(preHei);
             //preParent.width(Math.min(preWid + 11, screen.availWidth - 20));
             preParent.width(Math.min(preWid + 11, $(window).width() - 20));
-            preParent.height(Math.min(preHei + 11, $(window).height() - 70));
+            preParent.height(Math.min(preHei + 11, $(window).height() - 90));
 
             // 图片宽度小于配置中的最小宽度，则resize时不作操作
-            if(preWid + 11 > cache.minWidth - 20 || preHei + 11 > cache.minHeight - 70){
+            if(preWid + 11 > cache.minWidth - 20 || preHei + 11 > cache.minHeight - 90){
                 cache.mainResizeFlag = true;
             }
         });
@@ -1849,9 +1849,12 @@ var mass = {
         // help
         $('#J-help').click(function(){
             mass.dialog({
-                title: '关于',
-                content: 'MarkTool 基于 <a href="https://github.com/rogerwang/node-webkit/">Node-Webkit</a> 开源项目<br><br>By 支付宝-综合前端组 <a href="http://blog.jsfor.com">@柳裟</a>'
-            }, true)
+                title: '关于MarkTool',
+                width: 250,
+                content: _.template($('#template-about').html())({
+                    config: config
+                })
+            })
         });
 
         // 监听偏移量变化
@@ -1911,6 +1914,10 @@ var mass = {
 
         $('.toolbar').find('.toolbar-item:not(.toolbar-dropmenu)').attr('data-placement', 'bottom').end().tooltip({
             selector: '.toolbar-item'
+        });
+
+        $('.addImg').tooltip({
+            placement: 'right'
         });
 
         $('.dropdown-menu li a').attr('nopen', 1).click(function(e){
