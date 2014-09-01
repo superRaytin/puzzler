@@ -8,7 +8,8 @@ var require = global.require,
 
 module.exports = {
     "name": "MarkTool",
-    "version": "0.3.0",
+    "desc": "前端切图助手",
+    "version": "0.5.0",
     "updateURL": "http://www.jsfor.com/project/MarkTool/update.json",
     "memory": {
         "lastSaveDir": "", // 最后一次保存目录路径
