@@ -20,6 +20,11 @@
   margin-right: 5px;
 }
 
+*, :before, :after{
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 /* 重设滚动条样式 */
 ::-webkit-scrollbar {
   width: 11px;
@@ -38,10 +43,12 @@
 }
 
 #backing{
-  position: absolute;
+  position: fixed;
   z-index: -10;
   left: 0;
+  right: 0;
   top: 0;
+  bottom: 0;
   overflow: hidden;
 }
 
@@ -360,7 +367,7 @@ input.rect-input:focus{
   position: absolute;
   width: 200px;
   height: 60px;
-  line-height: 62px;
+  line-height: 52px;
   text-align: center;
   font-size: 24px;
 }
@@ -420,7 +427,7 @@ input.rect-input:focus{
 }
 
 #overlay{
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   top: 0;

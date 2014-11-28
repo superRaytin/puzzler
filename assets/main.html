@@ -13,8 +13,14 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
+<img id="J-Calculate" src="img/hold.png" class="hide init">
+<input type="file" class="hide" id="J-hi-select">
+<input type="file" class="hide" id="J-hi-saveDiretory" nwdirectory>
+<input type="file" class="hide" id="J-hi-saveDiretoryForHtml" nwdirectory>
+<input type="file" class="hide" id="J-hi-saveDiretoryForUserExport" nwdirectory>
+<input type="file" class="hide" id="J-hi-saveDiretoryForUserImport">
+
 <div id="wrapper" class="wrapper">
-    <img id="J-Calculate" src="img/hold.png" class="hide init">
     <div class="toolbar">
         <div class="clearfix">
             <div id="J-selectFile" class="toolbar-item" title="选择图片 (Ctrl+N)">
@@ -91,11 +97,6 @@
             </div>
         </div>
     </div>
-    <input type="file" class="hide" id="J-hi-select">
-    <input type="file" class="hide" id="J-hi-saveDiretory" nwdirectory>
-    <input type="file" class="hide" id="J-hi-saveDiretoryForHtml" nwdirectory>
-    <input type="file" class="hide" id="J-hi-saveDiretoryForUserExport" nwdirectory>
-    <input type="file" class="hide" id="J-hi-saveDiretoryForUserImport">
     <div class="main clearfix">
         <div class="ruler-x" data-type="X"></div>
         <div class="ruler-y" data-type="Y"></div>
@@ -122,8 +123,6 @@
             </div>
         </div>
     </div>
-    <div id="backing"><img src="img/blue.jpg"></div>
-    <div id="overlay"></div>
     <!--<div class="textzone">
         <textarea>1212</textarea>
         <div class="resize"></div>
@@ -131,6 +130,8 @@
         <div class="cover hide"></div>
     </div>-->
 </div>
+<div id="backing"><img src="img/blue.jpg"></div>
+<div id="overlay"></div>
 <!-- template start -->
 <script type="template/dialog" id="J-settings">
     <div id="dialogWrap" class="dialogWrap">

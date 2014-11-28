@@ -7,6 +7,8 @@ var gm = require('gm'),
     iconv = require('iconv-lite'),
     cheerio = require('cheerio');
 
+gm = gm.subClass({imageMagick: true});
+
 var gui = require('nw.gui'),
     fs = require('fs'),
     modPath = require('path'),
@@ -63,14 +65,20 @@ var mass = {
             fs.readFile(path, function(err, data){
                 if(err) return console.log(err);
 
-                var str = iconv.decode(data, 'utf-8'),
-                    encode = 'utf-8';
+                var decodeData = mass.str_decode(data);
+
+                if(decodeData === 'error'){
+                    mass.dialog('文件解析出错！请检查文件编码类型', true);
+                    return;
+                }
+
+                var encode = 'utf-8';
 
                 // 编码不对试着用别的编码
-                if(str.indexOf('�') != -1){
+                if(decodeData.indexOf('�') != -1){
                     for(var i = 0, len = encodings.length; i < len; i++){
-                        str = iconv.decode(data, encodings[i]);
-                        if(str.indexOf('�') == -1){
+                        decodeData = iconv.decode(data, encodings[i]);
+                        if(decodeData.indexOf('�') == -1){
                             encode = encodings[i];
                             console.log('文件编码： ' + encodings[i]);
                             break;
@@ -78,9 +86,32 @@ var mass = {
                     };
                 }
 
-                callback(str, encode);
+                callback(decodeData, encode);
             });
         }
+    },
+    str_decode: function(buf, encode){
+        if(!buf) return '';
+
+        encode = encode || 'utf-8';
+        var encodings = ['ascii', 'gbk', 'gb2312', 'binary', 'base64'];
+        var result = 'error';
+        var tryTimes = 0;
+
+        (function(){
+            var args = arguments;
+            try{
+                result = iconv.decode(buf, encode);
+            }
+            catch(e){
+                if(encodings[tryTimes]){
+                    tryTimes++;
+                    args.callee();
+                }
+            }
+        })();
+
+        return result;
     },
     resizeHandler: function(){
         var cache = mass.cache,
@@ -107,7 +138,7 @@ var mass = {
         if(cache.mainResizeFlag){
             preParent.width(Math.min(cache.img.width + 11, winWid - 20));
             preParent.height(Math.min(cache.img.height + 11, winHei - 90));
-        };
+        }
     },
     setImgCoverWidth: function(){
         var self = this;
@@ -886,12 +917,19 @@ var mass = {
                     return mass.dialog('配置文件读取错误！<br>' + err, true);
                 }
 
-                var decodeData = iconv.decode(data), parseData;
+                var decodeData = mass.str_decode(data);
+
+                if(decodeData === 'error'){
+                    mass.dialog('配置文件解析出错！请检查文件编码类型', true);
+                    return;
+                }
+
+                var parseData;
 
                 try{
                     parseData = JSON.parse(decodeURIComponent(decodeData));
                 }catch(e){
-                    mass.dialog('配置文件解析出错！是不是修改过配置文件？请检查是否Json格式<br>' + e, true);
+                    mass.dialog('配置文件解析出错！是不是修改过配置文件？请检查是否正确的Json格式<br>' + e, true);
                     return console.log(e);
                 }
 
@@ -899,10 +937,10 @@ var mass = {
                 mass.Line.import(parseData.line, function(availableLineNum, flowLineNum){
                     // 上次所有切线都超出了当前图片区域
                     if(availableLineNum == 0){
-                        return mass.dialog('所有切线都超出了当前图片区域，此次操作无切线导入，是不是修改过origin图片或配置文件？', true);
+                        return mass.dialog('所有参考线都超出了当前图片区域，此次操作无参考线导入，是不是修改过origin图片或配置文件？', true);
                     }
                     else if(flowLineNum){
-                        mass.dialog('导入成功，但有 '+ flowLineNum +' 条切线超出当前图片范围，已失效，是不是修改过origin图片或配置文件？', true);
+                        mass.dialog('导入成功，但有 '+ flowLineNum +' 条参考线超出当前图片范围，已失效，是不是修改过origin图片或配置文件？', true);
                     }
                     mass.Line.store();
                 });
@@ -1534,7 +1572,7 @@ var mass = {
         });
         kibo.down('ctrl r', function(){
             $('#J-mapArea').trigger('click');
-        })
+        });
         kibo.down('ctrl t', function(){
             $('#J-textArea').trigger('click');
         });
@@ -1549,23 +1587,29 @@ var mass = {
     },
     checkClient: function(){
         var self = this;
-        var userAgent = window.navigator.userAgent;
+        var platform = process.platform;
 
         self.clientInfo = {
+            isWin: true,
             isMacOS: false,
             isLinux: false,
             // 文件分隔符
             fileSeparator: '\\'
         };
 
-        if(userAgent.indexOf('Macintosh') !== -1){
+        if(platform === 'darwin'){
             self.clientInfo.isMacOS = true;
             self.clientInfo.fileSeparator = '\/';
         }
-
-        if(userAgent.indexOf('Linux') !== -1){
+        else if(platform === 'linux'){
             self.clientInfo.isLinux = true;
             self.clientInfo.fileSeparator = '\/';
+        }
+        else if(platform === 'win32'){
+
+        }
+        else{
+            console.log('Unexpected platform or architecture:', process.platform, process.arch)
         }
     },
     observer: function(){
@@ -1716,7 +1760,14 @@ var mass = {
                     return mass.dialog('文件读取错误！<br>' + err, true);
                 }
 
-                var decodeData = iconv.decode(data), parseData;
+                var decodeData = mass.str_decode(data);
+
+                if(decodeData === 'error'){
+                    mass.dialog('文件解析出错！请检查文件编码类型', true);
+                    return;
+                }
+
+                var parseData;
 
                 try{
                     parseData = JSON.parse(decodeData);
@@ -2007,7 +2058,7 @@ var mass = {
         gui.Window.get().on('close', function(){
             if(mass.beforeClose()){
                 this.close(true);
-            };
+            }
         });
     },
     init: function(){
