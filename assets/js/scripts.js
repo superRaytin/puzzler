@@ -7,7 +7,7 @@ var gm = require('gm'),
     iconv = require('iconv-lite'),
     cheerio = require('cheerio');
 
-gm = gm.subClass({imageMagick: true});
+//gm = gm.subClass({imageMagick: true});
 
 var gui = require('nw.gui'),
     fs = require('fs'),
