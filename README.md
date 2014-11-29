@@ -45,16 +45,14 @@ MarkTool
 
 ## 下载
 ### 最新版本
-Beta V5 (0.3.1) [changeLog](#changelog)
+Beta V0.5.0 [changeLog](#changelog)
 
-* Windows 32bit: [云盘下载](http://yunpan.cn/Q9TJgbHLGzPcL)
+* Windows: [云盘下载](http://pan.baidu.com/s/1sjCxweh)
+* Mac OS X: [云盘下载](http://pan.baidu.com/s/1eQcRXlS)
+* Linux32: [云盘下载](http://pan.baidu.com/s/1eQgVIRS)
+* Linux64: [云盘下载](http://pan.baidu.com/s/1qWHPgKG)
 
-### 以往版本
-
-* Beta V4 (0.3.0) for Win32: [云盘下载](http://yunpan.cn/QbRQ2IjcZmxSQ)
-* Beta V3 (0.1.3) for Win32: [云盘下载](http://yunpan.cn/QGYhegYNxVta7)
-
-PS：以上32位版本，在64位系统上测试通过是可以使用的，不过不排除某些情况下失效，原因未知。
+PS：以上windows 32位版本，在64位系统上测试通过是可以使用的，不过不排除某些情况下失效，原因未知。
 
 ## 安装步骤
 
@@ -75,6 +73,10 @@ gm version
 - GraphicsMagick for node: [http://aheckmann.github.com/gm/](http://aheckmann.github.com/gm/)
 
 ##ChangeLog
+### 0.5.0 (2014.11.29)
+- 全新的软件界面
+- 优化客户机系统侦测方法
+
 ### 0.3.1 (2013.11.15)
 - 【增加】导出图片质量设置（压缩范围0~100，只支持JPG/JPEG格式图片，因为PNG压缩一直是无损的）；
 - 【增加】标尺刻度值，标尺设置项；
