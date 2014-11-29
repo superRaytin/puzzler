@@ -8,7 +8,7 @@ MarkTool
 ## 具备的功能：
 
 - 导入
-	* 支持 jpg, jpeg, png, gif等图片类型
+	* 支持 jpg, jpeg, png等图片类型
     * 支持拖拽导入
 - 标尺
 - 参考线
