@@ -75,7 +75,7 @@ module.exports = {
                 '\t\tmargin-right: auto;\n' +
             '\t}\n' +
             '\t.ui-block-inner{\n' +
-                '\t\twidth: 990px;\n' +
+                '\t\twidth: <%= wrapperWidth %>px;\n' +
                 '\t\theight: auto;\n' +
                 '\t\tmargin-left: auto;\n' +
                 '\t\tmargin-right: auto;\n' +
@@ -102,7 +102,7 @@ module.exports = {
                 '\t\tmargin-right: auto;\n' +
             '\t}\n' +
             '\t.ui-block-inner{\n' +
-                '\t\twidth: 990px;\n' +
+                '\t\twidth: <%= wrapperWidth %>px;\n' +
                 '\t\theight: auto;\n' +
                 '\t\tmargin-left: auto;\n' +
                 '\t\tmargin-right: auto;\n' +

@@ -20,6 +20,7 @@ var mass = {
         minusX: 20, // 标尺X的宽度
         minusY: 70, // 工具栏高度加标尺Y的高度
         statusHeight: 20,
+        wrapperWidth: 990, // 外框宽度
         line: {},
         focusLineId: null,
         lineuuid: 1,
@@ -866,6 +867,9 @@ var mass = {
                 return alertify.log('至少给个10像素吧~', 'error', 5000);
             }
             param = parseInt(val);
+
+            // 记住自定义设置的黄金比例值
+            cache.wrapperWidth = param;
         }
 
         pendLine.push({
@@ -1324,7 +1328,8 @@ var mass = {
                 !localTemplateSet && (localTemplateSet = template.styleBig);
                 bodyCon = _.template(localTemplateSet)({
                     blockStyles: allBlockStyles,
-                    blocks: allBlockStyles
+                    blocks: allBlockStyles,
+                    wrapperWidth: cache.wrapperWidth
                 });
             }
             else if(isBig2){
@@ -1332,7 +1337,8 @@ var mass = {
                 !localTemplateSet && (localTemplateSet = template.styleBig2);
                 bodyCon = _.template(localTemplateSet)({
                     blockStyles: allBlockStyles,
-                    blocks: allBlockStyles
+                    blocks: allBlockStyles,
+                    wrapperWidth: cache.wrapperWidth
                 });
             }
             else{
