@@ -129,7 +129,7 @@ input[type='checkbox']:not(.custom-appearance):not(:disabled):active {
 
 input[type='checkbox']:not(.custom-appearance):checked::before {
     color: #808080;
-    content: url('../img/checkmark.png');
+    content: url('../../src/img/checkmark.png');
     font-size: 13px;  /* Explicitly set the font size so that the positioning
                        of the checkmark is correct. */
     height: 16px;
@@ -266,7 +266,7 @@ select {
     -webkit-padding-end: 20px;
     -webkit-padding-start: 8px;
     -webkit-user-select: none;
-    background-image: url("../img/select.png"),
+    background-image: url("../../src/img/select.png"),
     -webkit-linear-gradient(#fafafa, #f4f4f4 40%, #e5e5e5);
     background-position: center right;
     background-repeat: no-repeat;
@@ -286,20 +286,20 @@ html[dir='rtl'] select {
 
 select:disabled {
     color: graytext;
-    background-image: url("../img/disabled_select.png"),
+    background-image: url("../../src/img/disabled_select.png"),
     -webkit-linear-gradient(#fefefe, #f8f8f8 40%, #e9e9e9);
 }
 
 select:enabled:hover {
     -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    background-image: url("../img/select.png"),
+    background-image: url("../../src/img/select.png"),
     -webkit-linear-gradient(#fefefe, #f8f8f8 40%, #e9e9e9);
     color: #333;
 }
 
 select:enabled:active {
     -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-    background-image: url("../img/select.png"),
+    background-image: url("../../src/img/select.png"),
     -webkit-linear-gradient(#f4f4f4, #efefef 40%, #dcdcdc);
     color: #444;
 }

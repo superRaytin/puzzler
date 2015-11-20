@@ -20,7 +20,7 @@
 .d-main { text-align:center; vertical-align:middle; min-width:9em; }
 .d-content { display:inline-block; text-align:left; border:0 none;  }
 .d-content.d-state-full { display:block; width:100%; margin:0; padding:0!important; height:100%; }
-.d-loading { width:96px; height:32px; text-align:left; text-indent:-999em; overflow:hidden; background:url(../img/loading.gif) no-repeat center center; }
+.d-loading { width:96px; height:32px; text-align:left; text-indent:-999em; overflow:hidden; background:url(../../src/img/loading.gif) no-repeat center center; }
 .d-buttons { padding:8px; text-align:right; white-space:nowrap; }
 .d-button { margin-left:15px; padding: 0 8px; cursor: pointer; display: inline-block; min-height:2.2em; text-align: center; letter-spacing:2px; width:auto; overflow:visible; color: #333; border: 1px solid #999; border-radius: 5px; background: #DDD; background: linear-gradient(top, #FFF, #DDD); background: -moz-linear-gradient(top, #FFF, #DDD); background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FFF), to(#DDD)); text-shadow: 0px 1px 1px rgba(255, 255, 255, .5); box-shadow: 0 1px 0 rgba(255, 255, 255, .7),  0 -1px 0 rgba(0, 0, 0, .09); -moz-transition:-moz-box-shadow linear .2s; -webkit-transition: -webkit-box-shadow linear .2s; transition: box-shadow linear .2s; }
 .d-button::-moz-focus-inner, .d-button::-moz-focus-outer { border:0 none; padding:0; margin:0; }

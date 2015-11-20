@@ -1,5 +1,5 @@
-util.print: Use console.log instead
 @charset "utf-8";
+
 /* public */
 .fn-left {
   float: left;

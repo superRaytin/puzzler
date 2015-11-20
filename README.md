@@ -1,41 +1,40 @@
-![MarkTool](assets/img/mass.png)
+![MarkTool](src/img/mass.png)
 
 MarkTool
 ==============
 
-![MarkTool](assets/test/z.png)
+![MarkTool](docs/screenshot.png)
 
-## 具备的功能：
+## Features
 
 - 导入
-	* 支持 jpg, jpeg, png等图片类型
+	* 支持 jpg, jpeg, png 等图片类型
     * 支持拖拽导入
 - 标尺
 - 参考线
-	* 可拖拽
-    * 可上下左右按键微调
-    * 单条删除 || 批量清空
+	* 支持拖拽
+    * 支持上下左右按键微调
+    * 支持单条删除和批量清空
 - 导出
-	* 导出图像or导出图像和HTML，可选
-    * 导出成功后，可在浏览器预览，支持一键复制源代码
-    * 自定义导出模板
-    * 导出图像质量可设置
+	* 支持导出图像切片和 HTML
+    * 导出成功后支持一键浏览器预览，一键复制源代码
+    * 支持自定义导出模板
+    * 支持导出图像质量设置
 - 用户足迹
-	* 记住最后一次的保存路径 and 选择路径
+	* 记住最后一次的保存路径和选择路径
     * 记住用户最后一次设置的切线列表
 - 画热区
-    * 可上下左右按键微调坐标，配合shift键使用微调宽高
-    * 可设置热区链接，是否新窗口打开，标题等
+    * 支持上下左右按键微调坐标，配合 Shift 键还可微调宽高
+    * 支持热区，并可设置链接、是否新窗口打开、标题等内容
 - 自定义内容区
-    * 支持markdown格式内容解析
+    * 支持 markdown 格式内容解析
 - 用户设置
-	* 模板编辑
-    * 保存路径设置
-    * 标尺设置
-    * more... ...
+	* 支持模板编辑
+    * 支持保存路径设置
+    * 支持标尺设置
 
-## Features
-- 生成图片展示形式可选，背景或者img标签
+## Future
+- 生成图片展示形式可选，背景或者 img 标签
 - 新建自定义模板
 - 历史记录（撤销、重做）
 - 简单的图片处理
@@ -43,36 +42,36 @@ MarkTool
 - 图片合成？
 - 自动更新
 
-## 下载
-### 最新版本
-Beta V0.5.0 [changeLog](#changelog)
+## Downloads
+
+Latest: **v0.5.0** [changeLog](#changelog)
 
 * Windows: [云盘下载](http://pan.baidu.com/s/1sjCxweh)
 * Mac OS X: [云盘下载](http://pan.baidu.com/s/1eQcRXlS)
 * Linux32: [云盘下载](http://pan.baidu.com/s/1eQgVIRS)
 * Linux64: [云盘下载](http://pan.baidu.com/s/1qWHPgKG)
 
-PS：以上windows 32位版本，在64位系统上测试通过是可以使用的，不过不排除某些情况下失效，原因未知。
-
 ## 安装步骤
 
 ### windows
-首先你必须安装图片处理库`GraphicsMagick`，下载地址 ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/ 注意它有32位和64位的版本，请选择与系统对应的版本下载。
+首先你必须安装图片处理库`GraphicsMagick`，下载地址 ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/ 注意它有 32 位和 64 位的版本，请选择与系统对应的版本下载。
 
-安装完成打开CMD命令，运行：
+安装完成打开 CMD 命令，运行：
+
 ```
 gm version
 ```
 
-`大多数情况`会正确执行并返回，如果没有正确执行，可以尝试`重启电脑`，再次运行以上命令
+`大多数情况` 会正确执行并返回，如果没有正确执行，可以尝试 `重启电脑`，再次运行以上命令
 
-命令执行成功后，运行MarkTool.exe
+命令执行成功后，运行 MarkTool.exe
 
-## 特别感谢
+## 感谢以下项目
 - Node-Webkit：[https://github.com/rogerwang/node-webkit/](https://github.com/rogerwang/node-webkit/)
 - GraphicsMagick for node: [http://aheckmann.github.com/gm/](http://aheckmann.github.com/gm/)
 
-##ChangeLog
+## ChangeLog
+
 ### 0.5.0 (2014.11.29)
 - 全新的软件界面
 - 优化客户机系统侦测方法
@@ -96,6 +95,6 @@ gm version
 - 模板增加【宽度 > 990(挖空)】一项，可导出背景图；
 
 # License
-本项目基于MIT协议发布
+本项目基于 MIT 协议发布
 
 MIT: [http://rem.mit-license.org](http://rem.mit-license.org/) 详见 [LICENSE](/LICENSE) 文件
