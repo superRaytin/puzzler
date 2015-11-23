@@ -21,6 +21,7 @@ var mass = {
         minusY: 70, // 工具栏高度加标尺Y的高度
         statusHeight: 20,
         wrapperWidth: 990, // 外框宽度
+        // 参考线缓存, 格式: {[lineId]: { type: 'X', pos: 123 }}
         line: {},
         focusLineId: null,
         lineuuid: 1,
@@ -39,6 +40,7 @@ var mass = {
         minWidth: 700,
         minHeight: 500
     },
+
     sectionAdapter: {
         1: 'one',
         2: 'two',
@@ -56,9 +58,11 @@ var mass = {
         14: 'fourteen',
         15: 'fifteen'
     },
+
     reg: {
         imgFile: /^(jpg|jpeg|png|gif)$/
     },
+
     // 载入文件
     loadFile: function(path, callback){
         var encodings = ['gbk', 'utf-8', 'gb2312', 'ascii', 'binary', 'base64'];
@@ -91,6 +95,7 @@ var mass = {
             });
         }
     },
+
     str_decode: function(buf, encode){
         if(!buf) return '';
 
@@ -973,11 +978,17 @@ var mass = {
             parentBlockIndex = 0,
             option;
 
+        // 获取排好序的 X 轴参考线
         posArrX = mass.getSortPos('X');
+
+        // 获取排好序的 Y 轴参考线
         posArrY = mass.getSortPos('Y');
+
+        // 生成参考线的 X Y 方向的边界
         posArrX.push(cache.img.height);
         posArrY.push(cache.img.width);
 
+        // X 轴上有参考线
         if(lineX){
             for(var x = 0, xLen = posArrX.length; x < xLen; x++){
                 curX = posArrX[x];
