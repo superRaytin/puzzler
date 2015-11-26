@@ -15,6 +15,8 @@ var gui = require('nw.gui'),
     template = require('./js/template'),
     config = require('./js/config');
 
+var ImageProcessor = require('./js/lib/imageProcessor');
+
 var mass = {
     cache: {
         minusX: 20, // 标尺X的宽度
@@ -38,9 +40,11 @@ var mass = {
         mainResizeFlag: false,
         // 与package.json中保持一致
         minWidth: 700,
-        minHeight: 500
+        minHeight: 500,
+        // 图片质量
+        imageQuality: 0.75
     },
-
+    
     sectionAdapter: {
         1: 'one',
         2: 'two',
@@ -58,21 +62,21 @@ var mass = {
         14: 'fourteen',
         15: 'fifteen'
     },
-
+    
     reg: {
         imgFile: /^(jpg|jpeg|png|gif)$/
     },
-
+    
     // 载入文件
-    loadFile: function(path, callback){
+    loadFile: function(path, callback) {
         var encodings = ['gbk', 'utf-8', 'gb2312', 'ascii', 'binary', 'base64'];
-        if(fs.existsSync(path)){
-            fs.readFile(path, function(err, data){
-                if(err) return console.log(err);
+        if (fs.existsSync(path)) {
+            fs.readFile(path, function(err, data) {
+                if (err) return console.log(err);
 
                 var decodeData = mass.str_decode(data);
 
-                if(decodeData === 'error'){
+                if (decodeData === 'error') {
                     mass.dialog('文件解析出错！请检查文件编码类型', true);
                     return;
                 }
@@ -80,10 +84,10 @@ var mass = {
                 var encode = 'utf-8';
 
                 // 编码不对试着用别的编码
-                if(decodeData.indexOf('�') != -1){
-                    for(var i = 0, len = encodings.length; i < len; i++){
+                if (decodeData.indexOf('�') != -1) {
+                    for (var i = 0, len = encodings.length; i < len; i++) {
                         decodeData = iconv.decode(data, encodings[i]);
-                        if(decodeData.indexOf('�') == -1){
+                        if (decodeData.indexOf('�') == -1) {
                             encode = encodings[i];
                             console.log('文件编码： ' + encodings[i]);
                             break;
@@ -95,22 +99,22 @@ var mass = {
             });
         }
     },
-
-    str_decode: function(buf, encode){
-        if(!buf) return '';
+    
+    str_decode: function(buf, encode) {
+        if (!buf) return '';
 
         encode = encode || 'utf-8';
         var encodings = ['ascii', 'gbk', 'gb2312', 'binary', 'base64'];
         var result = 'error';
         var tryTimes = 0;
 
-        (function(){
+        (function() {
             var args = arguments;
             try{
                 result = iconv.decode(buf, encode);
             }
-            catch(e){
-                if(encodings[tryTimes]){
+            catch(e) {
+                if (encodings[tryTimes]) {
                     tryTimes++;
                     args.callee();
                 }
@@ -119,7 +123,7 @@ var mass = {
 
         return result;
     },
-    resizeHandler: function(){
+    resizeHandler: function() {
         var cache = mass.cache,
             win = $(window),
             back = $('#backing'),
@@ -141,12 +145,12 @@ var mass = {
         });
 
         // 图片区外层宽度
-        if(cache.mainResizeFlag){
+        if (cache.mainResizeFlag) {
             preParent.width(Math.min(cache.img.width + 11, winWid - 20));
             preParent.height(Math.min(cache.img.height + 11, winHei - 90));
         }
     },
-    setImgCoverWidth: function(){
+    setImgCoverWidth: function() {
         var self = this;
         var cache = this.cache,
             previewImg = $('#previewImg'),
@@ -155,11 +159,11 @@ var mass = {
             preWid = previewImg.width(),
             preHei = previewImg.height();
 
-        gm(src).size(function(err, value){
-            if(err){
+        gm(src).size(function(err, value) {
+            if (err) {
                 console.log(err);
 
-                if(self.clientInfo.isMacOS){
+                if (self.clientInfo.isMacOS) {
                     mass.dialog('还未安装 GraphicsMagick 服务吗？你是Mac用户，请打开终端命令并运行：<br>1. brew install imagemagick<br>2. brew install graphicsmagick',
                         [
                             {
@@ -168,12 +172,12 @@ var mass = {
                         ]
                     );
                 }
-                else if(self.clientInfo.isLinux){
+                else if (self.clientInfo.isLinux) {
                     mass.dialog('您还未安装 GraphicsMagick 服务，请先安装',
                         [
                             {
                                 value: '下载地址',
-                                callback: function(){
+                                callback: function() {
                                     gui.Shell.openExternal('http://www.graphicsmagick.org/');
                                 },
                                 focus: true
@@ -189,7 +193,7 @@ var mass = {
                         [
                             {
                                 value: '下载地址',
-                                callback: function(){
+                                callback: function() {
                                     gui.Shell.openExternal('ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/');
                                 },
                                 focus: true
@@ -213,46 +217,46 @@ var mass = {
             preParent.height(Math.min(preHei + 11, $(window).height() - 90));
 
             // 图片宽度小于配置中的最小宽度，则resize时不作操作
-            if(preWid + 11 > cache.minWidth - 20 || preHei + 11 > cache.minHeight - 90){
+            if (preWid + 11 > cache.minWidth - 20 || preHei + 11 > cache.minHeight - 90) {
                 cache.mainResizeFlag = true;
             }
         });
     },
     // 遮罩
-    overlay: function(type){
+    overlay: function(type) {
         var dom = $('#overlay');
-        if(type === 'show'){
+        if (type === 'show') {
             dom.show();
         }else{
             dom.hide();
         }
     },
     // 处理拖拽文件至窗口
-    dropFile: function(){
+    dropFile: function() {
         var wrapper = document.getElementById('wrapper');
 
-        wrapper.addEventListener("dragover", function(e){
+        wrapper.addEventListener("dragover", function(e) {
             e.stopPropagation();
             e.preventDefault();
             mass.overlay('show');
         }, false);
 
-        wrapper.addEventListener("drop", function(e){
+        wrapper.addEventListener("drop", function(e) {
             mass.dealDrop(e);
             return false;
         }, false);
     },
     // 处理拖拽进来的文件
-    dealDrop: function(e){
+    dealDrop: function(e) {
         e.stopPropagation();
         e.preventDefault();
 
         var file = e.dataTransfer.files[0];
 
-        if(!file) return;
+        if (!file) return;
         var fileFormat = file.name.substr(file.name.lastIndexOf('.') + 1);
 
-        if( this.reg.imgFile.test(fileFormat) ){
+        if ( this.reg.imgFile.test(fileFormat) ) {
             mass.cache.fileFormat = fileFormat;
             $('#J-Calculate').attr('src', file.path);
         }else{
@@ -265,7 +269,7 @@ var mass = {
     // 设置
     rockSettings: {
         // 显示界面之前初始化
-        init: function(){
+        init: function() {
             var cache = mass.cache;
 
             var localSetting = localStorage.setting,
@@ -274,7 +278,7 @@ var mass = {
             console.log(setting);
 
             // 加载设置项 push到设置各表单值
-            $('#dialogWrap').find('.column_checkbox, .column_radio, .column_select, .column_input, .column_textarea').each(function(){
+            $('#dialogWrap').find('.column_checkbox, .column_radio, .column_select, .column_input, .column_textarea').each(function() {
                 var that = $(this),
                     name = that.attr('data-name'),
                     value = this.value,
@@ -282,28 +286,28 @@ var mass = {
                     type = that.attr('type') ? that.attr('type') : this.tagName.toLowerCase(),
                     valueInSet = belong ? setting[belong][name] : setting[name];
 
-                if(!name) return;
+                if (!name) return;
 
-                if(type === 'checkbox'){
+                if (type === 'checkbox') {
                     this.checked = valueInSet;
                 }
-                else if(type === 'radio'){
-                    if(valueInSet === value){
+                else if (type === 'radio') {
+                    if (valueInSet === value) {
                         this.checked = true;
                     }
-                    if(value === 'custom'){
+                    if (value === 'custom') {
                         that.next().find('.column_input').val( setting[belong].path );
                     }
                 }
-                else if(type === 'select'){
+                else if (type === 'select') {
                     that.val(valueInSet);
                 }
-                else if(type === 'text' || type === 'password'){
+                else if (type === 'text' || type === 'password') {
                     this.value = valueInSet;
                     console.log(that);
-                }else if(name === 'template'){
-                    if(cache.isBig){
-                        if(cache.lineY > 1){
+                }else if (name === 'template') {
+                    if (cache.isBig) {
+                        if (cache.lineY > 1) {
                             this.value = valueInSet.big2;
                             $('#width_big2').trigger('click');
                         }else{
@@ -317,7 +321,7 @@ var mass = {
             });
         },
         // 监听设置中的用户交互
-        listen: function(){
+        listen: function() {
             var cache = mass.cache,
                 dialogWrap = $('#dialogWrap'),
                 tabCon = dialogWrap.find('.tab_content');
@@ -325,23 +329,23 @@ var mass = {
             var userSet = this.userSet;
 
             // tab切换
-            dialogWrap.find('.tab_tigger_item').on('click', function(e){
+            dialogWrap.find('.tab_tigger_item').on('click', function(e) {
                 var that = $(this),
                     index = that.index();
 
-                if(that.hasClass('on')) return;
+                if (that.hasClass('on')) return;
                 $('.tab_tigger_item').eq(index).addClass('on').siblings().removeClass('on');
                 $('.tab_content_item').eq(index).removeClass('hide').siblings().addClass('hide');
             });
 
             // 自定义保存目录
-            dialogWrap.find('.J-filePath_custom').click(function(){
+            dialogWrap.find('.J-filePath_custom').click(function() {
                 var setting_savePath = userSet.setting.savePath,
                     input = $(this),
                     hiddenFile = input.next();
 
-                hiddenFile.trigger('click').on('change', function(){
-                    if(this.value != ''){
+                hiddenFile.trigger('click').on('change', function() {
+                    if (this.value != '') {
                         input.val(this.value);
                         setting_savePath.mode = 'custom';
                         setting_savePath.path = this.value;
@@ -350,21 +354,21 @@ var mass = {
             });
 
             // checkbox | radio | select | textarea
-            tabCon.find('.column_checkbox, .column_radio, .column_select').on('change', function(e){
+            tabCon.find('.column_checkbox, .column_radio, .column_select').on('change', function(e) {
                 var that = $(this),
                     name = that.attr('data-name'),
                     noclick = that.attr('data-noclick'),
                     belong = that.attr('data-belong'),
                     value = this.value;
 
-                if(!name || noclick) return;
+                if (!name || noclick) return;
 
-                if(that.is(':checkbox')){
+                if (that.is(':checkbox')) {
                     value = this.checked;
                 }
 
                 console.log('change:crs')
-                if(belong){
+                if (belong) {
                     userSet.setting[belong][name] = value;
                     //space.saveItem(name, this.checked, belong);
                 }else{
@@ -374,13 +378,13 @@ var mass = {
             });
 
             // 切换模板
-            $('.column_radio_template').on('change', function(){
+            $('.column_radio_template').on('change', function() {
                 var localSetting = localStorage.setting,
                     setting = localSetting ? $.extend(true, config.setting, JSON.parse(localSetting)) : config.setting;
 
                 $('#J-templateArea').val(setting.template[this.value]);
             });
-            $('#J-templateArea').on('change', function(){
+            $('#J-templateArea').on('change', function() {
                 var checked = $('.column_radio_template:checked').val(),
                     setting_template = userSet.setting.template;
 
@@ -388,8 +392,8 @@ var mass = {
             });
 
             // 模板重置
-            $('#J-template-reset').click(function(){
-                mass.confirmy('将会重置模板配置，此操作不可逆，确定吗？', function(){
+            $('#J-template-reset').click(function() {
+                mass.confirmy('将会重置模板配置，此操作不可逆，确定吗？', function() {
                     mass.templateReset();
                 }, false);
             });
@@ -401,12 +405,12 @@ var mass = {
             }
         },
         // 验证
-        validate: function(){
+        validate: function() {
             return true;
         },
         // 保存所有设置
-        saveAllSetting: function(){
-            if(!this.validate()) return false;
+        saveAllSetting: function() {
+            if (!this.validate()) return false;
             var setting = window.localStorage.setting ? JSON.parse(window.localStorage.setting) : {};
 
             $.extend(true, setting, this.userSet.setting);
@@ -414,29 +418,29 @@ var mass = {
             window.localStorage.setting = JSON.stringify(setting);
 
             // 改变了标尺选项，重新渲染标尺区域
-            if(this.userSet.setting.ruler_show !== undefined || this.userSet.setting.ruler_step !== undefined){
+            if (this.userSet.setting.ruler_show !== undefined || this.userSet.setting.ruler_step !== undefined) {
                 mass.ruler_convert();
             }
 
             return true;
         },
         // 取得本地设置指定项
-        getItemInSetting: function(key, belong){
+        getItemInSetting: function(key, belong) {
             var localSet = window.localStorage.setting,
                 setting, res = false;
 
-            if(localSet){
+            if (localSet) {
                 setting = config.setting;
 
                 $.extend(true, setting, JSON.parse(localSet));
 
-                if(belong && setting[belong]){
+                if (belong && setting[belong]) {
                     res = setting[belong][key];
                 }else{
                     res = setting[key];
                 }
             }else{
-                if(belong && config.setting[belong]){
+                if (belong && config.setting[belong]) {
                     res = config.setting[belong][key];
                 }else{
                     res = config.setting[key];
@@ -446,14 +450,14 @@ var mass = {
             return res;
         },
         // 获取具体的打开时路径
-        getDetailPath: function(){
+        getDetailPath: function() {
             var mode = mass.rockSettings.getItemInSetting('mode', 'savePath');
             var res;
 
-            if(mode === 'last'){
+            if (mode === 'last') {
                 res  = mass.rockSettings.itemInMemory('lastDirectory');
             }
-            else if(mode === 'custom'){
+            else if (mode === 'custom') {
                 res = mass.rockSettings.getItemInSetting('path', 'savePath');
             }
 
@@ -461,25 +465,25 @@ var mass = {
             return res;
         },
         // 获取/设置 memory中子项
-        itemInMemory: function(key, value){
+        itemInMemory: function(key, value) {
             var localMemory = window.localStorage.memory,
                 memory, res = false;
 
-            if(localMemory){
+            if (localMemory) {
                 memory = JSON.parse(localMemory);
-                if(value !== undefined){
+                if (value !== undefined) {
                     memory[key] = value;
                 }else{
                     res = memory[key];
                 }
             }else{
-                if(value !== undefined){
+                if (value !== undefined) {
                     memory = {};
                     memory[key] = value;
                 }
             }
 
-            if(value === undefined){
+            if (value === undefined) {
                 return res;
             }else{
                 window.localStorage.memory = JSON.stringify(memory);
@@ -487,18 +491,18 @@ var mass = {
         }
     },
     // 导入导出用户设置
-    exportUserSetting: function(){
-        if(window.localStorage.setting){
+    exportUserSetting: function() {
+        if (window.localStorage.setting) {
             $('#J-hi-saveDiretoryForUserExport').trigger('click');
         }else{
             alertify.log('没有任何用户设置可导出。');
         }
     },
-    importUserSetting: function(){
+    importUserSetting: function() {
         $('#J-hi-saveDiretoryForUserImport').trigger('click');
     },
     // 标尺
-    ruler: function(){
+    ruler: function() {
         var offsetWrap = $('#J-offset'),
             imgCover = $('#J-imgCover'),
             imgItem = imgCover.parent(),
@@ -514,8 +518,8 @@ var mass = {
             pos = 0,
             _type;
 
-        $('.ruler-x, .ruler-y').mousedown(function(e){
-            if(!$('.addImg').hasClass('hide')) return;
+        $('.ruler-x, .ruler-y').mousedown(function(e) {
+            if (!$('.addImg').hasClass('hide')) return;
             var that = $(this),
                 type = that.data('type');
 
@@ -527,16 +531,17 @@ var mass = {
         // 刻度切换
         this.ruler_convert();
 
-        $(document).mousemove(function(e){
-            if(_move){
+        $(document).mousemove(function(e) {
+            if (_move) {
                 scrollTop = imgItem.scrollTop();
                 scrollLeft = imgItem.scrollLeft();
-                if(_type === 'X'){
-                    if(e.clientY > minusY){
+                if (_type === 'X') {
+                    if (e.clientY > minusY) {
                         // 边界控制
-                        if(e.clientY + scrollTop > minusY + cache.img.height - 4) return;
+                        if (e.clientY + scrollTop > minusY + cache.img.height - 4) return;
 
-                        if(!currentMoveLineId){
+                        // 不是移动现有参考线，则新建一根
+                        if (!currentMoveLineId) {
                             var line = $('<div class="lineX" id="line-'+ cache.lineuuid +'"></div>');
                             imgCover.append(line);
                             currentMoveLineId = 'line-' + cache.lineuuid;
@@ -549,12 +554,13 @@ var mass = {
                         $('#' + currentMoveLineId).css('top', pos);
                     }
                 }
-                else if(_type === 'Y'){
-                    if(e.clientX > minusX){
+                else if (_type === 'Y') {
+                    if (e.clientX > minusX) {
                         // 边界控制
-                        if(e.clientX + scrollLeft > minusX + cache.img.width - 4) return;
+                        if (e.clientX + scrollLeft > minusX + cache.img.width - 4) return;
 
-                        if(!currentMoveLineId){
+                        // 不是移动现有参考线，则新建一根
+                        if (!currentMoveLineId) {
                             var line = $('<div class="lineY" id="line-'+ cache.lineuuid +'"></div>');
                             imgCover.append(line);
                             currentMoveLineId = 'line-' + cache.lineuuid;
@@ -570,11 +576,11 @@ var mass = {
                 _moved = true;
                 offsetWrap.val(pos);
             }
-        }).mouseup(function(e){
-            if(_move){
-                if(_moved){
+        }).mouseup(function(e) {
+            if (_move) {
+                if (_moved) {
                     // 删除切线
-                    if((_type === 'X' && e.clientY < minusY) || (_type === 'Y' && e.clientX < minusX)){
+                    if ((_type === 'X' && e.clientY < minusY) || (_type === 'Y' && e.clientX < minusX)) {
                         mass.Line.delete(currentMoveLineId);
                     }
                     else{
@@ -599,7 +605,7 @@ var mass = {
         });
 
         // 切线选中操作
-        imgCover.delegate('.lineX, .lineY', 'mousedown', function(e){
+        imgCover.delegate('.lineX, .lineY', 'mousedown', function(e) {
             e.stopPropagation();
 
             var that = $(this),
@@ -617,7 +623,7 @@ var mass = {
             imgCover.addClass('lineMoving' + _type);
         });
     },
-    ruler_convert: function(){
+    ruler_convert: function() {
         var scale = $('.scale'),
             scaleNum = 0,
             // 标尺步长
@@ -626,25 +632,25 @@ var mass = {
 
         scaleIsShow = scaleIsShow === true || scaleIsShow === 'true';
 
-        if(scaleIsShow){
+        if (scaleIsShow) {
             $('.ruler-x, .ruler-y').html('');
 
-            for(scaleNum = 0; scaleNum < screen.availWidth; scaleNum += scaleStep){
+            for (scaleNum = 0; scaleNum < screen.availWidth; scaleNum += scaleStep) {
                 $('.ruler-x').append('<span class="scale" style="left: '+ (scaleNum + 2) +'px;">'+ scaleNum +'</span>');
             }
 
-            for(scaleNum = 0; scaleNum < screen.availHeight; scaleNum += scaleStep){
+            for (scaleNum = 0; scaleNum < screen.availHeight; scaleNum += scaleStep) {
                 $('.ruler-y').append('<span class="scale" style="top: '+ (scaleNum + 0) +'px">'+ scaleNum +'</span>');
             }
         }
         else{
-            if(scale.length){
+            if (scale.length) {
                 scale.hide();
             }
         }
     },
     // 对话框
-    dialog: function(msg, buttons){
+    dialog: function(msg, buttons) {
         var title = '提 示';
 
         var opt = {
@@ -652,27 +658,27 @@ var mass = {
             content: msg,
             lock: true,
             resize: false,
-            initialize: function(){
+            initialize: function() {
                 mass.dialog_commonInit();
             }
         };
 
-        if(typeof msg === 'object'){
+        if (typeof msg === 'object') {
             opt.title = msg.title;
             opt.content = msg.content;
-            if(msg.width){
+            if (msg.width) {
                 opt.width = msg.width;
             }
-            if(msg.height){
+            if (msg.height) {
                 opt.height = msg.height;
             }
         }
 
-        if(buttons !== undefined){
+        if (buttons !== undefined) {
             opt.button = buttons === true ? [
                 {
                     value: '确定',
-                    callback: function(){},
+                    callback: function() {},
                     focus: true
                 }
             ] : buttons;
@@ -680,7 +686,7 @@ var mass = {
         console.log('dialog: '+msg);
         return $.artDialog(opt);
     },
-    dialog_commonInit: function(){
+    dialog_commonInit: function() {
         var dialogParent = $('.d-outer').parent();
 
         $('#wrapper').append(dialogParent).append($('.d-mask'));
@@ -692,7 +698,7 @@ var mass = {
     * callback: 点击确定回调
     * fade: 淡出效果，默认淡出，传入false按正常效果
     * */
-    confirmy: function(content, callback, fade){
+    confirmy: function(content, callback, fade) {
         $.artDialog({
             title: '请确认',
             content: content,
@@ -701,7 +707,7 @@ var mass = {
             button: [
                 {
                     value: '确 定',
-                    callback: function(){
+                    callback: function() {
                         callback();
                     }
                 },
@@ -710,13 +716,13 @@ var mass = {
                     focus: true
                 }
             ],
-            initialize: function(){
+            initialize: function() {
                 mass.dialog_commonInit();
                 var dialogParent = $('.d-outer').parent();
 
                 $('.dialogWrap').parent().css('padding', 0);
 
-                if(fade === undefined){
+                if (fade === undefined) {
                     dialogParent.hide();
                     dialogParent.fadeIn(300);
                 }
@@ -724,13 +730,13 @@ var mass = {
         });
     },
     // 获取排好序的X Y坐标
-    getSortPos: function(type){
+    getSortPos: function(type) {
         var res = [],
             lineHash = {};
-        $.each(mass.cache.line, function(key, line){
-            if(line.type === type){
+        $.each(mass.cache.line, function(key, line) {
+            if (line.type === type) {
                 // 过滤重合的切线
-                if(lineHash[type + '' + line.pos]){
+                if (lineHash[type + '' + line.pos]) {
                     mass.Line.delete(key);
                 }else{
                     res.push(line.pos);
@@ -738,23 +744,23 @@ var mass = {
                 }
             }
         });
-        return res.sort(function(a, b){return a - b > 0});
+        return res.sort(function(a, b) {return a - b > 0});
     },
-    reset: function(mainResizeFlag){
+    reset: function(mainResizeFlag) {
         this.Line.reset();
         this.Rect.reset();
         this.TextArea.reset();
 
-        if(mainResizeFlag){
+        if (mainResizeFlag) {
             this.cache.mainResizeFlag = false;
         }
 
         this.cache.clipboard = null;
         $('#J-copyCode').addClass('hide');
     },
-    templateReset: function(){
+    templateReset: function() {
         var setting = window.localStorage.setting ? JSON.parse(window.localStorage.setting) : {};
-        if(!setting.template){
+        if (!setting.template) {
             setting.template = {};
         }
         $.extend(true, setting.template, {
@@ -774,7 +780,7 @@ var mass = {
         alertify.success('模板恢复成功。');
     },
     // 重新选择图片 初始化图片预览区
-    previewInit: function(reset){
+    previewInit: function(reset) {
         var cache = this.cache,
             addImg = $('.addImg'),
             previewImg = $('#previewImg'),
@@ -786,7 +792,7 @@ var mass = {
 
         this.reset(true);
 
-        if(reset){
+        if (reset) {
             addImg.removeClass('hide');
             statusInner.addClass('hide');
 
@@ -796,7 +802,7 @@ var mass = {
         }else{
             !addImg.hasClass('hide') && addImg.addClass('hide');
 
-            if(statusInner.hasClass('hide')){
+            if (statusInner.hasClass('hide')) {
                 statusInner.removeClass('hide');
             };
             // 改变状态栏偏移量的值
@@ -805,19 +811,19 @@ var mass = {
         }
     },
     // 拉取最后一次的切线记录
-    getLastLines: function(){
+    getLastLines: function() {
         var localLine = window.localStorage.line,
             cache = mass.cache,
             lineObj;
 
-        if(!cache.img) return;
+        if (!cache.img) return;
 
-        if(!localLine){
+        if (!localLine) {
             return alertify.log('没有切线记录。');
         }
 
-        if(cache.lineX || cache.lineY){
-            if(!window.confirm('检测到当前已有切线存在，此操作将会清空目前的切线，确定吗？')){
+        if (cache.lineX || cache.lineY) {
+            if (!window.confirm('检测到当前已有切线存在，此操作将会清空目前的切线，确定吗？')) {
                 return;
             }
 
@@ -826,28 +832,28 @@ var mass = {
 
         lineObj = JSON.parse(localLine);
 
-        mass.Line.import(lineObj, function(availableLineNum, flowLineNum){
+        mass.Line.import(lineObj, function(availableLineNum, flowLineNum) {
             // 上次所有切线都超出了当前图片区域
-            if(availableLineNum == 0){
+            if (availableLineNum == 0) {
                 return alertify.log('所有切线记录都超出了当前图片区域，此次操作无效。','error',10000);
             }
-            else if(flowLineNum){
+            else if (flowLineNum) {
                 alertify.log('记录应用成功。但记录中有 '+ flowLineNum +' 条切线超出当前图片范围，已失效。','',10000);
             }
             mass.Line.store();
         });
     },
     // 工具栏下拉菜单
-    dropMenu: function(e){
+    dropMenu: function(e) {
         var target = $(e.target),
             type = target.data('type'),
             param = target.data('param');
 
-        if(type){
+        if (type) {
             mass[type](param);
         }
     },
-    golden_section: function(param){
+    golden_section: function(param) {
         var cache = mass.cache,
             img = cache.img,
             imgCover = $('#J-imgCover'),
@@ -857,18 +863,18 @@ var mass = {
             pendLine = [],
             temp = [];
 
-        if(!img) return;
+        if (!img) return;
 
-        if(img.width < 990){
+        if (img.width < 990) {
             return alertify.log('图片宽度少于990像素就算了吧~', 'error', 5000);
         }
 
-        if(param === 'custom'){
+        if (param === 'custom') {
             var val = window.prompt('请输入');
             console.log(val);
-            if(val === null) return;
+            if (val === null) return;
 
-            if(val < 10){
+            if (val < 10) {
                 return alertify.log('至少给个10像素吧~', 'error', 5000);
             }
             param = parseInt(val);
@@ -886,7 +892,7 @@ var mass = {
             type: 'Y'
         });
 
-        _.each(pendLine, function(line){
+        _.each(pendLine, function(line) {
             var lineuuid = cache.lineuuid++;
             temp.push('<div class="lineY" id="line-'+ lineuuid +'" style="left: '+ line.pos +'px"></div>');
             cache.line['line-' + lineuuid] = {
@@ -901,7 +907,7 @@ var mass = {
         //cache.lineuuid = lineuuid + 3;
     },
     // 选择图片时触发
-    imgChange: function(){
+    imgChange: function() {
         this.previewInit();
 
         mass.setImgCoverWidth();
@@ -909,26 +915,29 @@ var mass = {
         mass.cache.isBig = mass.cache.img && mass.cache.img.width > 990;
         mass.cache.quickSavePath = null;
 
+        // 初始化画布
+        this.initCanvas();
+
         this.checkConfigFile();
     },
     // 检查图片配置文件 - 有则导入
-    checkConfigFile: function(){
+    checkConfigFile: function() {
         var cache = mass.cache,
             img = cache.img,
             imgDirectory = modPath.dirname(img.path),
             fileSeparator = this.clientInfo.fileSeparator,
             configPath = imgDirectory + fileSeparator + 'config.json';
 
-        if(fs.existsSync(configPath)){
+        if (fs.existsSync(configPath)) {
             alertify.log('检测到配置文件，已自动适配：' + configPath);
-            fs.readFile(configPath, function(err, data){
-                if(err){
+            fs.readFile(configPath, function(err, data) {
+                if (err) {
                     return mass.dialog('配置文件读取错误！<br>' + err, true);
                 }
 
                 var decodeData = mass.str_decode(data);
 
-                if(decodeData === 'error'){
+                if (decodeData === 'error') {
                     mass.dialog('配置文件解析出错！请检查文件编码类型', true);
                     return;
                 }
@@ -937,18 +946,18 @@ var mass = {
 
                 try{
                     parseData = JSON.parse(decodeURIComponent(decodeData));
-                }catch(e){
+                }catch(e) {
                     mass.dialog('配置文件解析出错！是不是修改过配置文件？请检查是否正确的Json格式<br>' + e, true);
                     return console.log(e);
                 }
 
                 // 导入切线
-                mass.Line.import(parseData.line, function(availableLineNum, flowLineNum){
+                mass.Line.import(parseData.line, function(availableLineNum, flowLineNum) {
                     // 上次所有切线都超出了当前图片区域
-                    if(availableLineNum == 0){
+                    if (availableLineNum == 0) {
                         return mass.dialog('所有参考线都超出了当前图片区域，此次操作无参考线导入，是不是修改过origin图片或配置文件？', true);
                     }
-                    else if(flowLineNum){
+                    else if (flowLineNum) {
                         mass.dialog('导入成功，但有 '+ flowLineNum +' 条参考线超出当前图片范围，已失效，是不是修改过origin图片或配置文件？', true);
                     }
                     mass.Line.store();
@@ -965,7 +974,7 @@ var mass = {
         }
     },
     // 获取切片
-    getCutBlocks: function(children){
+    getCutBlocks: function(children) {
         var cache = mass.cache,
             lineX = cache.lineX,
             lineY = cache.lineY,
@@ -989,13 +998,15 @@ var mass = {
         posArrY.push(cache.img.width);
 
         // X 轴上有参考线
-        if(lineX){
-            for(var x = 0, xLen = posArrX.length; x < xLen; x++){
+        if (lineX) {
+            for (var x = 0, xLen = posArrX.length; x < xLen; x++) {
                 curX = posArrX[x];
 
                 plusLeft = 0;
-                if(lineY){
-                    if(isBig2){
+                
+                // Y 轴上也有参考线
+                if (lineY) {
+                    if (isBig2) {
                         plusLeft = posArrY[0];
                         temp = {
                             width: cache.img.width,
@@ -1013,7 +1024,7 @@ var mass = {
                         };
                         blocks.push(temp);
 
-                        for(var y = 1, yLen = posArrY.length - 1; y < yLen; y++){
+                        for (var y = 1, yLen = posArrY.length - 1; y < yLen; y++) {
                             curY = posArrY[y];
 
                             option = {
@@ -1034,8 +1045,8 @@ var mass = {
 
                         parentBlockIndex++;
                     }
-                    else{
-                        for(var y = 0, yLen = posArrY.length; y < yLen; y++){
+                    else {
+                        for (var y = 0, yLen = posArrY.length; y < yLen; y++) {
                             curY = posArrY[y];
 
                             blocks.push({
@@ -1049,8 +1060,8 @@ var mass = {
                         }
                     }
                 }
-                // 只有X轴的情况
-                else{
+                // 只有 X 轴的情况
+                else {
                     blocks.push({
                         width: cache.img.width,
                         height: curX - plusTop,
@@ -1062,10 +1073,10 @@ var mass = {
                 plusTop = curX;
             }
         }
-        // 只有Y轴的情况
-        else{
+        // 只有 Y 轴的情况
+        else {
             plusLeft = 0;
-            for(var y = 0, yLen = posArrY.length; y < yLen; y++){
+            for (var y = 0, yLen = posArrY.length; y < yLen; y++) {
                 curY = posArrY[y];
 
                 blocks.push({
@@ -1081,92 +1092,93 @@ var mass = {
 
         return children ? allChildBlocks : blocks;
     },
+
     // 切割
-    cutImg: function(dir, callback){
+    cutImg: function(dir, callback) {
         alertify.log('正在导出切片...');
 
         // 保存锁，避免疯狂保存的情况
         mass.cache.saveLock = true;
 
         var exportPath = dir,
-            previewImg = $('#previewImg'),
-            imgPath = previewImg.attr('src'),
-            quality = parseInt($('#J-quality').val()),
-            img = gm(imgPath);
+            previewImg = $('#previewImg');
 
         var fileSeparator = this.clientInfo.fileSeparator;
 
         var imgCover = $('#J-imgCover'),
             cache = mass.cache,
-            isJpg = /^jpg|jpeg/.test(cache.fileFormat),
             newFolder = mass.rockSettings.getItemInSetting('exportOption'),
             folder = callback ? (fileSeparator + 'images') : '',
-            imgName, exportPathByImgName, blocks, markBlocks, gmdeal;
+            imgName, exportPathByImgName, blocks, markBlocks;
+
+        var imageProcessor = cache.imageProcessor;
 
         blocks = mass.getCutBlocks();
 
         markBlocks = blocks.slice();
 
         // 快捷导出
-        if(cache.quickSavePath && callback){
+        if (cache.quickSavePath && callback) {
             exportPath = cache.quickSavePath;
         }
         else{
             // 根据用户设置是否创建新文件夹存放
-            if(newFolder && newFolder === 'newfolder'){
+            if (newFolder && newFolder === 'newfolder') {
                 imgName = modPath.basename(cache.img.path, '.' + cache.fileFormat);
                 exportPathByImgName = exportPath + fileSeparator + imgName;
-                if(!fs.existsSync(exportPathByImgName)){
+                if (!fs.existsSync(exportPathByImgName)) {
                     fs.mkdirSync(exportPathByImgName);
                 }
                 exportPath = exportPathByImgName;
             }
         }
 
-        var cutChild = function(children, index, callback){
-            var target = children.slice(),
-                num = 1;
-            (function(){
+        // 按顺序切割子区域
+        var cutChild = function(children, parentBlockIndex, callback) {
+            var target = children.slice();
+            var childBlockIndex = 1;
+
+            (function() {
                 var arg = arguments;
                 var item = target.shift();
-                var exportFileName = exportPath + folder + fileSeparator + 'section-' + index + '-' + (num++) + '.' + cache.fileFormat;
+                var exportFileName = exportPath + folder + fileSeparator + 'section-' + parentBlockIndex + '-' + (childBlockIndex++) + '.' + cache.fileFormat;
 
-                if(!item){
+                // 没有孩子节点
+                if (!item) {
                     callback();
                     return;
                 }
 
-                gmdeal = img.crop(item.width, item.height, item.x, item.y);
-
-                if(isJpg){
-                    gmdeal = gmdeal.quality(quality);
-                }
-
-                gmdeal.write(exportFileName, function(err){
-                    if(err){
-                        return console.log(err);
-                    }
-                    console.log('z-success:', exportFileName);
-                    arg.callee();
+                // 裁切图片后保存为文件
+                imageProcessor.crop(item.x, item.y, item.width, item.height, function(dataUrl) {
+                    imageProcessor.saveToImageFile(exportFileName, dataUrl, function() {
+                        console.log('z-success', exportFileName);
+                        arg.callee();
+                    });
                 });
+
             })();
         };
 
-        if(blocks.length){
+        //console.log('blocks', JSON.parse(JSON.stringify(blocks)));
+
+        if (blocks.length) {
             // 不存在images文件夹就新建一个
-            if(callback && !fs.existsSync(exportPath + folder)){
+            if (callback && !fs.existsSync(exportPath + folder)) {
                 fs.mkdirSync(exportPath + folder);
             }
 
-            var i = 1;
-            (function(){
+            // 按顺序切割区域
+            var blockIndex = 1;
+            (function() {
                 var arg = arguments;
                 var item = blocks.shift();
-                var exportFileName = exportPath + folder + fileSeparator + 'section-' + (i++) + '.' + cache.fileFormat;
-                //var exportFileNameBg = exportPath + folder + '\\bg-section-' + (i++) + '.' + cache.fileFormat;
-                if(!item){
+                var exportFileName = exportPath + folder + fileSeparator + 'section-' + (blockIndex++) + '.' + cache.fileFormat;
+
+                // 所有区块切割完成
+                if (!item) {
                     // 导出图片和HTML
-                    if(callback){
+                    if (callback) {
                         callback(markBlocks, exportPath);
                     }
                     // 仅导出图片
@@ -1174,7 +1186,7 @@ var mass = {
                         mass.dialog('切图完成！<br>文件位置：' + exportPath, [
                             {
                                 value: '打开文件位置',
-                                callback: function(){
+                                callback: function() {
                                     gui.Shell.showItemInFolder(exportPath + folder + fileSeparator + 'section-1.' + cache.fileFormat);
                                 },
                                 focus: true
@@ -1190,43 +1202,50 @@ var mass = {
                     mass.rockSettings.itemInMemory('lastSaveDir', exportPath);
                     $('#J-hi-saveDiretory').val('');
                     return;
-                };
-
-                if(item.children){
-                    gmdeal = img.fill("#fff").drawRectangle(item.cleanArea.x0 + 20, item.cleanArea.y0, item.cleanArea.x1 - 20, item.cleanArea.y1).crop(item.width, item.height, item.x, item.y);
-
-                    if(isJpg){
-                        gmdeal = gmdeal.quality(quality);
-                    }
-
-                    gmdeal.write(exportFileName, function(err){
-                        if(err){
-                            return console.log(err);
-                        }
-                        console.log('success:', exportFileName);
-                        cutChild(item.children, i - 1, arg.callee);
-                    });
                 }
-                else{
-                    gmdeal = img.crop(item.width, item.height, item.x, item.y);
 
-                    if(isJpg){
-                        gmdeal = gmdeal.quality(quality);
-                    }
+                // 区块下有子区块
+                if (item.children) {
 
-                    gmdeal.write(exportFileName, function(err){
-                        if(err){
-                            return console.log(err);
-                        }
-                        console.log('success:', exportFileName);
-                        arg.callee();
+                    // 裁切图片后保存为文件
+                    // 先将大背景图导出，并抹除其中的主体部分像素
+                    // x 轴留出 20 像素是为了背景图和切出的图片融合效果更加完美
+                    var cleanX = item.cleanArea.x0 + 20;
+                    var cleanY = item.cleanArea.y0;
+                    var cleanWidth = item.cleanArea.x1 - item.cleanArea.x0 - 40;
+                    var cleanHeight = item.cleanArea.y1 - item.cleanArea.y0;
+
+                    imageProcessor
+                        .cleanArea(cleanX, cleanY, cleanWidth, cleanHeight)
+                        .crop(item.x, item.y, item.width, item.height, function(dataUrl) {
+                        // 抹除画布部分像素数据后，需要重置画布
+                        // 将挖空的大背景区域保存为文件
+                        imageProcessor.reset().saveToImageFile(exportFileName, dataUrl, function() {
+                            console.log('success2', exportFileName);
+                            cutChild(item.children, blockIndex - 1, arg.callee);
+                        });
                     });
+
+                }
+                else {
+
+                    // 裁切图片后保存为文件
+                    imageProcessor.crop(item.x, item.y, item.width, item.height, function(dataUrl) {
+                        imageProcessor.saveToImageFile(exportFileName, dataUrl, function() {
+                            console.log('success3', exportFileName);
+                            arg.callee();
+                        });
+                    });
+
                 }
             })();
         }
     },
+
     // 生成HTML
-    buildHTML: function(blocks, path){
+    buildHTML: function(blocks, path) {
+        console.log('start build html', blocks, path);
+
         var cache = mass.cache,
             img = cache.img,
             isBig = !!(img.width > 990 && cache.lineY === 0),
@@ -1234,8 +1253,8 @@ var mass = {
 
         var fileSeparator = this.clientInfo.fileSeparator;
 
-        //console.log(blocks);
-        mass.loadFile('./assets/preview.html', function(data){
+        // 1. 加载预览模板
+        mass.loadFile('./src/preview.html', function(data) {
             var cheer = cheerio.load(data),
                 blockLen = blocks.length,
                 bodyCon = '',
@@ -1243,11 +1262,12 @@ var mass = {
                 classHeaders = '',
                 localTemplateSet, temp;
 
-            $.each(blocks, function(i, item){
+            // 2. 生成 div 分块
+            $.each(blocks, function(i, item) {
                 var name = mass.sectionAdapter[i + 1] || (i + 1),
                     cla = 'ui-' + name;
 
-                if(isBig){
+                if (isBig) {
                     // 保存每个块的具体样式
                     temp = {
                         name: name,
@@ -1256,7 +1276,7 @@ var mass = {
                         format: cache.fileFormat
                     };
                 }
-                else if(isBig2){
+                else if (isBig2) {
                     temp = {
                         name: name,
                         height: item.height,
@@ -1279,7 +1299,7 @@ var mass = {
 
                     // 保存所有块的头样式
                     // eg: .ui-one, .ui-two, .ui-three, .ui-four{}
-                    if(i === blockLen - 1){
+                    if (i === blockLen - 1) {
                         classHeaders += '.' + cla;
                     }else{
                         classHeaders += '.' + cla + ', ';
@@ -1287,9 +1307,9 @@ var mass = {
                 }
 
                 // 将所有热区信息写进每一个切片单元
-                if(cache.rectInBlock && cache.rectInBlock[i]){
-                    if(isBig2){
-                        _.each(cache.rectInBlock[i], function(curRect){
+                if (cache.rectInBlock && cache.rectInBlock[i]) {
+                    if (isBig2) {
+                        _.each(cache.rectInBlock[i], function(curRect) {
                             temp.children[curRect.belongBlockIndex].rect = temp.children[curRect.belongBlockIndex].rect || [];
                             temp.children[curRect.belongBlockIndex].rect.push(curRect);
                         });
@@ -1299,9 +1319,9 @@ var mass = {
                 }
 
                 // 将所有文字区信息写进每一个切片单元
-                if(cache.textAreaInBlock && cache.textAreaInBlock[i]){
-                    if(isBig2){
-                        _.each(cache.textAreaInBlock[i], function(curRect){
+                if (cache.textAreaInBlock && cache.textAreaInBlock[i]) {
+                    if (isBig2) {
+                        _.each(cache.textAreaInBlock[i], function(curRect) {
                             temp.children[curRect.belongBlockIndex].textarea = temp.children[curRect.belongBlockIndex].textarea || [];
                             temp.children[curRect.belongBlockIndex].textarea.push(curRect);
                         });
@@ -1314,15 +1334,15 @@ var mass = {
 
             });
 
-            /*_.each(allBlockStyles, function(block, blockIndex){
+            /*_.each(allBlockStyles, function(block, blockIndex) {
                 //console.log(1);
-                _.each(block.children, function(child, childIndex){
+                _.each(block.children, function(child, childIndex) {
                     //return console.log(child.rect);
-                    if(!child.rect){
+                    if (!child.rect) {
                         console.log('norect')
                     }else{
                         //console.log(child.rect);
-                        _.each(child.rect, function(rect){
+                        _.each(child.rect, function(rect) {
                             //console.log(rect.rect.url);
                             console.log('hasrect============');
                             console.log(rect.rect);
@@ -1334,7 +1354,7 @@ var mass = {
                 });
             });*/
 
-            if(isBig){
+            if (isBig) {
                 localTemplateSet = mass.rockSettings.getItemInSetting('big', 'template');
                 !localTemplateSet && (localTemplateSet = template.styleBig);
                 bodyCon = _.template(localTemplateSet)({
@@ -1343,7 +1363,7 @@ var mass = {
                     wrapperWidth: cache.wrapperWidth
                 });
             }
-            else if(isBig2){
+            else if (isBig2) {
                 localTemplateSet = mass.rockSettings.getItemInSetting('big2', 'template');
                 !localTemplateSet && (localTemplateSet = template.styleBig2);
                 bodyCon = _.template(localTemplateSet)({
@@ -1367,12 +1387,13 @@ var mass = {
             cheer('body').append(bodyCon);
             cache.clipboard = bodyCon;
 
-            fs.writeFile(path + fileSeparator + 'index.html', cheer.html(), function(err){
-                if(err) return console.log(err);
+            // 生成页面
+            fs.writeFile(path + fileSeparator + 'index.html', cheer.html(), function(err) {
+                if (err) return console.log(err);
                 mass.dialog('导出图像和HTML成功！<br>文件位置：' + path, [
                     {
                         value: '浏览器中预览',
-                        callback: function(){
+                        callback: function() {
                             //gui.Shell.openExternal(path + '\\index.html');
                             gui.Shell.openItem(path + fileSeparator + 'index.html');
                             return false;
@@ -1381,7 +1402,7 @@ var mass = {
                     },
                     {
                         value: '打开文件位置',
-                        callback: function(){
+                        callback: function() {
                             gui.Shell.showItemInFolder(path + fileSeparator + 'index.html');
                             return false;
                         }
@@ -1395,13 +1416,13 @@ var mass = {
                 $('#J-copyCode').removeClass('hide');
 
                 // 已经有过导出操作，跳过此步
-                if(!cache.quickSavePath){
+                if (!cache.quickSavePath) {
                     // 生成origin图片
                     var readStream = fs.createReadStream(img.path),
                         writeStream = fs.createWriteStream(path + fileSeparator + 'origin.' + cache.fileFormat);
 
                     readStream.pipe(writeStream);
-                    writeStream.on('close', function(){
+                    writeStream.on('close', function() {
                         console.log('original file created!');
                     });
                 }
@@ -1427,36 +1448,57 @@ var mass = {
             });
         });
     },
+
+    // 初始化画布
+    initCanvas: function() {
+        var cache = this.cache;
+        var previewImg = $('#previewImg');
+        var img = previewImg.get(0);
+        var imageProcessor = cache.imageProcessor;
+
+        // 销毁之前的实例
+        if (imageProcessor) {
+            cache.imageProcessor.destroy();
+        }
+
+        imageProcessor = cache.imageProcessor = new ImageProcessor(img);
+
+        // 初始化图片质量
+        imageProcessor.setQuality(cache.imageQuality);
+
+        window.aa = imageProcessor;
+    },
+
     // 导出HTML
-    exportHTML: function(exportPath){
+    exportHTML: function(exportPath) {
         alertify.log('正在导出HTML包...');
-        mass.cutImg(exportPath, function(blocks, path){
+        mass.cutImg(exportPath, function(blocks, path) {
             $('#J-hi-saveDiretoryForHtml').val('');
             mass.buildHTML(blocks, path);
         });
     },
-    beforeClose: function(){
+    beforeClose: function() {
         this.Line.store();
         return true;
     },
-    keyboardMonitor: function(){
+    keyboardMonitor: function() {
         var kibo = new Kibo(),
             cache = this.cache,
             offset = $('#J-offset');
 
-        kibo.down(['left', 'right', 'up', 'down'], function(e){
-            if(offset.is(':focus') || $('#' + cache.focusRectId).find('input').is(':focus') || $('#' + cache.focusTextAreaId).find('textarea').is(':focus')) return;
+        kibo.down(['left', 'right', 'up', 'down'], function(e) {
+            if (offset.is(':focus') || $('#' + cache.focusRectId).find('input').is(':focus') || $('#' + cache.focusTextAreaId).find('textarea').is(':focus')) return;
 
             var key = e.which, direction;
 
-            if(cache.focusLineId || cache.focusRectId || cache.focusTextAreaId){
+            if (cache.focusLineId || cache.focusRectId || cache.focusTextAreaId) {
                 e.preventDefault();
             }
             else{
                 return;
             }
 
-            if(cache.focusLineId){
+            if (cache.focusLineId) {
                 var curLine = cache.line[cache.focusLineId],
                     curPos = curLine.pos,
                     permiY = curLine.type === 'Y' && (key === 37 || key === 39),
@@ -1464,15 +1506,15 @@ var mass = {
 
                 direction = (key === 37 || key === 39) ? 'left' : 'top';
 
-                if(!permiY && !permiX) return;
+                if (!permiY && !permiX) return;
 
                 // 留4px的边界
-                if((key === 37 || key === 38) && curPos === 4) return;
-                if((key === 39 && curPos === cache.img.width - 4) || (key === 40 && curPos === cache.img.height - 4)) return;
+                if ((key === 37 || key === 38) && curPos === 4) return;
+                if ((key === 39 && curPos === cache.img.width - 4) || (key === 40 && curPos === cache.img.height - 4)) return;
 
                 var line = document.getElementById(cache.focusLineId);
 
-                if(key === 37 || key === 38){
+                if (key === 37 || key === 38) {
                     curLine.pos--;
                 }else{
                     curLine.pos++;
@@ -1481,7 +1523,7 @@ var mass = {
                 line.style[direction] = curLine.pos + 'px';
 
                 mass.Line.store();
-            }else if(cache.focusRectId){
+            }else if (cache.focusRectId) {
                 var recter = document.getElementById(cache.focusRectId),
                     curRect = cache.rect[cache.focusRectId];
 
@@ -1493,20 +1535,20 @@ var mass = {
                     case3 = key === 38 && curRect.top < 1,
                     case4 = key === 40 && curRect.top > cache.img.height - curRect.height - 3;
 
-                if(case1 || case2 || case3 || case4) return;
+                if (case1 || case2 || case3 || case4) return;
 
-                if(key === 37){
+                if (key === 37) {
                     curRect[e.shiftKey ? 'width' : 'left']--;
-                }else if(key === 39){
+                }else if (key === 39) {
                     curRect[e.shiftKey ? 'width' : 'left']++;
-                }else if(key === 38){
+                }else if (key === 38) {
                     curRect[e.shiftKey ? 'height' : 'top']--;
-                }else if(key === 40){
+                }else if (key === 40) {
                     curRect[e.shiftKey ? 'height' : 'top']++;
                 }
 
-                if(e.shiftKey && !$('#' + cache.focusRectId).find('.setting-area').hasClass('hide')){
-                    if(curRect[direction] < 10){
+                if (e.shiftKey && !$('#' + cache.focusRectId).find('.setting-area').hasClass('hide')) {
+                    if (curRect[direction] < 10) {
                         curRect[direction] = 10;
                     }
                     $('#' + cache.focusRectId).find('input[data-type="'+ direction +'"]').val(curRect[direction]);
@@ -1514,7 +1556,7 @@ var mass = {
 
                 offset.val(0);
                 recter.style[direction] = curRect[direction] + 'px';
-            }else if(cache.focusTextAreaId){
+            }else if (cache.focusTextAreaId) {
                 var textArea = document.getElementById(cache.focusTextAreaId),
                     curTextArea = cache.textArea[cache.focusTextAreaId];
 
@@ -1526,20 +1568,20 @@ var mass = {
                     case3 = key === 38 && curTextArea.top < 1,
                     case4 = key === 40 && curTextArea.top > cache.img.height - curTextArea.height - 3;
 
-                if(case1 || case2 || case3 || case4) return;
+                if (case1 || case2 || case3 || case4) return;
 
-                if(key === 37){
+                if (key === 37) {
                     curTextArea[e.shiftKey ? 'width' : 'left']--;
-                }else if(key === 39){
+                }else if (key === 39) {
                     curTextArea[e.shiftKey ? 'width' : 'left']++;
-                }else if(key === 38){
+                }else if (key === 38) {
                     curTextArea[e.shiftKey ? 'height' : 'top']--;
-                }else if(key === 40){
+                }else if (key === 40) {
                     curTextArea[e.shiftKey ? 'height' : 'top']++;
                 }
 
-                if(e.shiftKey){
-                    if(curTextArea[direction] < 10){
+                if (e.shiftKey) {
+                    if (curTextArea[direction] < 10) {
                         curTextArea[direction] = 10;
                     }
                 }
@@ -1548,61 +1590,61 @@ var mass = {
                 textArea.style[direction] = curTextArea[direction] + 'px';
             };
         });
-        kibo.down('delete', function(e){
-            if(cache.img){
-                if(cache.focusLineId){
+        kibo.down('delete', function(e) {
+            if (cache.img) {
+                if (cache.focusLineId) {
                     mass.Line.delete(cache.focusLineId);
                 }
-                else if(cache.focusRectId){
+                else if (cache.focusRectId) {
                     mass.Rect.delete(cache.focusRectId);
                 }
-                else if(cache.focusTextAreaId){
+                else if (cache.focusTextAreaId) {
                     mass.TextArea.delete(cache.focusTextAreaId);
                 }
             }
         });
 
         // 禁止ctrl A操作
-        kibo.down('ctrl a', function(e){
-            if(!/input|textarea/i.test(e.target.tagName)){
+        kibo.down('ctrl a', function(e) {
+            if (!/input|textarea/i.test(e.target.tagName)) {
                 return false;
             }
             $(e.target).select();
         });
 
         // 快捷键
-        kibo.down('ctrl s', function(e){
-            if(e.shiftKey){
+        kibo.down('ctrl s', function(e) {
+            if (e.shiftKey) {
                 $('#J-exportPet').trigger('click');
             }else{
                 $('#J-exportHTML').trigger('click');
             }
         });
-        kibo.down('ctrl q', function(){
+        kibo.down('ctrl q', function() {
             $('#J-useful-menu > .dropdown-toggle').trigger('click');
         });
-        kibo.down('ctrl n', function(){
+        kibo.down('ctrl n', function() {
             $('#J-selectFile').trigger('click');
         });
-        kibo.down('ctrl d', function(){
+        kibo.down('ctrl d', function() {
             $('#J-reset').trigger('click');
         });
-        kibo.down('ctrl r', function(){
+        kibo.down('ctrl r', function() {
             $('#J-mapArea').trigger('click');
         });
-        kibo.down('ctrl t', function(){
+        kibo.down('ctrl t', function() {
             $('#J-textArea').trigger('click');
         });
-        kibo.down('ctrl e', function(){
+        kibo.down('ctrl e', function() {
             $('#J-getLastLine > .dropdown-toggle').trigger('click');
         });
 
         // F5 解析/还原 当前自定义内容区
-        kibo.down('f5', function(){
+        kibo.down('f5', function() {
             mass.TextArea.preview();
         });
     },
-    checkClient: function(){
+    checkClient: function() {
         var self = this;
         var platform = process.platform;
 
@@ -1614,22 +1656,22 @@ var mass = {
             fileSeparator: '\\'
         };
 
-        if(platform === 'darwin'){
+        if (platform === 'darwin') {
             self.clientInfo.isMacOS = true;
             self.clientInfo.fileSeparator = '\/';
         }
-        else if(platform === 'linux'){
+        else if (platform === 'linux') {
             self.clientInfo.isLinux = true;
             self.clientInfo.fileSeparator = '\/';
         }
-        else if(platform === 'win32'){
+        else if (platform === 'win32') {
 
         }
         else{
             console.log('Unexpected platform or architecture:', process.platform, process.arch)
         }
     },
-    observer: function(){
+    observer: function() {
         var cache = this.cache,
             context = require('./js/contextmenu').init(),
             Rect = require('./js/rect'),
@@ -1654,7 +1696,7 @@ var mass = {
         // 文件拖拽
         this.dropFile();
         // 拖拽文件到界面没有drop 再次回到界面时移除遮罩
-        $('#overlay').mouseover(function(e){
+        $('#overlay').mouseover(function(e) {
             $(this).hide();
         });
 
@@ -1662,10 +1704,10 @@ var mass = {
         this.ruler();
 
         // 选择图片
-        $('#J-selectFile, .addImg').click(function(e){
+        $('#J-selectFile, .addImg').click(function(e) {
             // 默认打开上次打开的目录
             var lastDirectory = mass.rockSettings.itemInMemory('lastDirectory');
-            if(lastDirectory){
+            if (lastDirectory) {
                 $('#J-hi-select').attr('nwworkingdir', lastDirectory).trigger('click');
             }else{
                 $('#J-hi-select').removeAttr('nwworkingdir').trigger('click');
@@ -1673,15 +1715,15 @@ var mass = {
         });
 
         //1. 先在隐藏img中检查图片宽高
-        hideImgCalculate.load(function(){
+        hideImgCalculate.load(function() {
             var that = $(this),
                 imgPath = that.attr('src');
 
-            if(imgPath === './img/hold.png'){
+            if (imgPath === './img/hold.png') {
                 return that.removeClass('init');
             }
 
-            if(that.width() < 50 || that.height() < 50){
+            if (that.width() < 50 || that.height() < 50) {
                 alertify.log('啊嘞...我们是有原则滴，宽高少于50不切~');
             }else{
                 var fileName = modPath.basename(imgPath);
@@ -1699,9 +1741,9 @@ var mass = {
         });
 
         //2. 宽高没问题，载入主区域
-        previewImg.load(function(){
+        previewImg.load(function() {
             var that = $(this);
-            if(that.attr('src') === './img/hold.png'){
+            if (that.attr('src') === './img/hold.png') {
                 return that.removeClass('init');
             }
 
@@ -1711,15 +1753,15 @@ var mass = {
         });
 
         // 上传文件
-        $('#J-hi-select').change(function(e){
+        $('#J-hi-select').change(function(e) {
             var val = this.value;
 
-            if(val == '') return;
+            if (val == '') return;
 
             // 检查path合法性
             var fileName = modPath.basename(val);
             fileFormat = fileName.substr(fileName.lastIndexOf('.') + 1);
-            if(!mass.reg.imgFile.test(fileFormat)){
+            if (!mass.reg.imgFile.test(fileFormat)) {
                 mass.dialog('请选择 ".jpg|.jpeg" ".png" 或 ".gif" 格式的文件', true);
                 return;
             }
@@ -1730,32 +1772,32 @@ var mass = {
         });
 
         // 导出切片
-        $('#J-exportPet').click(function(){
-            if(!cache.img) return alertify.log('没图，保存个球球啊？别闹了，先切图吧...');
-            if(!cache.lineX && !cache.lineY) return alertify.log('啊嘞...是不是忘了划参考线了？');
+        $('#J-exportPet').click(function() {
+            if (!cache.img) return alertify.log('没图，保存个球球啊？别闹了，先切图吧...');
+            if (!cache.lineX && !cache.lineY) return alertify.log('啊嘞...是不是忘了划参考线了？');
 
             $('#J-hi-saveDiretory').trigger('click');
         });
-        $('#J-hi-saveDiretory').change(function(){
+        $('#J-hi-saveDiretory').change(function() {
             mass.cutImg(this.value);
         });
 
         // 导出HTML
-        $('#J-exportHTML').click(function(){
-            if(!cache.img) return alertify.log('没图，保存个球球啊？别闹了，先切图吧...');
-            if(!cache.lineX && !cache.lineY) return alertify.log('啊嘞...是不是忘了划参考线了？');
+        $('#J-exportHTML').click(function() {
+            if (!cache.img) return alertify.log('没图，保存个球球啊？别闹了，先切图吧...');
+            if (!cache.lineX && !cache.lineY) return alertify.log('啊嘞...是不是忘了划参考线了？');
 
-            if(!mass.Rect.check()){
+            if (!mass.Rect.check()) {
                 return alertify.log('热区位置错误，不能与切线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
-            }else if(!mass.TextArea.check()){
+            }else if (!mass.TextArea.check()) {
                 return alertify.log('文字区位置错误，不能与切线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
             };
 
-            if(cache.saveLock){
+            if (cache.saveLock) {
                 alertify.log('保存进行中，请稍作等待...');
             }
             else{
-                if(cache.quickSavePath){
+                if (cache.quickSavePath) {
                     mass.exportHTML(cache.quickSavePath);
                 }
                 else{
@@ -1764,22 +1806,22 @@ var mass = {
             }
         });
 
-        $('#J-hi-saveDiretoryForHtml').change(function(){
+        $('#J-hi-saveDiretoryForHtml').change(function() {
             mass.exportHTML(this.value);
         });
 
-        $('#J-hi-saveDiretoryForUserImport').change(function(){
+        $('#J-hi-saveDiretoryForUserImport').change(function() {
             var localSet = window.localStorage.setting,
                 that = this,
                 settingPath = that.value;
-            fs.readFile(settingPath, function(err, data){
-                if(err){
+            fs.readFile(settingPath, function(err, data) {
+                if (err) {
                     return mass.dialog('文件读取错误！<br>' + err, true);
                 }
 
                 var decodeData = mass.str_decode(data);
 
-                if(decodeData === 'error'){
+                if (decodeData === 'error') {
                     mass.dialog('文件解析出错！请检查文件编码类型', true);
                     return;
                 }
@@ -1788,13 +1830,13 @@ var mass = {
 
                 try{
                     parseData = JSON.parse(decodeData);
-                }catch(e){
+                }catch(e) {
                     mass.dialog('文件解析出错！请检查是否Json格式<br>' + e, true);
                     return console.log(e);
                 }
 
-                if(localSet){
-                    mass.confirmy('检测到之前已有配置，是否覆盖？', function(){
+                if (localSet) {
+                    mass.confirmy('检测到之前已有配置，是否覆盖？', function() {
                         window.localStorage.setting = decodeData;
                         alertify.success('用户设置导入成功！');
                     });
@@ -1808,19 +1850,19 @@ var mass = {
             });
         });
 
-        $('#J-hi-saveDiretoryForUserExport').change(function(){
+        $('#J-hi-saveDiretoryForUserExport').change(function() {
             var localSet = window.localStorage.setting,
                 that = this,
                 path = that.value;
 
             var fileSeparator = this.clientInfo.fileSeparator;
 
-            if(localSet){
+            if (localSet) {
                 fs.createWriteStream(path + fileSeparator + 'settings.json').write(localSet);
                 mass.dialog('用户设置导出成功！<br>文件位置：' + path, [
                     {
                         value: '打开文件位置',
-                        callback: function(){
+                        callback: function() {
                             gui.Shell.showItemInFolder(path + fileSeparator + 'settings.json');
                             return false;
                         },
@@ -1838,13 +1880,13 @@ var mass = {
         var mapArea = $('#J-mapArea'),
             textArea = $('#J-textArea');
         // 画热区
-        mapArea.click(function(){
-            if(cache.drawText){
+        mapArea.click(function() {
+            if (cache.drawText) {
                 textArea.removeClass('current');
                 cache.drawText = false;
             }
 
-            if(cache.drawMap){
+            if (cache.drawMap) {
                 cache.drawMap = false;
                 imgCover.removeClass('mapCursor');
                 $(this).removeClass('current');
@@ -1856,13 +1898,13 @@ var mass = {
         });
         this.Rect.drawMap();
         // 自定义区
-        textArea.click(function(){
-            if(cache.drawMap){
+        textArea.click(function() {
+            if (cache.drawMap) {
                 mapArea.removeClass('current');
                 cache.drawMap = false;
             }
 
-            if(cache.drawText){
+            if (cache.drawText) {
                 cache.drawText = false;
                 imgCover.removeClass('mapCursor');
                 $(this).removeClass('current');
@@ -1875,7 +1917,7 @@ var mass = {
         this.TextArea.drawText();
 
         // setting
-        $('#J-userSettings').click(function(){
+        $('#J-userSettings').click(function() {
             $.artDialog({
                 title: '设 置',
                 lock: true,
@@ -1896,7 +1938,7 @@ var mass = {
                         }
                     }
                 ],
-                initialize: function(){
+                initialize: function() {
                     mass.dialog_commonInit();
                     var dialogParent = $('.d-outer').parent();
 
@@ -1915,7 +1957,7 @@ var mass = {
         });
 
         // help
-        $('#J-help').click(function(){
+        $('#J-help').click(function() {
             mass.dialog({
                 title: '关于MarkTool',
                 width: 250,
@@ -1925,9 +1967,24 @@ var mass = {
             })
         });
 
+        // 设置图片质量
+        $('#J-quality').change(function() {
+            var current = $(this);
+            var quality = parseInt(current.val());
+            var imageProcessor = mass.cache.imageProcessor;
+
+            if (quality && imageProcessor) {
+                // quality 介于 1 ~ 92 之间
+                // 为什么是 92 ？超过 92 压缩之后出来的图片会比原图更大，100 时甚至会超过原图几倍！
+                quality = quality > 92 ? 92 : quality < 1 ? 1 : quality;
+
+                imageProcessor.setQuality(quality / 100);
+            }
+        });
+
         // 监听偏移量变化
-        offset.change(function(){
-            if(!cache.focusLineId) return;
+        offset.change(function() {
+            if (!cache.focusLineId) return;
             var cacheLine = cache.line[cache.focusLineId],
                 that = $(this),
                 val = that.val(),
@@ -1948,33 +2005,33 @@ var mass = {
         this.keyboardMonitor();
 
         // 禁止外部选取操作
-        $('html').on('selectstart', function(e){
+        $('html').on('selectstart', function(e) {
             e.preventDefault();
         });
 
         // 右键
-        imgCover.on('contextmenu', function(ev){
+        imgCover.on('contextmenu', function(ev) {
             ev.preventDefault();
             var target = $(ev.target);
-            if(target.hasClass('imgCover')){
+            if (target.hasClass('imgCover')) {
                 context.previewMenu.popup(ev.clientX, ev.clientY);
             }
-            else if(target.hasClass('rect')){
+            else if (target.hasClass('rect')) {
                 context.rectMenu.popup(ev.clientX, ev.clientY);
             }
-            else if(target.parent().hasClass('textzone')){
+            else if (target.parent().hasClass('textzone')) {
                 context.textAreaMenu.popup(ev.clientX, ev.clientY);
             }
-            else if(target.hasClass('lineX') || target.hasClass('lineY')){
+            else if (target.hasClass('lineX') || target.hasClass('lineY')) {
                 context.lineMenu.popup(ev.clientX, ev.clientY);
             }
             return false;
         });
 
         // A
-        $('body').delegate('a', 'click', function(e){
+        $('body').delegate('a', 'click', function(e) {
             var that = $(this);
-            if(!that.attr('nopen')){
+            if (!that.attr('nopen')) {
                 cache.gui.Shell.openExternal(that.attr('href'));
             }
             e.preventDefault();
@@ -1988,23 +2045,23 @@ var mass = {
             placement: 'right'
         });
 
-        $('.dropdown-menu li a').attr('nopen', 1).click(function(e){
+        $('.dropdown-menu li a').attr('nopen', 1).click(function(e) {
             mass.dropMenu(e);
         });
 
-        $('#J-reset').click(function(){
-            if(cache.lineX || cache.lineY || cache.rectNum || cache.textAreaNum){
-                mass.confirmy('将清空切线、热区、自定义区等操作记录，确定吗？', function(){
+        $('#J-reset').click(function() {
+            if (cache.lineX || cache.lineY || cache.rectNum || cache.textAreaNum) {
+                mass.confirmy('将清空切线、热区、自定义区等操作记录，确定吗？', function() {
                     mass.reset();
                 });
             }
         });
 
-        $('#J-luffy').click(function(){
+        $('#J-luffy').click(function() {
             var path = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\test.jpg';
             /*var outpath = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\';
-            gm(path).fill("#fff").drawRectangle(100,55, 290, 180).write(outpath + 'test12.jpg', function(err){
-                if(err) return console.log(err);
+            gm(path).fill("#fff").drawRectangle(100,55, 290, 180).write(outpath + 'test12.jpg', function(err) {
+                if (err) return console.log(err);
                 console.log('success!');
             });*/
             //console.log( mass.getCutBlocks() );
@@ -2013,15 +2070,15 @@ var mass = {
             var path4 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\origin.jpg';
             var outpath = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\';
             // x0,y0,x1,y1 -- 矩形左上坐标，矩形左下坐标
-            gm(path4).crop(100,100,200,200).quality(0).write(outpath + 'origin10.jpg', function(err){
-                if(err) return console.log(err);
+            gm(path4).crop(100,100,200,200).quality(0).write(outpath + 'origin10.jpg', function(err) {
+                if (err) return console.log(err);
                 console.log('success!');
             });
             //mass.cutImg(path2);
             /*var readStream = fs.createReadStream(path),
                 writeStream = fs.createWriteStream(path2);
             readStream.pipe(writeStream);
-            writeStream.on('close', function(){
+            writeStream.on('close', function() {
                 console.log('success');
             });*/
 
@@ -2037,18 +2094,18 @@ var mass = {
                 '}';
 
             fs.createWriteStream(path2 + '\\config.json').write(str);*/
-            /*fs.rename(path, path2, function(err){
-                if(err) return console.log(err);
+            /*fs.rename(path, path2, function(err) {
+                if (err) return console.log(err);
                 console.log('success');
             });
 
-            fs.readFile(path3, function(err, data){
-                if(err) return console.log(err);
+            fs.readFile(path3, function(err, data) {
+                if (err) return console.log(err);
                 console.log(data);
                 console.log(iconv.decode(data));
                 try{
                     console.log(JSON.parse(iconv.decode(data)));
-                }catch(a){
+                }catch(a) {
                     console.log(a);
                 }
             });*/
@@ -2058,13 +2115,13 @@ var mass = {
             //hideImgCalculate.attr('src', imgpath);
         });
 
-        $('#J-copyCode').click(function(){
+        $('#J-copyCode').click(function() {
             try{
-                if(cache.clipboard){
+                if (cache.clipboard) {
                     gui.Clipboard.get().set(cache.clipboard);
                     alertify.log('复制成功。', 'success', 5000);
                 }
-            }catch(e){
+            }catch(e) {
                 alertify.log('复制异常。', 'error', 5000);
             }
         });
@@ -2072,17 +2129,17 @@ var mass = {
         $(window).resize(this.resizeHandler);
 
         // 窗口关闭确认
-        gui.Window.get().on('close', function(){
-            if(mass.beforeClose()){
+        gui.Window.get().on('close', function() {
+            if (mass.beforeClose()) {
                 this.close(true);
             }
         });
     },
-    init: function(){
+    init: function() {
         global.mass = mass;
         global.$ = $;
 
-        $(function(){
+        $(function() {
             gui.Window.get().show();
             mass.cache.gui = gui;
 
@@ -2090,4 +2147,5 @@ var mass = {
         });
     }
 };
+
 mass.init();
