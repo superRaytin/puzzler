@@ -3,17 +3,16 @@
  * User: raytin
  * Date: 13-8-9
  */
-var gm = require('gm'),
-    iconv = require('iconv-lite'),
+var iconv = require('iconv-lite'),
     cheerio = require('cheerio');
-
-//gm = gm.subClass({imageMagick: true});
 
 var gui = require('nw.gui'),
     fs = require('fs'),
     modPath = require('path'),
     template = require('./js/template'),
     config = require('./js/config');
+
+global.gui = gui;
 
 var Utils = require('./js/lib/utils');
 var ImageProcessor = require('./js/lib/imageProcessor');
@@ -85,63 +84,6 @@ var mass = {
     reg: {
         imgFile: /^(jpg|jpeg|png|gif)$/
     },
-    
-    // 载入文件
-    loadFile: function(path, callback) {
-        var encodings = ['gbk', 'utf-8', 'gb2312', 'ascii', 'binary', 'base64'];
-        if (fs.existsSync(path)) {
-            fs.readFile(path, function(err, data) {
-                if (err) return console.log(err);
-
-                var decodeData = mass.str_decode(data);
-
-                if (decodeData === 'error') {
-                    mass.dialog('文件解析出错！请检查文件编码类型', true);
-                    return;
-                }
-
-                var encode = 'utf-8';
-
-                // 编码不对试着用别的编码
-                if (decodeData.indexOf('�') != -1) {
-                    for (var i = 0, len = encodings.length; i < len; i++) {
-                        decodeData = iconv.decode(data, encodings[i]);
-                        if (decodeData.indexOf('�') == -1) {
-                            encode = encodings[i];
-                            console.log('文件编码： ' + encodings[i]);
-                            break;
-                        }
-                    };
-                }
-
-                callback(decodeData, encode);
-            });
-        }
-    },
-    
-    str_decode: function(buf, encode) {
-        if (!buf) return '';
-
-        encode = encode || 'utf-8';
-        var encodings = ['ascii', 'gbk', 'gb2312', 'binary', 'base64'];
-        var result = 'error';
-        var tryTimes = 0;
-
-        (function() {
-            var args = arguments;
-            try{
-                result = iconv.decode(buf, encode);
-            }
-            catch(e) {
-                if (encodings[tryTimes]) {
-                    tryTimes++;
-                    args.callee();
-                }
-            }
-        })();
-
-        return result;
-    },
 
     resizeHandler: function() {
         var cache = mass.cache,
@@ -175,7 +117,9 @@ var mass = {
         }
     },
 
-    setImgCoverWidth: function() {
+    // 初始化图片处理层
+    // 每次重新选择图片都需要初始化
+    initImageProcessCover: function() {
         var cache = this.cache;
         var imageWrapper = $('#J-image-wrapper');
         var img = $('#J-image');
@@ -212,7 +156,7 @@ var mass = {
         var dom = $('#overlay');
         if (type === 'show') {
             dom.show();
-        }else{
+        } else {
             dom.hide();
         }
     },
@@ -244,7 +188,7 @@ var mass = {
         if ( this.reg.imgFile.test(fileFormat) ) {
             mass.cache.fileFormat = fileFormat;
             $('#J-Calculate').attr('src', file.path);
-        }else{
+        } else {
             console.log(file.path + ' 文件不符合格式');
             this.dialog('请选择正确的文件格式 .jpg|.jpeg|.png|.gif', true);
         }
@@ -290,16 +234,16 @@ var mass = {
                 else if (type === 'text' || type === 'password') {
                     this.value = valueInSet;
                     console.log(that);
-                }else if (name === 'template') {
+                } else if (name === 'template') {
                     if (cache.isBig) {
                         if (cache.lineY > 1) {
                             this.value = valueInSet.big2;
                             $('#width_big2').trigger('click');
-                        }else{
+                        } else {
                             this.value = valueInSet.big;
                             $('#width_big').trigger('click');
                         }
-                    }else{
+                    } else {
                         this.value = valueInSet.small;
                     }
                 }
@@ -356,7 +300,7 @@ var mass = {
                 if (belong) {
                     userSet.setting[belong][name] = value;
                     //space.saveItem(name, this.checked, belong);
-                }else{
+                } else {
                     userSet.setting[name] = value;
                     //space.saveItem(name, this.checked);
                 }
@@ -421,13 +365,13 @@ var mass = {
 
                 if (belong && setting[belong]) {
                     res = setting[belong][key];
-                }else{
+                } else {
                     res = setting[key];
                 }
-            }else{
+            } else {
                 if (belong && config.setting[belong]) {
                     res = config.setting[belong][key];
-                }else{
+                } else {
                     res = config.setting[key];
                 }
             }
@@ -458,10 +402,10 @@ var mass = {
                 memory = JSON.parse(localMemory);
                 if (value !== undefined) {
                     memory[key] = value;
-                }else{
+                } else {
                     res = memory[key];
                 }
-            }else{
+            } else {
                 if (value !== undefined) {
                     memory = {};
                     memory[key] = value;
@@ -470,7 +414,7 @@ var mass = {
 
             if (value === undefined) {
                 return res;
-            }else{
+            } else {
                 window.localStorage.memory = JSON.stringify(memory);
             }
         }
@@ -479,7 +423,7 @@ var mass = {
     exportUserSetting: function() {
         if (window.localStorage.setting) {
             $('#J-hi-saveDiretoryForUserExport').trigger('click');
-        }else{
+        } else {
             alertify.log('没有任何用户设置可导出。');
         }
     },
@@ -568,7 +512,7 @@ var mass = {
                     if ((_type === 'X' && e.clientY < minusY) || (_type === 'Y' && e.clientX < minusX)) {
                         mass.Line.delete(currentMoveLineId);
                     }
-                    else{
+                    else {
                         // 把line 的偏移量存起来
                         cache.line[currentMoveLineId] = {
                             type: _type,
@@ -628,7 +572,7 @@ var mass = {
                 $('.ruler-y').append('<span class="scale" style="top: '+ (scaleNum + 0) +'px">'+ scaleNum +'</span>');
             }
         }
-        else{
+        else {
             if (scale.length) {
                 scale.hide();
             }
@@ -723,7 +667,7 @@ var mass = {
                 // 过滤重合的切线
                 if (lineHash[type + '' + line.pos]) {
                     mass.Line.delete(key);
-                }else{
+                } else {
                     res.push(line.pos);
                     lineHash[type + '' + line.pos] = true;
                 }
@@ -767,8 +711,9 @@ var mass = {
         alertify.success('模板恢复成功。');
     },
 
-    // 重新选择图片 初始化图片预览区
-    previewInit: function(reset) {
+    // 初始化图片预览区
+    // 每次重新选择图片都会执行
+    initImagePreview: function(reset) {
         var cache = this.cache,
             addImg = $('.addImg'),
             $image = $('#J-image'),
@@ -898,11 +843,11 @@ var mass = {
     },
 
     // 选择图片时触发
-    imgChange: function() {
+    imageChangeHandler: function() {
         var self = this;
 
-        self.previewInit();
-        self.setImgCoverWidth();
+        self.initImagePreview();
+        self.initImageProcessCover();
 
         self.cache.isBig = self.cache.img && self.cache.img.width > 990;
         self.cache.quickSavePath = null;
@@ -928,7 +873,7 @@ var mass = {
                     return mass.dialog('配置文件读取错误！<br>' + err, true);
                 }
 
-                var decodeData = mass.str_decode(data);
+                var decodeData = Utils.str_decode(data);
 
                 if (decodeData === 'error') {
                     mass.dialog('配置文件解析出错！请检查文件编码类型', true);
@@ -1088,7 +1033,7 @@ var mass = {
     },
 
     // 切割
-    cutImg: function(dir, callback) {
+    clipImage: function(dir, callback) {
         alertify.log('正在导出切片...');
 
         var self = this;
@@ -1096,8 +1041,7 @@ var mass = {
         // 保存锁，避免疯狂保存的情况
         self.cache.saveLock = true;
 
-        var exportPath = dir,
-            $image = $('#J-image');
+        var exportPath = dir;
 
         var fileSeparator = this.clientInfo.fileSeparator;
 
@@ -1116,7 +1060,7 @@ var mass = {
         if (cache.quickSavePath && callback) {
             exportPath = cache.quickSavePath;
         }
-        else{
+        else {
             // 根据用户设置是否创建新文件夹存放
             if (newFolder && newFolder === 'newfolder') {
                 imgName = modPath.basename(cache.img.path, '.' + cache.fileFormat);
@@ -1177,7 +1121,7 @@ var mass = {
                         callback(markBlocks, exportPath);
                     }
                     // 仅导出图片
-                    else{
+                    else {
                         self.dialog('切图完成！<br>文件位置：' + exportPath, [
                             {
                                 value: '打开文件位置',
@@ -1250,7 +1194,7 @@ var mass = {
         var fileSeparator = this.clientInfo.fileSeparator;
 
         // 1. 加载预览模板
-        mass.loadFile('./src/preview.html', function(data) {
+        Utils.loadFile('./src/preview.html', function(data) {
             var cheer = cheerio.load(data),
                 blockLen = blocks.length,
                 bodyCon = '',
@@ -1282,7 +1226,7 @@ var mass = {
                     };
                 }
                 // 宽度小于990
-                else{
+                else {
                     temp = {
                         name: name,
                         width: item.width,
@@ -1297,7 +1241,7 @@ var mass = {
                     // eg: .ui-one, .ui-two, .ui-three, .ui-four{}
                     if (i === blockLen - 1) {
                         classHeaders += '.' + cla;
-                    }else{
+                    } else {
                         classHeaders += '.' + cla + ', ';
                     }
                 }
@@ -1309,7 +1253,7 @@ var mass = {
                             temp.children[curRect.belongBlockIndex].rect = temp.children[curRect.belongBlockIndex].rect || [];
                             temp.children[curRect.belongBlockIndex].rect.push(curRect);
                         });
-                    }else{
+                    } else {
                         temp.rect = cache.rectInBlock[i];
                     }
                 }
@@ -1321,7 +1265,7 @@ var mass = {
                             temp.children[curRect.belongBlockIndex].textarea = temp.children[curRect.belongBlockIndex].textarea || [];
                             temp.children[curRect.belongBlockIndex].textarea.push(curRect);
                         });
-                    }else{
+                    } else {
                         temp.textarea = cache.textAreaInBlock[i];
                     }
                 }
@@ -1336,7 +1280,7 @@ var mass = {
                     //return console.log(child.rect);
                     if (!child.rect) {
                         console.log('norect')
-                    }else{
+                    } else {
                         //console.log(child.rect);
                         _.each(child.rect, function(rect) {
                             //console.log(rect.rect.url);
@@ -1368,7 +1312,7 @@ var mass = {
                     wrapperWidth: cache.wrapperWidth
                 });
             }
-            else{
+            else {
                 localTemplateSet = mass.rockSettings.getItemInSetting('small', 'template');
                 !localTemplateSet && (localTemplateSet = template.style);
                 bodyCon = _.template(localTemplateSet)({
@@ -1470,15 +1414,17 @@ var mass = {
     // 导出HTML
     exportHTML: function(exportDirectoryPath) {
         alertify.log('正在导出 HTML 包...');
-        mass.cutImg(exportDirectoryPath, function(blocks, exportDirectoryPath2) {
+        mass.clipImage(exportDirectoryPath, function(blocks, exportDirectoryPath2) {
             $('#J-hi-saveDiretoryForHtml').val('');
             mass.buildHTML(blocks, exportDirectoryPath2);
         });
     },
+    
     beforeClose: function() {
         this.Line.store();
         return true;
     },
+    
     keyboardMonitor: function() {
         var kibo = new Kibo(),
             cache = this.cache,
@@ -1492,7 +1438,7 @@ var mass = {
             if (cache.focusLineId || cache.focusRectId || cache.focusTextAreaId) {
                 e.preventDefault();
             }
-            else{
+            else {
                 return;
             }
 
@@ -1514,14 +1460,14 @@ var mass = {
 
                 if (key === 37 || key === 38) {
                     curLine.pos--;
-                }else{
+                } else {
                     curLine.pos++;
                 }
                 offset.val(curLine.pos);
                 line.style[direction] = curLine.pos + 'px';
 
                 mass.Line.store();
-            }else if (cache.focusRectId) {
+            } else if (cache.focusRectId) {
                 var recter = document.getElementById(cache.focusRectId),
                     curRect = cache.rect[cache.focusRectId];
 
@@ -1537,11 +1483,11 @@ var mass = {
 
                 if (key === 37) {
                     curRect[e.shiftKey ? 'width' : 'left']--;
-                }else if (key === 39) {
+                } else if (key === 39) {
                     curRect[e.shiftKey ? 'width' : 'left']++;
-                }else if (key === 38) {
+                } else if (key === 38) {
                     curRect[e.shiftKey ? 'height' : 'top']--;
-                }else if (key === 40) {
+                } else if (key === 40) {
                     curRect[e.shiftKey ? 'height' : 'top']++;
                 }
 
@@ -1554,7 +1500,7 @@ var mass = {
 
                 offset.val(0);
                 recter.style[direction] = curRect[direction] + 'px';
-            }else if (cache.focusTextAreaId) {
+            } else if (cache.focusTextAreaId) {
                 var textArea = document.getElementById(cache.focusTextAreaId),
                     curTextArea = cache.textArea[cache.focusTextAreaId];
 
@@ -1570,11 +1516,11 @@ var mass = {
 
                 if (key === 37) {
                     curTextArea[e.shiftKey ? 'width' : 'left']--;
-                }else if (key === 39) {
+                } else if (key === 39) {
                     curTextArea[e.shiftKey ? 'width' : 'left']++;
-                }else if (key === 38) {
+                } else if (key === 38) {
                     curTextArea[e.shiftKey ? 'height' : 'top']--;
-                }else if (key === 40) {
+                } else if (key === 40) {
                     curTextArea[e.shiftKey ? 'height' : 'top']++;
                 }
 
@@ -1614,7 +1560,7 @@ var mass = {
         kibo.down('ctrl s', function(e) {
             if (e.shiftKey) {
                 $('#J-exportPet').trigger('click');
-            }else{
+            } else {
                 $('#J-exportHTML').trigger('click');
             }
         });
@@ -1665,7 +1611,7 @@ var mass = {
         else if (platform === 'win32') {
 
         }
-        else{
+        else {
             console.log('Unexpected platform or architecture:', process.platform, process.arch)
         }
     },
@@ -1708,24 +1654,19 @@ var mass = {
             var lastDirectory = mass.rockSettings.itemInMemory('lastDirectory');
             if (lastDirectory) {
                 $('#J-hi-select').attr('nwworkingdir', lastDirectory).trigger('click');
-            }else{
+            } else {
                 $('#J-hi-select').removeAttr('nwworkingdir').trigger('click');
             }
         });
 
-        //1. 先在隐藏img中检查图片宽高
+        // 1. 先在隐藏 image 元素中检查图片宽高度
         hideImgCalculate.load(function() {
             var current = $(this);
             var imagePath = current.attr('src');
             var imageWidth = current.width();
             var imageHeight = current.height();
 
-            console.log(3333, imagePath, imageWidth, imageHeight);
-            // Windows 平台与 OSX 平台返回不一样
-            if (imagePath === './img/hold.png' || imagePath === 'img/hold.png') {
-                return current.removeClass('init');
-            }
-
+            // 判断图片宽度和高度
             if (imageWidth < 50 || imageHeight < 50) {
                 alertify.log('啊嘞...我们是有原则滴，宽高少于50不切~');
             } else {
@@ -1747,16 +1688,10 @@ var mass = {
             $('#J-hi-select').val('');
         });
 
-        //2. 宽高没问题，载入主区域
+        // 2. 宽高没问题，载入主区域
         $image.load(function() {
-            var current = $(this);
-            if (current.attr('src') === './img/hold.png') {
-                return current.removeClass('init');
-            }
-
             $image.hasClass('hide') && $image.removeClass('hide');
-            self.imgChange();
-
+            self.imageChangeHandler();
         });
 
         // 上传文件
@@ -1786,7 +1721,7 @@ var mass = {
             $('#J-hi-saveDiretory').trigger('click');
         });
         $('#J-hi-saveDiretory').change(function() {
-            self.cutImg(this.value);
+            self.clipImage(this.value);
         });
 
         // 导出HTML
@@ -1796,18 +1731,18 @@ var mass = {
 
             if (!mass.Rect.check()) {
                 return alertify.log('热区位置错误，不能与切线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
-            }else if (!mass.TextArea.check()) {
+            } else if (!mass.TextArea.check()) {
                 return alertify.log('文字区位置错误，不能与切线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
             };
 
             if (cache.saveLock) {
                 alertify.log('保存进行中，请稍作等待...');
             }
-            else{
+            else {
                 if (cache.quickSavePath) {
                     mass.exportHTML(cache.quickSavePath);
                 }
-                else{
+                else {
                     $('#J-hi-saveDiretoryForHtml').trigger('click');
                 }
             }
@@ -1827,7 +1762,7 @@ var mass = {
                     return mass.dialog('文件读取错误！<br>' + err, true);
                 }
 
-                var decodeData = mass.str_decode(data);
+                var decodeData = Utils.str_decode(data);
 
                 if (decodeData === 'error') {
                     mass.dialog('文件解析出错！请检查文件编码类型', true);
@@ -1849,7 +1784,7 @@ var mass = {
                         alertify.success('用户设置导入成功！');
                     });
                 }
-                else{
+                else {
                     window.localStorage.setting = decodeData;
                     alertify.success('用户设置导入成功！');
                 }
@@ -1899,7 +1834,7 @@ var mass = {
                 cache.drawMap = false;
                 imgCover.removeClass('mapCursor');
                 $(this).removeClass('current');
-            }else{
+            } else {
                 cache.drawMap = true;
                 imgCover.addClass('mapCursor');
                 $(this).addClass('current');
@@ -1917,7 +1852,7 @@ var mass = {
                 cache.drawText = false;
                 imgCover.removeClass('mapCursor');
                 $(this).removeClass('current');
-            }else{
+            } else {
                 cache.drawText = true;
                 imgCover.addClass('mapCursor');
                 $(this).addClass('current');
@@ -1935,7 +1870,7 @@ var mass = {
                     {
                         value: '保 存',
                         callback: function () {
-                            console.log('点击保存')
+                            console.log('点击保存');
                             return mass.rockSettings.saveAllSetting();
                         },
                         focus: true
@@ -1943,7 +1878,7 @@ var mass = {
                     {
                         value: '取 消',
                         callback: function () {
-                            console.log('取消保存')
+                            console.log('取消保存');
                         }
                     }
                 ],
@@ -2066,64 +2001,6 @@ var mass = {
             }
         });
 
-        $('#J-luffy').click(function() {
-            var path = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\test.jpg';
-            /*var outpath = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\';
-            gm(path).fill("#fff").drawRectangle(100,55, 290, 180).write(outpath + 'test12.jpg', function(err) {
-                if (err) return console.log(err);
-                console.log('success!');
-            });*/
-            //console.log( mass.getCutBlocks() );
-            var path2 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t10';
-            var path3 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\t12\\h1\\config.json';
-            var path4 = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\origin.jpg';
-            var outpath = 'D:\\UserData\\wb-shil\\Desktop\\imageMass\\';
-            // x0,y0,x1,y1 -- 矩形左上坐标，矩形左下坐标
-            gm(path4).crop(100,100,200,200).quality(0).write(outpath + 'origin10.jpg', function(err) {
-                if (err) return console.log(err);
-                console.log('success!');
-            });
-            //mass.cutImg(path2);
-            /*var readStream = fs.createReadStream(path),
-                writeStream = fs.createWriteStream(path2);
-            readStream.pipe(writeStream);
-            writeStream.on('close', function() {
-                console.log('success');
-            });*/
-
-            /*var cache = mass.cache;
-            var str = '{\n' +
-                    '\tline: '+ JSON.stringify(cache.line) +',\n' +
-                    '\tlineuuid: '+ cache.lineuuid +',\n' +
-                    '\tlineX: '+ cache.lineX +',\n' +
-                    '\tlineY: '+ cache.lineY +',\n' +
-                    '\trect: '+ JSON.stringify(cache.rect) +',\n' +
-                    '\trectNum: '+ cache.rectNum +',\n' +
-                    '\trectuuid: '+ cache.rectuuid +'\n' +
-                '}';
-
-            fs.createWriteStream(path2 + '\\config.json').write(str);*/
-            /*fs.rename(path, path2, function(err) {
-                if (err) return console.log(err);
-                console.log('success');
-            });
-
-            fs.readFile(path3, function(err, data) {
-                if (err) return console.log(err);
-                console.log(data);
-                console.log(iconv.decode(data));
-                try{
-                    console.log(JSON.parse(iconv.decode(data)));
-                }catch(a) {
-                    console.log(a);
-                }
-            });*/
-
-            //alertify.log('aaaa', 5000);
-            //var imgpath = 'D:\\UserData\\wb-shil\\Pictures\\1680-05-10-01各航空公司页面1.jpg';
-            //hideImgCalculate.attr('src', imgpath);
-        });
-
         $('#J-copyCode').click(function() {
             try{
                 if (cache.clipboard) {
@@ -2150,7 +2027,6 @@ var mass = {
 
         $(function() {
             gui.Window.get().show();
-            mass.cache.gui = gui;
 
             mass.observer();
         });
