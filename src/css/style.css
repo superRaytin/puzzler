@@ -94,7 +94,7 @@ img {
   position: relative;
   float: left;
   min-width: 40px;
-  height: 50px;
+  height: 49px;
   padding: 0 7px;
   text-align: center;
 }
@@ -107,6 +107,7 @@ img {
   float: right;
 }
 .toolbar-item.stat-success {
+  cursor: pointer;
   background: #82a734;
 }
 .toolbar-item.current {
