@@ -1,26 +1,26 @@
 @charset "utf-8";
 
 /* public */
-.fn-left{
+.fn-left {
   float: left;
 }
-.fn-right{
+.fn-right {
   float: right;
 }
-.hide{
+.hide {
   display: none;
 }
-.fn-ml10{
+.fn-ml10 {
   margin-left: 10px;
 }
-.fn-ml20{
+.fn-ml20 {
   margin-left: 20px;
 }
-.fn-mr5{
+.fn-mr5 {
   margin-right: 5px;
 }
 
-*, :before, :after{
+*, :before, :after {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
@@ -38,11 +38,23 @@
   border-radius: 10px;
   background-color: rgba(100, 100, 100, 0.6);
 }
-::-webkit-scrollbar-thumb:hover{
+::-webkit-scrollbar-thumb:hover {
   background-color: rgba(120, 120, 120, 0.9);
 }
 
-#backing{
+body {
+  overflow: hidden;
+  background: #555;
+  font-size: 12px;
+}
+body, button, input, select, textarea {
+  font-family: "Helvetica Neue", Helvetica,Hiragino Sans GB;
+}
+img {
+  max-width: none;
+}
+
+#backing {
   position: fixed;
   z-index: -10;
   left: 0;
@@ -52,69 +64,58 @@
   overflow: hidden;
 }
 
-body{
-  overflow: hidden;
-  background: #555;
-  font-size: 12px;
-}
-body, button, input, select, textarea{
-  font-family: "Helvetica Neue", Helvetica,Hiragino Sans GB;
-}
-img{
-  max-width: none;
-}
-.wrapper{
+.wrapper {
   cursor: default;
   overflow: hidden;
 }
-.container{
+.container {
   padding: 20px;
 }
-.container:before, .container:after{
+.container:before, .container:after {
   content: " ";
   display: table
 }
-.container:after{
+.container:after {
   clear: both
 }
 
-.toolbar{
+.toolbar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 50px;
-  padding-left: 0px;
-  padding-right: 0px;
+  padding-left: 0;
+  padding-right: 0;
   background-color: rgba(100, 100, 100, 0.6);
   border-bottom: 1px solid #000;
-  .toolbar-item{
+  &-item {
     position: relative;
     float: left;
     min-width: 40px;
     height: 50px;
     padding: 0 7px;
     text-align: center;
-    .name{
+    .name {
       display: block;
       margin-top: 2px;
       color: #fff;
     }
+    &.fn-right {
+      float: right;
+    }
+    &.stat-success {
+      background: rgb(130, 167, 52);
+    }
+    &.current {
+      background-color: rgba(226, 166, 60, 0.8)
+    }
+    &:not(.current):not(.stat-success):hover {
+      background-color: rgba(100, 100, 100, 0.8);
+      cursor: pointer;
+    }
   }
-  .toolbar-item.fn-right{
-    float: right;
-  }
-  .toolbar-item.stat-success{
-    background: rgb(130, 167, 52);
-  }
-  .toolbar-item.current{
-    background-color: rgba(226, 166, 60, 0.8)
-  }
-  .toolbar-item:not(.current):not(.stat-success):hover{
-    background-color: rgba(100, 100, 100, 0.8);
-    cursor: pointer;
-  }
-  .glyphicon{
+  .glyphicon {
     display: inline-block;
     height: 16px;
     margin-top: 7px;
@@ -123,7 +124,7 @@ img{
     vertical-align: middle;
     text-shadow: 1px 1px 0px #666;
   }
-  .desc{
+  .desc {
     color: #fff;
     font-size: 14px;
     display: inline-block;
@@ -131,55 +132,58 @@ img{
     padding-left: 8px;
     vertical-align: middle;
   }
-  .separate{
+  .separate {
     float: left;
     border-right: 1px dotted #ccc;
     width: 1px;
     height: 40px;
-    margin: 5px 8px 0px 8px;
+    margin: 5px 8px 0 8px;
   }
-  .dropdown-menu{
+  .dropdown-menu {
     text-align: left;
-  }
-  .toolbar-dropmenu:not(.home){
-    .glyphicon{
-      &:after{
-        content: '+';
-        padding-left: 5px;
-        font-size: 14px;
-        color: #fff;
-        vertical-align: top;
+    &:not(.home) {
+      .glyphicon {
+        &:after {
+          content: '+';
+          padding-left: 5px;
+          font-size: 14px;
+          color: #fff;
+          vertical-align: top;
+        }
       }
     }
   }
-  .home{
-    padding-bottom: 0px;
+  .home {
+    padding-bottom: 0;
   }
 }
 
-.tooltip{
+.tooltip {
   white-space: nowrap;
 }
 
-.main{
+.main {
   color: #fff;
   position: absolute;
   left: 0;
   right: 0;
   top: 50px;
-  bottom: 0px;
+  bottom: 0;
   overflow: hidden;
 }
-.ruler-x{
+
+.ruler-x {
   position: absolute;
   left: 20px;
-  right: 0px;
-  top: 0px;
+  right: 0;
+  top: 0;
   height: 20px;
-  background: url('../img/ruler_x.png') repeat;
+  background-image: url('../img/ruler_x.png');
   background-color: rgba(255, 255, 255, .2);
+  background-repeat: repeat;
 }
-.scale{
+
+.scale {
   position: absolute;
   left: 0;
   top: 0;
@@ -187,16 +191,18 @@ img{
   line-height: normal;
   color: #000;
 }
-.ruler-y{
+
+.ruler-y {
   position: absolute;
   left: 0;
   top: 20px;
-  bottom: 0px;
+  bottom: 0;
   width: 20px;
-  background: url('../img/ruler_y.png') repeat;
+  background-image: url('../img/ruler_y.png');
   background-color: rgba(255, 255, 255, .2);
+  background-repeat: repeat;
 }
-.main_right{
+.main_right {
   position: absolute;
   z-index: 1;
   left: 20px;
@@ -204,48 +210,55 @@ img{
   top: 20px;
   bottom: 20px;
 }
-.main_right_con{
+
+.main_right_con {
   position: absolute;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  top: 0px;
-  background-color: rgba(255,255,255,0);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0);
 }
-.imgCover{
-  background-color: rgba(238,238,238,0);
+
+.image-process-cover {
+  background-color: rgba(238, 238, 238, 0);
   position: absolute;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
   overflow: hidden;
-}
-.imgCover.mapCursor{
-  cursor: crosshair;
-}
-.imgCover.resizing{
-  cursor: nw-resize;
-  .rect{
-    cursor: nw-resize !important;
+  &.mapCursor {
+    cursor: crosshair;
+  }
+  .resizing {
+    cursor: nw-resize;
+    .rect{
+      cursor: nw-resize !important;
+    }
+  }
+  &.lineMovingX {
+    cursor: row-resize !important;
+    .rect {
+      cursor: row-resize !important;
+    }
+  }
+  &.lineMovingY {
+    cursor: col-resize !important;
+    .rect {
+      cursor: col-resize !important;
+    }
   }
 }
 
-.imgCover.lineMovingX, .imgCover.lineMovingX .rect{
-  cursor: row-resize !important;
-}
-.imgCover.lineMovingY, .imgCover.lineMovingY .rect{
-  cursor: col-resize !important;
-}
-
-.rect{
+.rect {
   position: absolute;
   left: 0;
   top: 0;
   z-index: 1;
   border: 1px solid #000;
   background-color: rgba(220, 220, 200, 0.5);
-  .resize{
+  .resize {
     position: absolute;
     right: 0;
     bottom: 0;
@@ -255,7 +268,7 @@ img{
     cursor: nw-resize;
     border-radius: 8px 0 0 0;
   }
-  .setting{
+  .setting {
     position: absolute;
     left: -1px;
     top: -16px;
@@ -266,7 +279,7 @@ img{
     border-radius: 2px 2px 0 0;
     text-align: center;
   }
-  .setting-area{
+  .setting-area {
      position: absolute;
      left: -1px;
      top: -100px;
@@ -282,17 +295,17 @@ img{
      box-shadow: 2px 2px 7px #112;
    }
 }
-.rect-focus{
+.rect-focus {
   border-color: #ff2222;
-  .setting{
+  .setting {
     display: block;
-    .glyphicon{
+    .glyphicon {
       margin-left: 2px;
     }
   }
 }
 
-input.rect-input{
+input.rect-input {
   border-radius: 0;
   border-color: rgba(240, 240, 240, 0.3);
   color: #fff;
@@ -305,36 +318,37 @@ input.rect-input{
   font-size: 12px;
   box-shadow: none;
   background-color: rgba(220, 220, 220, 0.5);
+  &:focus {
+    border-color: rgba(240, 240, 240, 0.5);
+    box-shadow: none;
+  }
 }
-input.rect-input:focus{
-  border-color: rgba(240, 240, 240, 0.5);
-  box-shadow: none;
-}
-.rect-url{
+
+.rect-url {
   position: absolute;
   left: 10px;
   top: 10px;
   right: 10px;
 }
-.rect-open{
+.rect-open {
   position: absolute;
   left: 10px;
   top: 30px;
   right: 10px;
 }
-.rect-width-height{
+.rect-width-height {
   position: absolute;
   left: 10px;
   top: 50px;
   right: 10px;
-  .rect-input{
+  .rect-input {
     width: 38px;
   }
 }
-.rect-error{
+.rect-error {
   background-color: rgba(255, 0, 0, 0.4);;
 }
-.lineX{
+.lineX {
   position: absolute;
   left: 0;
   top: 10px;
@@ -343,7 +357,7 @@ input.rect-input:focus{
   height: 3px;
   cursor: row-resize;
 }
-.lineY{
+.lineY {
   position: absolute;
   left: 10px;
   top: 0;
@@ -352,10 +366,10 @@ input.rect-input:focus{
   width: 3px;
   cursor: col-resize;
 }
-.line-focus{
+.line-focus {
   border-color: #ff2222;
 }
-.imgItem{
+.image-wrapper {
   margin: 0 auto;
   position: absolute;
   left: 0;
@@ -363,7 +377,7 @@ input.rect-input:focus{
   bottom: 0;
   overflow: auto;
 }
-.addImg{
+.addImg {
   position: absolute;
   width: 200px;
   height: 60px;
@@ -372,12 +386,12 @@ input.rect-input:focus{
   font-size: 24px;
 }
 
-.tool-item{
+.tool-item {
   background: #333;
   margin-bottom: 3px;
 }
 
-.statusBar{
+.statusBar {
   position: absolute;
   left: 0;
   right: 0;
@@ -387,7 +401,7 @@ input.rect-input:focus{
   text-shadow: 1px 1px 0px #000;
   padding-left: 25px;
 }
-.inputing input[type=text]{
+.inputing input[type=text] {
   border-radius: 0;
   border-color: rgba(240, 240, 240, 0.9);
   color: #FF0;
@@ -400,15 +414,15 @@ input.rect-input:focus{
   font-size: 11px;
   box-shadow: none;
   background-color: rgba(220, 220, 220, 0);
+  &:focus {
+    border-color: rgba(240, 240, 240, 0.9);
+    box-shadow: none;
+  }
 }
-.inputing input[type=text]:focus{
-  border-color: rgba(240, 240, 240, 0.9);
-  box-shadow: none;
-}
-.rect-link input[type=text]{
+.rect-link input[type=text] {
   width: 200px;
 }
-.status-span{
+.status-span {
   display: inline-block;
   vertical-align: middle;
   margin-left: 5px;
@@ -417,7 +431,7 @@ input.rect-input:focus{
   white-space: nowrap;
   max-width: 500px;
 }
-.rect-status{
+.rect-status {
   position: absolute;
   left: 0;
   right: 0;
@@ -426,7 +440,7 @@ input.rect-input:focus{
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-#overlay{
+#overlay {
   position: fixed;
   left: 0;
   right: 0;
@@ -438,7 +452,7 @@ input.rect-input:focus{
 }
 
 /* text zone */
-.textzone{
+.textzone {
   position: absolute;
   left: 100px;
   top: 100px;
@@ -447,7 +461,7 @@ input.rect-input:focus{
   background: transparent;
   width: 100px;
   height: 100px;
-  textarea{
+  textarea {
     position: absolute;
     left: 0;
     right: 0;
@@ -460,7 +474,7 @@ input.rect-input:focus{
     padding: 0;
     font: 12px/1.5 'simsun';
   }
-  .cover{
+  .cover {
     position: absolute;
     left: 0;
     right: 0;
@@ -469,7 +483,7 @@ input.rect-input:focus{
     background: rgba(255,255,255,0);
     z-index: 2;
   }
-  .resize_textarea{
+  .resize_textarea {
     position: absolute;
     right: 0;
     bottom: 0;
@@ -480,7 +494,7 @@ input.rect-input:focus{
     border-radius: 8px 0 0 0;
     z-index: 3;
   }
-  .setting_textarea, .edit_textarea{
+  .setting_textarea, .edit_textarea {
     position: absolute;
     right: -1px;
     top: -16px;
@@ -492,7 +506,7 @@ input.rect-input:focus{
     text-align: center;
     color: #fff;
   }
-  .preview_frame{
+  .preview_frame {
     position: absolute;
     left: 0;
     right: 0;
@@ -505,24 +519,24 @@ input.rect-input:focus{
     }
   }
 }
-.textzone-focus{
+.textzone-focus {
   border-color: #ff2222;
 }
-.textzone-error{
+.textzone-error {
   background-color: rgba(255, 0, 0, 0.4);;
 }
 
 /* settings */
-.dialogWrap{
+.dialogWrap {
   margin-top: -3px;
   width: 500px;
   min-height: 300px;
 }
-.tab_trigger{
+.tab_trigger {
   background: #f6f6f6;
   width: 100%;
 }
-.tab_tigger_item{
+.tab_tigger_item {
   border-right: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
   padding: 5px 26px;
@@ -533,25 +547,26 @@ input.rect-input:focus{
   font-size: 14px;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#DDDDDD));
   background-image: -moz-linear-gradient(center top , #FFFFFF 0%, #DDDDDD 100%);
+  &:hover {
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#eeeeee));
+    background-image: -moz-linear-gradient(center top , #FFFFFF 0%, #eeeeee 100%);
+  }
+  &.on {
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#EEEEEE), to(#FFFFFF));
+    background-image: -moz-linear-gradient(center top , #EEEEEE 0%, #FFFFFF 100%);
+    border-bottom: 0;
+  }
 }
-.tab_tigger_item:hover{
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#eeeeee));
-  background-image: -moz-linear-gradient(center top , #FFFFFF 0%, #eeeeee 100%);
-}
-.tab_tigger_item.on{
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#EEEEEE), to(#FFFFFF));
-  background-image: -moz-linear-gradient(center top , #EEEEEE 0%, #FFFFFF 100%);
-  border-bottom: 0;
-}
-.tab_content{
+
+.tab_content {
   padding: 10px 20px;
   font-size: 12px;
 }
-.tab_content_item{
+.tab_content_item {
   padding-top: 10px;
 }
 
-.tab_content_column{
+.tab_content_column {
   margin-bottom: 10px;
   fieldset{
     border: 1px solid #ddd;
@@ -565,65 +580,72 @@ input.rect-input:focus{
     }
   }
 }
-.fieldset_content{
+
+.fieldset_content {
   padding: 10px 10px 10px 20px;
 }
+
 .fieldset_column{
   margin-bottom: 5px;
 }
 
-.column_label_check{
+.column_label_check {
   padding-left: 3px;
 }
-.column_label_radio{
+
+.column_label_radio {
   padding-right: 10px;
   padding-left: 3px;
 }
-.column_input{
+
+.column_input {
   margin-bottom: 0px !important;
   font-size: 12px;
   color: #666 !important;
-}
-.column_input.error{
-  border-color: #ff705a;
-}
-.column_input.error:focus{
-  border-color: #ff705a;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 170, 102, 0.60);
+  &.error {
+    border-color: #ff705a;
+    &:focus{
+      border-color: #ff705a;
+      -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 170, 102, 0.60);
+    }
+  }
 }
 
-.column_title, .column_title_input{
+.column_title, .column_title_input {
   display: inline-block;
+  &:after {
+    content: '：';
+  }
 }
-.column_title:after, .column_title_input:after, .column_label_select:after{
+.column_label_select:after {
   content: '：';
 }
-.column_title_input{
+.column_title_input {
   vertical-align: middle;
   text-align: right;
 }
-.column_textarea{
+.column_textarea {
   width: 430px;
   max-width: 430px;
   min-height: 200px;
   max-height: 250px;
 }
-.group_mail .column_title_input{
+.group_mail .column_title_input {
   width: 50px;
 }
-.after_tips{
+.after_tips {
   display: inline-block;
   padding-left: 5px;
   color: #999;
   vertical-align: middle;
 }
 
-.about{
-  .logo{
+.about {
+  .logo {
     margin-bottom: 10px;
     text-align: center;
   }
-  p{
+  p {
     margin: 0;
     line-height: 2em;
     font-size: 14px;

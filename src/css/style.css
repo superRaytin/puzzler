@@ -1,5 +1,4 @@
 @charset "utf-8";
-
 /* public */
 .fn-left {
   float: left;
@@ -41,15 +40,6 @@
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(120, 120, 120, 0.9);
 }
-#backing {
-  position: fixed;
-  z-index: -10;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  overflow: hidden;
-}
 body {
   overflow: hidden;
   background: #555;
@@ -64,6 +54,15 @@ textarea {
 }
 img {
   max-width: none;
+}
+#backing {
+  position: fixed;
+  z-index: -10;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
 }
 .wrapper {
   cursor: default;
@@ -86,12 +85,12 @@ img {
   left: 0;
   right: 0;
   height: 50px;
-  padding-left: 0px;
-  padding-right: 0px;
+  padding-left: 0;
+  padding-right: 0;
   background-color: rgba(100, 100, 100, 0.6);
   border-bottom: 1px solid #000;
 }
-.toolbar .toolbar-item {
+.toolbar-item {
   position: relative;
   float: left;
   min-width: 40px;
@@ -99,21 +98,21 @@ img {
   padding: 0 7px;
   text-align: center;
 }
-.toolbar .toolbar-item .name {
+.toolbar-item .name {
   display: block;
   margin-top: 2px;
   color: #fff;
 }
-.toolbar .toolbar-item.fn-right {
+.toolbar-item.fn-right {
   float: right;
 }
-.toolbar .toolbar-item.stat-success {
+.toolbar-item.stat-success {
   background: #82a734;
 }
-.toolbar .toolbar-item.current {
+.toolbar-item.current {
   background-color: rgba(226, 166, 60, 0.8);
 }
-.toolbar .toolbar-item:not(.current):not(.stat-success):hover {
+.toolbar-item:not(.current):not(.stat-success):hover {
   background-color: rgba(100, 100, 100, 0.8);
   cursor: pointer;
 }
@@ -139,12 +138,12 @@ img {
   border-right: 1px dotted #ccc;
   width: 1px;
   height: 40px;
-  margin: 5px 8px 0px 8px;
+  margin: 5px 8px 0 8px;
 }
 .toolbar .dropdown-menu {
   text-align: left;
 }
-.toolbar .toolbar-dropmenu:not(.home) .glyphicon:after {
+.toolbar .dropdown-menu:not(.home) .glyphicon:after {
   content: '+';
   padding-left: 5px;
   font-size: 14px;
@@ -152,7 +151,7 @@ img {
   vertical-align: top;
 }
 .toolbar .home {
-  padding-bottom: 0px;
+  padding-bottom: 0;
 }
 .tooltip {
   white-space: nowrap;
@@ -163,17 +162,18 @@ img {
   left: 0;
   right: 0;
   top: 50px;
-  bottom: 0px;
+  bottom: 0;
   overflow: hidden;
 }
 .ruler-x {
   position: absolute;
   left: 20px;
-  right: 0px;
-  top: 0px;
+  right: 0;
+  top: 0;
   height: 20px;
-  background: url('../img/ruler_x.png') repeat;
+  background-image: url('../img/ruler_x.png');
   background-color: rgba(255, 255, 255, 0.2);
+  background-repeat: repeat;
 }
 .scale {
   position: absolute;
@@ -187,10 +187,11 @@ img {
   position: absolute;
   left: 0;
   top: 20px;
-  bottom: 0px;
+  bottom: 0;
   width: 20px;
-  background: url('../img/ruler_y.png') repeat;
+  background-image: url('../img/ruler_y.png');
   background-color: rgba(255, 255, 255, 0.2);
+  background-repeat: repeat;
 }
 .main_right {
   position: absolute;
@@ -202,13 +203,13 @@ img {
 }
 .main_right_con {
   position: absolute;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  top: 0px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
   background-color: rgba(255, 255, 255, 0);
 }
-.imgCover {
+.image-process-cover {
   background-color: rgba(238, 238, 238, 0);
   position: absolute;
   left: 0;
@@ -217,21 +218,25 @@ img {
   bottom: 0;
   overflow: hidden;
 }
-.imgCover.mapCursor {
+.image-process-cover.mapCursor {
   cursor: crosshair;
 }
-.imgCover.resizing {
+.image-process-cover .resizing {
   cursor: nw-resize;
 }
-.imgCover.resizing .rect {
+.image-process-cover .resizing .rect {
   cursor: nw-resize !important;
 }
-.imgCover.lineMovingX,
-.imgCover.lineMovingX .rect {
+.image-process-cover.lineMovingX {
   cursor: row-resize !important;
 }
-.imgCover.lineMovingY,
-.imgCover.lineMovingY .rect {
+.image-process-cover.lineMovingX .rect {
+  cursor: row-resize !important;
+}
+.image-process-cover.lineMovingY {
+  cursor: col-resize !important;
+}
+.image-process-cover.lineMovingY .rect {
   cursor: col-resize !important;
 }
 .rect {
@@ -350,7 +355,7 @@ input.rect-input:focus {
 .line-focus {
   border-color: #ff2222;
 }
-.imgItem {
+.image-wrapper {
   margin: 0 auto;
   position: absolute;
   left: 0;
@@ -585,7 +590,9 @@ input.rect-input:focus {
   display: inline-block;
 }
 .column_title:after,
-.column_title_input:after,
+.column_title_input:after {
+  content: '：';
+}
 .column_label_select:after {
   content: '：';
 }

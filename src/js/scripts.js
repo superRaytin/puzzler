@@ -15,7 +15,26 @@ var gui = require('nw.gui'),
     template = require('./js/template'),
     config = require('./js/config');
 
+var Utils = require('./js/lib/utils');
 var ImageProcessor = require('./js/lib/imageProcessor');
+
+// 滚动条 Y 的宽度
+var scrollYWidth = 11;
+
+// 滚动条 X 的高度
+var scrollXHeight = 11;
+
+// 工具栏高度
+var toolbarHeight = 50;
+
+// 标尺 X 轴高度
+var ruleXHeight = 20;
+
+// 标尺 Y 轴宽度
+var ruleYWidth = 20;
+
+// 状态栏高度
+var statusBarHeight = 20;
 
 var mass = {
     cache: {
@@ -37,7 +56,7 @@ var mass = {
         textAreaNum: 0,
         textAreauuid: 1,
         focusTextAreaId: null,
-        mainResizeFlag: false,
+        shouldResizeImageWrapper: false,
         // 与package.json中保持一致
         minWidth: 700,
         minHeight: 500,
@@ -123,20 +142,25 @@ var mass = {
 
         return result;
     },
+
     resizeHandler: function() {
         var cache = mass.cache,
-            win = $(window),
             back = $('#backing'),
             mainRight = $('.main_right'),
-            previewImg = $('#previewImg'),
-            preParent = previewImg.parent(),
-            addImg = $('.addImg'),
-            winWid = win.width(),
-            winHei = win.height();
+            $image = $('#J-image'),
+            imageWrapper = $image.parent(),
+            addImg = $('.addImg');
+
+        var win = $(window);
+        var winWidth = win.width();
+        var winHeight = win.height();
+
+        // 图片之外的区域高度
+        var imageOutsideAreaHeight = toolbarHeight + ruleXHeight + statusBarHeight;
 
         // 背景层
-        back.width(winWid).height(winHei);
-        back.find('img').width(winWid).height(winHei);
+        back.width(winWidth).height(winHeight);
+        back.find('img').width(winWidth).height(winHeight);
 
         // 未添加图片时，按钮
         !addImg.hasClass('hide') && addImg.css({
@@ -144,84 +168,45 @@ var mass = {
             top: (mainRight.height() - 60) / 2
         });
 
-        // 图片区外层宽度
-        if (cache.mainResizeFlag) {
-            preParent.width(Math.min(cache.img.width + 11, winWid - 20));
-            preParent.height(Math.min(cache.img.height + 11, winHei - 90));
+        // 同步修改图片区外层宽度和高度
+        if (cache.shouldResizeImageWrapper) {
+            imageWrapper.width(Math.min(cache.img.width + scrollYWidth, winWidth - scrollYWidth));
+            imageWrapper.height(Math.min(cache.img.height + scrollXHeight, winHeight - imageOutsideAreaHeight));
         }
     },
+
     setImgCoverWidth: function() {
-        var self = this;
-        var cache = this.cache,
-            previewImg = $('#previewImg'),
-            src = previewImg.attr('src'),
-            preParent = previewImg.parent(),
-            preWid = previewImg.width(),
-            preHei = previewImg.height();
+        var cache = this.cache;
+        var imageWrapper = $('#J-image-wrapper');
+        var img = $('#J-image');
+        var imageWidth = img.width();
+        var imageHeight = img.height();
 
-        gm(src).size(function(err, value) {
-            if (err) {
-                console.log(err);
+        $('#J-image-process-cover').width(imageWidth).height(imageHeight);
 
-                if (self.clientInfo.isMacOS) {
-                    mass.dialog('还未安装 GraphicsMagick 服务吗？你是Mac用户，请打开终端命令并运行：<br>1. brew install imagemagick<br>2. brew install graphicsmagick',
-                        [
-                            {
-                                value: '确定'
-                            }
-                        ]
-                    );
-                }
-                else if (self.clientInfo.isLinux) {
-                    mass.dialog('您还未安装 GraphicsMagick 服务，请先安装',
-                        [
-                            {
-                                value: '下载地址',
-                                callback: function() {
-                                    gui.Shell.openExternal('http://www.graphicsmagick.org/');
-                                },
-                                focus: true
-                            },
-                            {
-                                value: '确定'
-                            }
-                        ]
-                    );
-                }
-                else{
-                    mass.dialog('还未安装 GraphicsMagick 服务吗？你是Windows用户，请尝试以下方法：<br>1. 如果已安装，请在CMD命令中运行gm version，如未正确执行，请重启电脑（初次安装需要）<br>2. 未安装，请到 ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/ 下载相应版本',
-                        [
-                            {
-                                value: '下载地址',
-                                callback: function() {
-                                    gui.Shell.openExternal('ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/windows/');
-                                },
-                                focus: true
-                            },
-                            {
-                                value: '确定'
-                            }
-                        ]
-                    );
-                }
+        var win = $(window);
+        var winWidth = win.width();
+        var winHeight = win.height();
 
-                return;
-            }
+        // 图片之外的区域高度
+        var imageOutsideAreaHeight = toolbarHeight + ruleXHeight + statusBarHeight;
 
-            preWid = value.width;
-            preHei = value.height;
+        // 图片区域高度
+        var imageAreaHeight = winHeight - imageOutsideAreaHeight;
 
-            $('#J-imgCover').width(preWid).height(preHei);
-            //preParent.width(Math.min(preWid + 11, screen.availWidth - 20));
-            preParent.width(Math.min(preWid + 11, $(window).width() - 20));
-            preParent.height(Math.min(preHei + 11, $(window).height() - 90));
+        // 确保图片外层滚动条在正确位置
+        imageWrapper.width(Math.min(imageWidth + scrollYWidth, winWidth - scrollYWidth));
+        imageWrapper.height(Math.min(imageHeight + scrollXHeight, imageAreaHeight));
 
-            // 图片宽度小于配置中的最小宽度，则resize时不作操作
-            if (preWid + 11 > cache.minWidth - 20 || preHei + 11 > cache.minHeight - 90) {
-                cache.mainResizeFlag = true;
-            }
-        });
+        // 图片的宽度大于窗口可能的最小宽度（配置中的 min_width）
+        // 或者图片的高度大于窗口可能的最小高度（配置中的 min_height）
+        // 则在 resize 触发时需要同时修改图片外层的宽度和高度（为了保证滚动条正确出现）
+        // 否则 resize 时不需要同时修改
+        if (imageWidth + scrollYWidth > cache.minWidth - ruleYWidth || imageHeight + scrollXHeight > cache.minHeight - imageOutsideAreaHeight) {
+            cache.shouldResizeImageWrapper = true;
+        }
     },
+
     // 遮罩
     overlay: function(type) {
         var dom = $('#overlay');
@@ -504,8 +489,8 @@ var mass = {
     // 标尺
     ruler: function() {
         var offsetWrap = $('#J-offset'),
-            imgCover = $('#J-imgCover'),
-            imgItem = imgCover.parent(),
+            imgCover = $('#J-image-process-cover'),
+            imageWrapper = imgCover.parent(),
             cache = this.cache,
             scrollTop = 0,
             scrollLeft = 0;
@@ -533,8 +518,8 @@ var mass = {
 
         $(document).mousemove(function(e) {
             if (_move) {
-                scrollTop = imgItem.scrollTop();
-                scrollLeft = imgItem.scrollLeft();
+                scrollTop = imageWrapper.scrollTop();
+                scrollLeft = imageWrapper.scrollLeft();
                 if (_type === 'X') {
                     if (e.clientY > minusY) {
                         // 边界控制
@@ -746,18 +731,20 @@ var mass = {
         });
         return res.sort(function(a, b) {return a - b > 0});
     },
-    reset: function(mainResizeFlag) {
+
+    reset: function(shouldResizeImageWrapper) {
         this.Line.reset();
         this.Rect.reset();
         this.TextArea.reset();
 
-        if (mainResizeFlag) {
-            this.cache.mainResizeFlag = false;
+        if (shouldResizeImageWrapper) {
+            this.cache.shouldResizeImageWrapper = false;
         }
 
         this.cache.clipboard = null;
         $('#J-copyCode').addClass('hide');
     },
+
     templateReset: function() {
         var setting = window.localStorage.setting ? JSON.parse(window.localStorage.setting) : {};
         if (!setting.template) {
@@ -779,13 +766,14 @@ var mass = {
 
         alertify.success('模板恢复成功。');
     },
+
     // 重新选择图片 初始化图片预览区
     previewInit: function(reset) {
         var cache = this.cache,
             addImg = $('.addImg'),
-            previewImg = $('#previewImg'),
-            preParent = previewImg.parent(),
-            imgCover = $('#J-imgCover'),
+            $image = $('#J-image'),
+            imageWrapper = $image.parent(),
+            imgCover = $('#J-image-process-cover'),
             statusInner = $('#J-statusBar-inner'),
             offset = $('#J-offset'),
             imgInfo = $('#J-imgInfo');
@@ -796,20 +784,21 @@ var mass = {
             addImg.removeClass('hide');
             statusInner.addClass('hide');
 
-            previewImg.remove();
+            $image.remove();
             imgCover.removeAttr('style');
-            preParent.removeAttr('style');
-        }else{
+            imageWrapper.removeAttr('style');
+        } else {
             !addImg.hasClass('hide') && addImg.addClass('hide');
 
             if (statusInner.hasClass('hide')) {
                 statusInner.removeClass('hide');
-            };
+            }
             // 改变状态栏偏移量的值
             offset.val(0);
-            imgInfo.text(cache.img.width + ' X '+ cache.img.height + ' --- ' + previewImg.attr('src'));
+            imgInfo.text(cache.img.width + ' X '+ cache.img.height + ' --- ' + $image.attr('src'));
         }
     },
+
     // 拉取最后一次的切线记录
     getLastLines: function() {
         var localLine = window.localStorage.line,
@@ -853,10 +842,11 @@ var mass = {
             mass[type](param);
         }
     },
+
     golden_section: function(param) {
         var cache = mass.cache,
             img = cache.img,
-            imgCover = $('#J-imgCover'),
+            imgCover = $('#J-image-process-cover'),
             ylines = mass.getSortPos('Y'),
             lineY = cache.lineY,
             //lineuuid = cache.lineuuid,
@@ -906,20 +896,23 @@ var mass = {
         cache.lineY = lineY + 2;
         //cache.lineuuid = lineuuid + 3;
     },
+
     // 选择图片时触发
     imgChange: function() {
-        this.previewInit();
+        var self = this;
 
-        mass.setImgCoverWidth();
+        self.previewInit();
+        self.setImgCoverWidth();
 
-        mass.cache.isBig = mass.cache.img && mass.cache.img.width > 990;
-        mass.cache.quickSavePath = null;
+        self.cache.isBig = self.cache.img && self.cache.img.width > 990;
+        self.cache.quickSavePath = null;
 
         // 初始化画布
-        this.initCanvas();
+        self.initCanvas();
 
-        this.checkConfigFile();
+        self.checkConfigFile();
     },
+
     // 检查图片配置文件 - 有则导入
     checkConfigFile: function() {
         var cache = mass.cache,
@@ -973,6 +966,7 @@ var mass = {
             });
         }
     },
+
     // 获取切片
     getCutBlocks: function(children) {
         var cache = mass.cache,
@@ -1097,23 +1091,24 @@ var mass = {
     cutImg: function(dir, callback) {
         alertify.log('正在导出切片...');
 
+        var self = this;
+
         // 保存锁，避免疯狂保存的情况
-        mass.cache.saveLock = true;
+        self.cache.saveLock = true;
 
         var exportPath = dir,
-            previewImg = $('#previewImg');
+            $image = $('#J-image');
 
         var fileSeparator = this.clientInfo.fileSeparator;
 
-        var imgCover = $('#J-imgCover'),
-            cache = mass.cache,
-            newFolder = mass.rockSettings.getItemInSetting('exportOption'),
+        var cache = self.cache,
+            newFolder = self.rockSettings.getItemInSetting('exportOption'),
             folder = callback ? (fileSeparator + 'images') : '',
             imgName, exportPathByImgName, blocks, markBlocks;
 
         var imageProcessor = cache.imageProcessor;
 
-        blocks = mass.getCutBlocks();
+        blocks = self.getCutBlocks();
 
         markBlocks = blocks.slice();
 
@@ -1183,11 +1178,12 @@ var mass = {
                     }
                     // 仅导出图片
                     else{
-                        mass.dialog('切图完成！<br>文件位置：' + exportPath, [
+                        self.dialog('切图完成！<br>文件位置：' + exportPath, [
                             {
                                 value: '打开文件位置',
                                 callback: function() {
-                                    gui.Shell.showItemInFolder(exportPath + folder + fileSeparator + 'section-1.' + cache.fileFormat);
+                                    //gui.Shell.showItemInFolder(exportPath + folder + fileSeparator + 'section-1.' + cache.fileFormat);
+                                    Utils.showFileInFolder(exportPath + folder + fileSeparator + 'section-1.' + cache.fileFormat);
                                 },
                                 focus: true
                             },
@@ -1199,7 +1195,7 @@ var mass = {
                         mass.cache.saveLock = false;
                     }
 
-                    mass.rockSettings.itemInMemory('lastSaveDir', exportPath);
+                    self.rockSettings.itemInMemory('lastSaveDir', exportPath);
                     $('#J-hi-saveDiretory').val('');
                     return;
                 }
@@ -1243,8 +1239,8 @@ var mass = {
     },
 
     // 生成HTML
-    buildHTML: function(blocks, path) {
-        console.log('start build html', blocks, path);
+    buildHTML: function(blocks, exportDirectoryPath) {
+        console.log('start build html', blocks, exportDirectoryPath);
 
         var cache = mass.cache,
             img = cache.img,
@@ -1388,14 +1384,15 @@ var mass = {
             cache.clipboard = bodyCon;
 
             // 生成页面
-            fs.writeFile(path + fileSeparator + 'index.html', cheer.html(), function(err) {
+            fs.writeFile(exportDirectoryPath + fileSeparator + 'index.html', cheer.html(), function(err) {
                 if (err) return console.log(err);
-                mass.dialog('导出图像和HTML成功！<br>文件位置：' + path, [
+                mass.dialog('导出图像和HTML成功！<br>文件位置：' + exportDirectoryPath, [
                     {
                         value: '浏览器中预览',
                         callback: function() {
-                            //gui.Shell.openExternal(path + '\\index.html');
-                            gui.Shell.openItem(path + fileSeparator + 'index.html');
+                            //gui.Shell.openExternal(exportDirectoryPath + '\\index.html');
+                            //gui.Shell.openItem(exportDirectoryPath + fileSeparator + 'index.html');
+                            Utils.openFileExternal(exportDirectoryPath + fileSeparator + 'index.html');
                             return false;
                         },
                         focus: true
@@ -1403,7 +1400,8 @@ var mass = {
                     {
                         value: '打开文件位置',
                         callback: function() {
-                            gui.Shell.showItemInFolder(path + fileSeparator + 'index.html');
+                            //gui.Shell.showItemInFolder(exportDirectoryPath + fileSeparator + 'index.html');
+                            Utils.showFileInFolder(exportDirectoryPath + fileSeparator + 'index.html');
                             return false;
                         }
                     },
@@ -1418,8 +1416,8 @@ var mass = {
                 // 已经有过导出操作，跳过此步
                 if (!cache.quickSavePath) {
                     // 生成origin图片
-                    var readStream = fs.createReadStream(img.path),
-                        writeStream = fs.createWriteStream(path + fileSeparator + 'origin.' + cache.fileFormat);
+                    var readStream = fs.createReadStream(img.path);
+                    var writeStream = fs.createWriteStream(exportDirectoryPath + fileSeparator + 'origin.' + cache.fileFormat);
 
                     readStream.pipe(writeStream);
                     writeStream.on('close', function() {
@@ -1439,12 +1437,12 @@ var mass = {
                         '\t"textArea": '+ encodeURIComponent(JSON.stringify(cache.textArea)) +'\n' +
                     '}';
 
-                fs.createWriteStream(path + fileSeparator + 'config.json').write(configContent);
+                fs.createWriteStream(exportDirectoryPath + fileSeparator + 'config.json').write(configContent);
 
                 // 解锁
                 cache.saveLock = false;
 
-                cache.quickSavePath = path;
+                cache.quickSavePath = exportDirectoryPath;
             });
         });
     },
@@ -1452,8 +1450,8 @@ var mass = {
     // 初始化画布
     initCanvas: function() {
         var cache = this.cache;
-        var previewImg = $('#previewImg');
-        var img = previewImg.get(0);
+        var $image = $('#J-image');
+        var img = $image.get(0);
         var imageProcessor = cache.imageProcessor;
 
         // 销毁之前的实例
@@ -1470,11 +1468,11 @@ var mass = {
     },
 
     // 导出HTML
-    exportHTML: function(exportPath) {
-        alertify.log('正在导出HTML包...');
-        mass.cutImg(exportPath, function(blocks, path) {
+    exportHTML: function(exportDirectoryPath) {
+        alertify.log('正在导出 HTML 包...');
+        mass.cutImg(exportDirectoryPath, function(blocks, exportDirectoryPath2) {
             $('#J-hi-saveDiretoryForHtml').val('');
-            mass.buildHTML(blocks, path);
+            mass.buildHTML(blocks, exportDirectoryPath2);
         });
     },
     beforeClose: function() {
@@ -1672,6 +1670,7 @@ var mass = {
         }
     },
     observer: function() {
+        var self = this;
         var cache = this.cache,
             context = require('./js/contextmenu').init(),
             Rect = require('./js/rect'),
@@ -1684,10 +1683,10 @@ var mass = {
 
         this.checkClient();
 
-        var imgCover = $('#J-imgCover'),
+        var imgCover = $('#J-image-process-cover'),
             offset = $('#J-offset'),
             addImg = $('.addImg'),
-            previewImg = $('#previewImg'),
+            $image = $('#J-image'),
             hideImgCalculate = $('#J-Calculate'),
             fileFormat;
 
@@ -1716,59 +1715,67 @@ var mass = {
 
         //1. 先在隐藏img中检查图片宽高
         hideImgCalculate.load(function() {
-            var that = $(this),
-                imgPath = that.attr('src');
+            var current = $(this);
+            var imagePath = current.attr('src');
+            var imageWidth = current.width();
+            var imageHeight = current.height();
 
-            if (imgPath === './img/hold.png') {
-                return that.removeClass('init');
+            console.log(3333, imagePath, imageWidth, imageHeight);
+            // Windows 平台与 OSX 平台返回不一样
+            if (imagePath === './img/hold.png' || imagePath === 'img/hold.png') {
+                return current.removeClass('init');
             }
 
-            if (that.width() < 50 || that.height() < 50) {
+            if (imageWidth < 50 || imageHeight < 50) {
                 alertify.log('啊嘞...我们是有原则滴，宽高少于50不切~');
-            }else{
-                var fileName = modPath.basename(imgPath);
-                fileFormat = fileName.substr(fileName.lastIndexOf('.') + 1);
+            } else {
+
+                fileFormat = Utils.getFileFormat(imagePath);
+
                 cache.fileFormat = fileFormat;
                 cache.img = {
-                    width: that.width(),
-                    height: that.height(),
-                    path: imgPath
+                    width: imageWidth,
+                    height: imageHeight,
+                    path: imagePath
                 };
-                previewImg.attr('src', imgPath);
-                mass.rockSettings.itemInMemory('lastDirectory', modPath.dirname(that.attr('src')));
+
+                $image.attr('src', imagePath);
+
+                self.rockSettings.itemInMemory('lastDirectory', modPath.dirname(current.attr('src')));
             }
+
             $('#J-hi-select').val('');
         });
 
         //2. 宽高没问题，载入主区域
-        previewImg.load(function() {
-            var that = $(this);
-            if (that.attr('src') === './img/hold.png') {
-                return that.removeClass('init');
+        $image.load(function() {
+            var current = $(this);
+            if (current.attr('src') === './img/hold.png') {
+                return current.removeClass('init');
             }
 
-            previewImg.hasClass('hide') && previewImg.removeClass('hide');
-            mass.imgChange();
+            $image.hasClass('hide') && $image.removeClass('hide');
+            self.imgChange();
 
         });
 
         // 上传文件
         $('#J-hi-select').change(function(e) {
-            var val = this.value;
+            var filePath = this.value;
 
-            if (val == '') return;
+            if (filePath == '') return;
 
-            // 检查path合法性
-            var fileName = modPath.basename(val);
-            fileFormat = fileName.substr(fileName.lastIndexOf('.') + 1);
-            if (!mass.reg.imgFile.test(fileFormat)) {
-                mass.dialog('请选择 ".jpg|.jpeg" ".png" 或 ".gif" 格式的文件', true);
+            fileFormat = Utils.getFileFormat(filePath);
+
+            // 检查 path 合法性
+            if (!self.reg.imgFile.test(fileFormat)) {
+                self.dialog('请选择 ".jpg|.jpeg" ".png" 或 ".gif" 格式的文件', true);
                 return;
             }
 
-            console.log(val);
+            console.log(filePath);
 
-            hideImgCalculate.attr('src', val);
+            hideImgCalculate.attr('src', filePath);
         });
 
         // 导出切片
@@ -1779,7 +1786,7 @@ var mass = {
             $('#J-hi-saveDiretory').trigger('click');
         });
         $('#J-hi-saveDiretory').change(function() {
-            mass.cutImg(this.value);
+            self.cutImg(this.value);
         });
 
         // 导出HTML
@@ -1814,6 +1821,7 @@ var mass = {
             var localSet = window.localStorage.setting,
                 that = this,
                 settingPath = that.value;
+
             fs.readFile(settingPath, function(err, data) {
                 if (err) {
                     return mass.dialog('文件读取错误！<br>' + err, true);
@@ -1863,7 +1871,8 @@ var mass = {
                     {
                         value: '打开文件位置',
                         callback: function() {
-                            gui.Shell.showItemInFolder(path + fileSeparator + 'settings.json');
+                            //gui.Shell.showItemInFolder(path + fileSeparator + 'settings.json');
+                            Utils.showFileInFolder(path + fileSeparator + 'settings.json');
                             return false;
                         },
                         focus: true
