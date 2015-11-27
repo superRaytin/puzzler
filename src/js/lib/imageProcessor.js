@@ -37,7 +37,7 @@ ImageProcessor.prototype.initialize = function(image, options) {
 
     this.canvas = canvas;
     this.imageFormat = options.imageFormat || getImageFormat(imageUrl);
-    this.quality = options.quality || 0.92;
+    this.qualityLevel = options.quality || 0.92;
 
     if (!this.originalImage) {
         this.originalImage = image;
@@ -88,7 +88,7 @@ ImageProcessor.prototype.draw = function(url, options, callback) {
 // crop image
 ImageProcessor.prototype.crop = function(x, y, width, height, callback) {
     var imageFormat = this.imageFormat;
-    var quality = this.quality;
+    var quality = this.qualityLevel;
 
     var canvas = this.canvas;
     var ctx = canvas.getContext('2d');
@@ -116,7 +116,7 @@ ImageProcessor.prototype.crop = function(x, y, width, height, callback) {
 };
 
 // convert dataurl to binary image file
-ImageProcessor.prototype.saveToImageFile = function(path, dataUrl, callback) {
+ImageProcessor.prototype.toFile = function(path, dataUrl, callback) {
 
     if (arguments.length === 2) {
         callback = dataUrl;
@@ -173,13 +173,25 @@ ImageProcessor.prototype.cleanArea = function(x, y, width, height) {
     return this;
 };
 
+// set quality
+ImageProcessor.prototype.quality = function(level) {
+    level = parseFloat(level);
+
+    // 0.01 ~ 0.92
+    level = level > 0.92 ? 0.92 : level < 0.01 ? 0.01 : level;
+
+    this.qualityLevel = level;
+
+    return this;
+};
+
 ImageProcessor.prototype.destroy = function() {
     this.canvas = null;
 };
 
 // initialize setter
 function initSetter(construct) {
-    var keys = ['quality', 'imageFormat'];
+    var keys = ['imageFormat'];
 
     for (var i = 0, l = keys.length; i < l; i++) {
         var key = keys[i];
