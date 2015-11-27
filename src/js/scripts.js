@@ -1993,11 +1993,13 @@ var mass = {
 
         // A
         $('body').delegate('a', 'click', function(e) {
-            var that = $(this);
-            if (!that.attr('nopen')) {
-                cache.gui.Shell.openExternal(that.attr('href'));
-            }
             e.preventDefault();
+
+            var current = $(this);
+            if (!current.attr('nopen')) {
+                gui.Shell.openExternal(current.attr('href'));
+            }
+
         });
 
         $('.toolbar').find('.toolbar-item:not(.toolbar-dropmenu)').attr('data-placement', 'bottom').end().tooltip({
