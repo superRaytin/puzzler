@@ -7,13 +7,14 @@
 var window = global.window;
 var console = window.console;
 
+var gui = global.gui;
+
 var source = {};
 
 // 初始化右键菜单
 var contextMenuInit = function(){
     var mass = global.mass;
     var cache = mass.cache;
-    var gui = cache.gui;
 
     function menuMachine(name, option){
         return (source[name] = new gui.MenuItem(option));
