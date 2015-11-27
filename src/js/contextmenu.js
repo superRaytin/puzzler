@@ -3,16 +3,17 @@
  * User: raytin
  * Date: 13-7-25
  */
-var window = global.window,
-    console = window.console;
+
+var window = global.window;
+var console = window.console;
 
 var source = {};
 
 // 初始化右键菜单
 var contextMenuInit = function(){
-    var mass = global.mass,
-        cache = mass.cache,
-        gui = cache.gui;
+    var mass = global.mass;
+    var cache = mass.cache;
+    var gui = cache.gui;
 
     function menuMachine(name, option){
         return (source[name] = new gui.MenuItem(option));
