@@ -102,9 +102,9 @@
         <div class="main_right">
             <div class="main_right_con">
                 <div class="addImg btn btn-success" title="拖拽进来也可以哦 :-)">选择图片文件</div>
-                <div class="imgItem">
-                    <img id="previewImg" class="init hide" src="img/hold.png">
-                    <div id="J-imgCover" class="imgCover"></div>
+                <div class="image-wrapper" id="J-image-wrapper">
+                    <img id="J-image" class="init hide" src="img/hold.png">
+                    <div id="J-image-process-cover" class="image-process-cover"></div>
                 </div>
             </div>
         </div>
@@ -225,29 +225,6 @@
                         </div>
                     </fieldset>
                 </div>
-                <!--
-                <div class="tab_content_column">
-                    <fieldset>
-                        <legend>主 题</legend>
-                        <div class="fieldset_content">
-                            <select id="theme_preview" class="column_select" data-name="theme">
-                                <option value="default">default</option>
-                            </select>
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend>升 级</legend>
-                        <div class="fieldset_content">
-                            <input type="radio" name="update" id="update_tip" class="column_radio" data-name="update" value="tip" checked>
-                            <label for="update_tip" class="column_label_radio">有更新提示我升级</label>
-                            <input type="radio" name="update" id="update_auto" class="column_radio" data-name="update" value="auto">
-                            <label for="update_auto" class="column_label_radio">自动更新</label>
-                            <input type="radio" name="update" id="update_never" class="column_radio" data-name="update" value="never">
-                            <label for="update_never" class="column_label_radio">从不自动更新</label>
-                        </div>
-                    </fieldset>
-                </div>
-                -->
             </div>
         </div>
     </div>
