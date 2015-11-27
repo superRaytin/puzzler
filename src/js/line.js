@@ -1,8 +1,7 @@
 /**
  * line.
- * User: raytin
- * Date: 13-9-26
  */
+
 var window = global.window,
     $ = window.$,
     mass = global.mass,

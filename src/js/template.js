@@ -1,8 +1,7 @@
 /**
  * template.
- * User: raytin
- * Date: 13-8-28
  */
+
 module.exports = {
     style:
         '<style type="text/css">\n' +
