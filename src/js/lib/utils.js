@@ -23,7 +23,7 @@ var Utils = {
     // 载入文件
     loadFile: function(filePath, callback) {
         var self = this;
-        var encodings = ['utf-8', 'gbk', 'gb2312', 'ascii', 'binary', 'base64'];
+        var encodings = ['gbk', 'gb2312', 'ascii', 'binary', 'base64'];
 
         // 检查是否存在此文件
         if (fs.existsSync(filePath)) {
@@ -63,7 +63,7 @@ var Utils = {
 
         encode = encode || 'utf-8';
 
-        var encodings = ['utf-8', 'gbk', 'gb2312', 'ascii', 'binary', 'base64'];
+        var encodings = ['gbk', 'gb2312', 'ascii', 'binary', 'base64'];
         var result = 'error';
         var tryTimes = 0;
 
