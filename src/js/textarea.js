@@ -15,7 +15,7 @@ var window = global.window,
 var main = {
     // 自定义内容区
     drawText: function(){
-        var imgCover = $('#J-imgCover'),
+        var imgCover = $('#J-image-process-cover'),
             imgItem = imgCover.parent(),
             newTextArea = $('<div class="textzone"></div>'),
             _drawMove = false,
@@ -336,7 +336,7 @@ var main = {
 
     },
     focus: function(textAreaId){
-        var imgCover = $('#J-imgCover');
+        var imgCover = $('#J-image-process-cover');
 
         cache.focusTextAreaId = textAreaId;
         cache.focusLineId = null;
@@ -347,7 +347,7 @@ var main = {
         $('#' + textAreaId).addClass('textzone-focus');
     },
     reset: function(){
-        $('#J-imgCover').find('.textzone').remove();
+        $('#J-image-process-cover').find('.textzone').remove();
 
         $.extend(true, mass.cache, {
             textAreauuid: 1,
@@ -370,7 +370,7 @@ var main = {
     add: function(option){
         var textAreauuid = cache.textAreauuid,
             rectId = 'textarea-' + textAreauuid,
-            imgCover = $('#J-imgCover'),
+            imgCover = $('#J-image-process-cover'),
             rectEntry = $('<div class="textzone"></div>'),
             resizeZone = $('#J-template-textarea').html(),
             currentStyles;

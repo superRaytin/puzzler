@@ -14,7 +14,7 @@ var main = {
     // 画热区
     drawMap: function(){
         var cache = mass.cache,
-            imgCover = $('#J-imgCover'),
+            imgCover = $('#J-image-process-cover'),
             imgItem = imgCover.parent(),
             newRect = $('<div class="rect"></div>'),
             _drawMove = false,
@@ -57,6 +57,7 @@ var main = {
         imgCover.mousedown(function(e){
             // 右键不触发
             if(e.button === 2) return;
+
             if(cache.drawMap){
                 _drawMove = true;
                 left = e.clientX - cache.minusX + imgItem.scrollLeft();
@@ -302,7 +303,7 @@ var main = {
     },
     reset: function(){
         // 清除旧的热区
-        $('#J-imgCover').find('.rect').remove();
+        $('#J-image-process-cover').find('.rect').remove();
 
         $.extend(true, mass.cache, {
             rectuuid: 1,
@@ -327,7 +328,7 @@ var main = {
         var cache = mass.cache,
             rectuuid = cache.rectuuid,
             rectId = 'rect-' + rectuuid,
-            imgCover = $('#J-imgCover'),
+            imgCover = $('#J-image-process-cover'),
             rectEntry = $('<div class="rect"></div>'),
             settingArea = $('<div class="setting-area hide"></div>'),
             resizeZone = $('<div class="setting"><span class="glyphicon glyphicon-cog"></span></div><div class="resize"></div>'),
@@ -351,7 +352,7 @@ var main = {
     },
     focus: function(rectId){
         var cache = mass.cache,
-            imgCover = $('#J-imgCover');
+            imgCover = $('#J-image-process-cover');
 
         cache.focusRectId = rectId;
         cache.focusLineId = null;

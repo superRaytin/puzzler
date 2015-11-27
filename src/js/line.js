@@ -26,11 +26,11 @@ var main = {
         curLine.remove();
 
         this.store();
-        //$('#J-imgCover').removeClass('lineMovingX').removeClass('lineMovingY');
+        //$('#J-image-process-cover').removeClass('lineMovingX').removeClass('lineMovingY');
     },
     focus: function(lineId){
         var cache = mass.cache,
-            imgCover = $('#J-imgCover');
+            imgCover = $('#J-image-process-cover');
 
         cache.focusRectId = null;
         cache.focusTextAreaId = null;
@@ -50,7 +50,7 @@ var main = {
      * */
     add: function(option){
         var cache = mass.cache,
-            imgCover = $('#J-imgCover'),
+            imgCover = $('#J-image-process-cover'),
             lineuuid = cache.lineuuid,
             lineId = option.lineId,
             type = option.type,
@@ -79,7 +79,7 @@ var main = {
     },
     reset: function(){
         // 清除旧的参考线
-        $('#J-imgCover').find('.lineX, .lineY').remove();
+        $('#J-image-process-cover').find('.lineX, .lineY').remove();
 
         $.extend(true, mass.cache, {
             focusLineId: null,
