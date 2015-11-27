@@ -1,16 +1,15 @@
 /**
  * config.
- * User: raytin
- * Date: 13-7-28
  */
+
 var require = global.require,
     template = require('./js/template');
 
 module.exports = {
     "name": "MarkTool",
-    "desc": "前端切图助手",
-    "version": "0.5.0",
-    "updateURL": "http://www.jsfor.com/project/MarkTool/update.json",
+    "desc": "Slicing image into HTML",
+    "version": "0.8.0",
+    "updateURL": "https://raw.githubusercontent.com/superRaytin/MarkTool/stable/package.json",
     "memory": {
         "lastSaveDir": "", // 最后一次保存目录路径
         "lastDirectory": "", // 最后一次操作路径
