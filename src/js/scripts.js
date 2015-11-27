@@ -1,8 +1,7 @@
 /**
  * scripts.
- * User: raytin
- * Date: 13-8-9
  */
+
 var iconv = require('iconv-lite'),
     cheerio = require('cheerio');
 
@@ -36,6 +35,8 @@ var ruleYWidth = 20;
 var statusBarHeight = 20;
 
 var mass = {
+    states: {},
+
     cache: {
         minusX: 20, // 标尺X的宽度
         minusY: 70, // 工具栏高度加标尺Y的高度
@@ -508,7 +509,7 @@ var mass = {
         }).mouseup(function(e) {
             if (_move) {
                 if (_moved) {
-                    // 删除切线
+                    // 删除参考线
                     if ((_type === 'X' && e.clientY < minusY) || (_type === 'Y' && e.clientX < minusX)) {
                         mass.Line.delete(currentMoveLineId);
                     }
@@ -521,7 +522,7 @@ var mass = {
 
                         mass.Line.focus(currentMoveLineId);
 
-                        // 把切线的信息保存到本地
+                        // 把参考线的信息保存到本地
                         mass.Line.store();
                     }
                 }
@@ -533,7 +534,7 @@ var mass = {
             }
         });
 
-        // 切线选中操作
+        // 参考线选中操作
         imgCover.delegate('.lineX, .lineY', 'mousedown', function(e) {
             e.stopPropagation();
 
@@ -664,7 +665,7 @@ var mass = {
             lineHash = {};
         $.each(mass.cache.line, function(key, line) {
             if (line.type === type) {
-                // 过滤重合的切线
+                // 过滤重合的参考线
                 if (lineHash[type + '' + line.pos]) {
                     mass.Line.delete(key);
                 } else {
@@ -744,7 +745,7 @@ var mass = {
         }
     },
 
-    // 拉取最后一次的切线记录
+    // 拉取最后一次的参考线记录
     getLastLines: function() {
         var localLine = window.localStorage.line,
             cache = mass.cache,
@@ -753,11 +754,11 @@ var mass = {
         if (!cache.img) return;
 
         if (!localLine) {
-            return alertify.log('没有切线记录。');
+            return alertify.log('没有参考线记录。');
         }
 
         if (cache.lineX || cache.lineY) {
-            if (!window.confirm('检测到当前已有切线存在，此操作将会清空目前的切线，确定吗？')) {
+            if (!window.confirm('检测到当前已有参考线存在，此操作将会清空目前的参考线，确定吗？')) {
                 return;
             }
 
@@ -767,12 +768,12 @@ var mass = {
         lineObj = JSON.parse(localLine);
 
         mass.Line.import(lineObj, function(availableLineNum, flowLineNum) {
-            // 上次所有切线都超出了当前图片区域
+            // 上次所有参考线都超出了当前图片区域
             if (availableLineNum == 0) {
-                return alertify.log('所有切线记录都超出了当前图片区域，此次操作无效。','error',10000);
+                return alertify.log('所有参考线记录都超出了当前图片区域，此次操作无效。','error',10000);
             }
             else if (flowLineNum) {
-                alertify.log('记录应用成功。但记录中有 '+ flowLineNum +' 条切线超出当前图片范围，已失效。','',10000);
+                alertify.log('记录应用成功。但记录中有 '+ flowLineNum +' 条参考线超出当前图片范围，已失效。','',10000);
             }
             mass.Line.store();
         });
@@ -885,13 +886,13 @@ var mass = {
                 try{
                     parseData = JSON.parse(decodeURIComponent(decodeData));
                 }catch(e) {
-                    mass.dialog('配置文件解析出错！是不是修改过配置文件？请检查是否正确的Json格式<br>' + e, true);
+                    mass.dialog('配置文件解析出错！是不是修改过配置文件？请检查是否正确的 JSON 格式<br>' + e, true);
                     return console.log(e);
                 }
 
-                // 导入切线
+                // 导入参考线
                 mass.Line.import(parseData.line, function(availableLineNum, flowLineNum) {
-                    // 上次所有切线都超出了当前图片区域
+                    // 上次所有参考线都超出了当前图片区域
                     if (availableLineNum == 0) {
                         return mass.dialog('所有参考线都超出了当前图片区域，此次操作无参考线导入，是不是修改过origin图片或配置文件？', true);
                     }
@@ -1073,7 +1074,7 @@ var mass = {
         }
 
         // 按顺序切割子区域
-        var cutChild = function(children, parentBlockIndex, callback) {
+        var clipChild = function(children, parentBlockIndex, callback) {
             var target = children.slice();
             var childBlockIndex = 1;
 
@@ -1090,7 +1091,7 @@ var mass = {
 
                 // 裁切图片后保存为文件
                 imageProcessor.crop(item.x, item.y, item.width, item.height, function(dataUrl) {
-                    imageProcessor.saveToImageFile(exportFileName, dataUrl, function() {
+                    imageProcessor.toFile(exportFileName, dataUrl, function() {
                         console.log('z-success', exportFileName);
                         arg.callee();
                     });
@@ -1160,9 +1161,9 @@ var mass = {
                         .crop(item.x, item.y, item.width, item.height, function(dataUrl) {
                         // 抹除画布部分像素数据后，需要重置画布
                         // 将挖空的大背景区域保存为文件
-                        imageProcessor.reset().saveToImageFile(exportFileName, dataUrl, function() {
+                        imageProcessor.reset().toFile(exportFileName, dataUrl, function() {
                             console.log('success2', exportFileName);
-                            cutChild(item.children, blockIndex - 1, arg.callee);
+                            clipChild(item.children, blockIndex - 1, arg.callee);
                         });
                     });
 
@@ -1171,7 +1172,7 @@ var mass = {
 
                     // 裁切图片后保存为文件
                     imageProcessor.crop(item.x, item.y, item.width, item.height, function(dataUrl) {
-                        imageProcessor.saveToImageFile(exportFileName, dataUrl, function() {
+                        imageProcessor.toFile(exportFileName, dataUrl, function() {
                             console.log('success3', exportFileName);
                             arg.callee();
                         });
@@ -1195,7 +1196,7 @@ var mass = {
 
         // 1. 加载预览模板
         Utils.loadFile('./src/preview.html', function(data) {
-            var cheer = cheerio.load(data),
+            var cheer = cheerio.load(data, {decodeEntities: false}),
                 blockLen = blocks.length,
                 bodyCon = '',
                 allBlockStyles = [],
@@ -1322,14 +1323,15 @@ var mass = {
                 });
             }
 
-
-            //cheer('#imageMasStyle').append(styleCon);
             cheer('body').append(bodyCon);
+
+            // save to clipboard
             cache.clipboard = bodyCon;
 
             // 生成页面
             fs.writeFile(exportDirectoryPath + fileSeparator + 'index.html', cheer.html(), function(err) {
                 if (err) return console.log(err);
+
                 mass.dialog('导出图像和HTML成功！<br>文件位置：' + exportDirectoryPath, [
                     {
                         value: '浏览器中预览',
@@ -1406,9 +1408,7 @@ var mass = {
         imageProcessor = cache.imageProcessor = new ImageProcessor(img);
 
         // 初始化图片质量
-        imageProcessor.setQuality(cache.imageQuality);
-
-        window.aa = imageProcessor;
+        imageProcessor.quality(cache.imageQuality);
     },
 
     // 导出HTML
@@ -1428,10 +1428,14 @@ var mass = {
     keyboardMonitor: function() {
         var kibo = new Kibo(),
             cache = this.cache,
-            offset = $('#J-offset');
+            $offset = $('#J-offset');
+            $quality = $('#J-quality');
 
         kibo.down(['left', 'right', 'up', 'down'], function(e) {
-            if (offset.is(':focus') || $('#' + cache.focusRectId).find('input').is(':focus') || $('#' + cache.focusTextAreaId).find('textarea').is(':focus')) return;
+            if ($offset.is(':focus') ||
+                $quality.is(':focus') ||
+                $('#' + cache.focusRectId).find('input').is(':focus') ||
+                $('#' + cache.focusTextAreaId).find('textarea').is(':focus')) return;
 
             var key = e.which, direction;
 
@@ -1463,7 +1467,7 @@ var mass = {
                 } else {
                     curLine.pos++;
                 }
-                offset.val(curLine.pos);
+                $offset.val(curLine.pos);
                 line.style[direction] = curLine.pos + 'px';
 
                 mass.Line.store();
@@ -1498,7 +1502,7 @@ var mass = {
                     $('#' + cache.focusRectId).find('input[data-type="'+ direction +'"]').val(curRect[direction]);
                 }
 
-                offset.val(0);
+                $offset.val(0);
                 recter.style[direction] = curRect[direction] + 'px';
             } else if (cache.focusTextAreaId) {
                 var textArea = document.getElementById(cache.focusTextAreaId),
@@ -1530,7 +1534,7 @@ var mass = {
                     }
                 }
 
-                offset.val(0);
+                $offset.val(0);
                 textArea.style[direction] = curTextArea[direction] + 'px';
             };
         });
@@ -1588,6 +1592,7 @@ var mass = {
             mass.TextArea.preview();
         });
     },
+
     checkClient: function() {
         var self = this;
         var platform = process.platform;
@@ -1617,17 +1622,31 @@ var mass = {
     },
     observer: function() {
         var self = this;
-        var cache = this.cache,
-            context = require('./js/contextmenu').init(),
-            Rect = require('./js/rect'),
+        var cache = self.cache;
+        var contextmenu;
+
+        // 检查客户端
+        self.checkClient();
+
+        // Mac OS X
+        if (self.clientInfo.isMacOS) {
+            contextmenu = require('./js/contextmenuOSX');
+        }
+        // Windows || Linux
+        else {
+            contextmenu = require('./js/contextmenu');
+        }
+
+        var context = contextmenu.init();
+        cache.menuSource = contextmenu.contextMenuSource;
+
+        var Rect = require('./js/rect'),
             Line = require('./js/line'),
             TextArea = require('./js/textarea');
 
         mass.Rect = Rect;
         mass.Line = Line;
         mass.TextArea = TextArea;
-
-        this.checkClient();
 
         var imgCover = $('#J-image-process-cover'),
             offset = $('#J-offset'),
@@ -1730,9 +1749,9 @@ var mass = {
             if (!cache.lineX && !cache.lineY) return alertify.log('啊嘞...是不是忘了划参考线了？');
 
             if (!mass.Rect.check()) {
-                return alertify.log('热区位置错误，不能与切线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
+                return alertify.log('热区位置错误，不能与参考线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
             } else if (!mass.TextArea.check()) {
-                return alertify.log('文字区位置错误，不能与切线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
+                return alertify.log('文字区位置错误，不能与参考线重合，已标为红色背景，请先调整才能进行下一步操作。', 'error', 8000);
             };
 
             if (cache.saveLock) {
@@ -1922,7 +1941,7 @@ var mass = {
                 // 为什么是 92 ？超过 92 压缩之后出来的图片会比原图更大，100 时甚至会超过原图几倍！
                 quality = quality > 92 ? 92 : quality < 1 ? 1 : quality;
 
-                imageProcessor.setQuality(quality / 100);
+                imageProcessor.quality(quality / 100);
             }
         });
 
@@ -1958,7 +1977,7 @@ var mass = {
             ev.preventDefault();
             var target = $(ev.target);
             if (target.hasClass('imgCover')) {
-                context.previewMenu.popup(ev.clientX, ev.clientY);
+                context.exportMenu.popup(ev.clientX, ev.clientY);
             }
             else if (target.hasClass('rect')) {
                 context.rectMenu.popup(ev.clientX, ev.clientY);
@@ -1995,7 +2014,7 @@ var mass = {
 
         $('#J-reset').click(function() {
             if (cache.lineX || cache.lineY || cache.rectNum || cache.textAreaNum) {
-                mass.confirmy('将清空切线、热区、自定义区等操作记录，确定吗？', function() {
+                mass.confirmy('将清空参考线、热区、自定义区等操作记录，确定吗？', function() {
                     mass.reset();
                 });
             }
