@@ -1,9 +1,9 @@
 {
-  "name": "MarkTool",
-  "version": "0.8.0",
+  "name": "Puzzler",
+  "version": "0.8.1",
   "main": "src/main.html",
   "window": {
-    "icon": "src/img/mass.png",
+    "icon": "src/img/logo.png",
     "show": false,
     "position": "center",
     "toolbar": false,
