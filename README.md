@@ -7,10 +7,10 @@ puzzler
 
 ## Downloads
 
-Latest: **v0.8.0** [changeLog](docs/CHANGELOG.md)
+Latest: **v0.8.1** [changeLog](docs/CHANGELOG.md)
 
-- Mac OS X: [32bit](#) / [64bit](#)
-- Windows: [32bit](#) / [64bit](#)rename
+- Mac OS X: [32bit](http://pan.baidu.com/s/1mgMZFVq) / [64bit](http://pan.baidu.com/s/1gdwL1JX)
+- Windows: [32bit](http://pan.baidu.com/s/1dDBIGmd) / [64bit](http://pan.baidu.com/s/1gdAsAd1)
 
 ## Features
 
