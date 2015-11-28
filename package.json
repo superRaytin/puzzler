@@ -1,6 +1,6 @@
 {
   "name": "MarkTool",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "main": "src/main.html",
   "window": {
     "icon": "src/img/mass.png",
@@ -14,8 +14,7 @@
     "height": 600
   },
   "devDependencies": {
-    "cheerio": "*",
-    "gm": "*",
-    "iconv-lite": "*"
+    "cheerio": "0.19.0",
+    "iconv-lite": "0.4.13"
   }
 }
