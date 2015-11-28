@@ -1,69 +1,27 @@
-![MarkTool](src/img/mass.png)
+![puzzler](src/img/logo.png)
 
-MarkTool
+puzzler
 ==============
 
-![MarkTool](docs/screenshot.png)
+![puzzler](docs/screenshot.png)
 
 ## Downloads
 
-Latest: **v0.8.0** [changeLog](#changelog)
+Latest: **v0.8.0** [changeLog](docs/CHANGELOG.md)
 
 - Mac OS X: [32bit](#) / [64bit](#)
-- Windows: [32bit](#) / [64bit](#)
+- Windows: [32bit](#) / [64bit](#)rename
 
 ## Features
 
-- 导入
-	* 支持 jpg, jpeg, png 等图片类型
-    * 支持拖拽导入
-- 标尺
-- 参考线
-	* 支持拖拽
-    * 支持上下左右按键微调
-    * 支持单条删除和批量清空
-- 导出
-	* 支持导出图像切片和 HTML
-    * 导出成功后支持一键浏览器预览，一键复制源代码
-    * 支持自定义导出模板
-    * 支持导出图像质量设置
-- 画热区
-    * 支持上下左右按键微调坐标，配合 Shift 键还可微调宽高
-    * 支持热区，并可设置链接、是否新窗口打开、标题等内容
-- 自定义内容区
-    * 支持 markdown 格式内容解析
-- 用户设置
-	* 支持模板编辑
-    * 支持保存路径设置
-    * 支持标尺设置
-
-## ChangeLog
-
-### 0.8.0 (2015.11.20)
-- 去除 GraphicsMagick 依赖，图片由 Canvas 处理
-
-### 0.5.0 (2014.11.29)
-- 全新的软件界面
-- 优化客户端系统探测方法
-
-### 0.3.1 (2013.11.15)
-- 「增加」导出图片质量设置（压缩范围 0 ~ 100）
-- 「增加」标尺刻度值，标尺设置项
-
-### 0.3.0 (2013.10.11)
-- 增加自定义内容区功能
-- 导出为 HTML 时同时导出配置文件和初始图片文件
-- 参考线记录更改为实时保存，去掉「立即保存当前记录」功能
-- 增加「导出选项」设置
-- 重构「拉取最后的参考线记录」功能，解决参考线 id 撞车的可能
-- 增加快捷键支持
-- 增加不影响操作的右下角提示功能
-- 突出显示热区信息设置
-
-### 0.1.3 (2013.09.16)
-- 模板增加「宽度 > 990(挖空)」一项，可导出背景图
+- Support import image via drag & drop, `.jpg` and `.png` format is supported
+- Flexible reference line operation
+- Support export image slices and HTML, also support quality setting, custom export template
+- Support create map area and completely settings
+- Set user data Conveniently
+- Custom content area, support Markdown format
 
 # License
-本项目基于 MIT 协议发布
+Released under the MIT license.
 
-MIT: [http://rem.mit-license.org](http://rem.mit-license.org/) 详见 [LICENSE](/LICENSE) 文件
+MIT: [http://rem.mit-license.org](http://rem.mit-license.org/), See [LICENSE](/LICENSE)
