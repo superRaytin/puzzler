@@ -276,7 +276,7 @@ img {
   right: 0;
   padding: 10px 10px 0 10px;
   min-width: 150px;
-  height: 70px;
+  height: 76px;
   border-radius: 3px;
   background-color: rgba(0, 0, 0, 0.5);
   cursor: default;
@@ -291,7 +291,7 @@ img {
   display: block;
 }
 .rect-focus .setting .glyphicon {
-  margin-left: 2px;
+  margin-left: 1px;
 }
 input.rect-input {
   border-radius: 0;
@@ -301,7 +301,7 @@ input.rect-input {
   height: 16px;
   width: 94%;
   line-height: normal;
-  padding: 0 3px;
+  padding: 0 2px;
   margin: 0;
   font-size: 12px;
   box-shadow: none;
@@ -314,7 +314,7 @@ input.rect-input:focus {
 .rect-url {
   position: absolute;
   left: 10px;
-  top: 10px;
+  top: 6px;
   right: 10px;
 }
 .rect-open {
@@ -323,6 +323,9 @@ input.rect-input:focus {
   top: 30px;
   right: 10px;
 }
+.rect-open [checkbox] {
+  margin-top: -2px;
+}
 .rect-width-height {
   position: absolute;
   left: 10px;
@@ -330,7 +333,7 @@ input.rect-input:focus {
   right: 10px;
 }
 .rect-width-height .rect-input {
-  width: 38px;
+  width: 36px;
 }
 .rect-error {
   background-color: rgba(255, 0, 0, 0.4);
