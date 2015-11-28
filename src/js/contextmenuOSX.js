@@ -14,7 +14,7 @@ var Contextmenu = {
 
         var menu = new gui.Menu({type: 'menubar'});
 
-        menu.createMacBuiltin("MarkTool", {
+        menu.createMacBuiltin("Puzzler", {
             hideWindow: false
         });
 

@@ -1922,7 +1922,7 @@ var mass = {
         // help
         $('#J-help').click(function() {
             mass.dialog({
-                title: '关于MarkTool',
+                title: '关于 Puzzler',
                 width: 250,
                 content: _.template($('#template-about').html())({
                     config: config

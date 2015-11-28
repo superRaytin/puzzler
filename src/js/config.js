@@ -6,10 +6,10 @@ var require = global.require,
     template = require('./js/template');
 
 module.exports = {
-    "name": "MarkTool",
+    "name": "Puzzler",
     "desc": "Slicing image into HTML",
-    "version": "0.8.0",
-    "updateURL": "https://raw.githubusercontent.com/superRaytin/MarkTool/stable/package.json",
+    "version": "0.8.1",
+    "updateURL": "https://raw.githubusercontent.com/superRaytin/puzzler/stable/package.json",
     "memory": {
         "lastSaveDir": "", // 最后一次保存目录路径
         "lastDirectory": "", // 最后一次操作路径
