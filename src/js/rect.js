@@ -11,7 +11,7 @@ var window = global.window,
 
 var main = {
     // 画热区
-    drawMap: function(){
+    drawMap: function() {
         var cache = mass.cache,
             imgCover = $('#J-image-process-cover'),
             imgItem = imgCover.parent(),
@@ -34,7 +34,7 @@ var main = {
             trueWidth, trueHeight;
 
         // 点击层或resize时，将焦点放在当前的层，同时赋值基础数据
-        var focusCurrentBlock = function(e, id){
+        var focusCurrentBlock = function(e, id) {
             main.focus(id);
             currentRect = cache.rect[cache.focusRectId];
 
@@ -48,16 +48,16 @@ var main = {
             rectAddY = top - currentRect.top;
 
             var $curRect = $('#' + id);
-            if($curRect.hasClass('rect-error')){
+            if ($curRect.hasClass('rect-error')) {
                 $curRect.removeClass('rect-error');
             }
         };
 
-        imgCover.mousedown(function(e){
+        imgCover.mousedown(function(e) {
             // 右键不触发
-            if(e.button === 2) return;
+            if (e.button === 2) return;
 
-            if(cache.drawMap){
+            if (cache.drawMap) {
                 _drawMove = true;
                 left = e.clientX - cache.minusX + imgItem.scrollLeft();
                 top = e.clientY - cache.minusY + imgItem.scrollTop();
@@ -69,8 +69,8 @@ var main = {
             }
         });
 
-        $(document).mousemove(function(e){
-            if(_drawMove || _rectMove || _rectResize){
+        $(document).mousemove(function(e) {
+            if (_drawMove || _rectMove || _rectResize) {
                 scrollLeft = imgItem.scrollLeft();
                 scrollTop = imgItem.scrollTop();
                 distX = e.clientX - cache.minusX + scrollLeft;
@@ -82,8 +82,8 @@ var main = {
                 var $currentRect = $('#' + currentRectId);
             }
 
-            if(_drawMove){
-                if(!rectCreated){
+            if (_drawMove) {
+                if (!rectCreated) {
                     rect = newRect.clone().attr('id', 'rect-' + cache.rectuuid);
                     imgCover.append(rect);
                     rectCreated = true;
@@ -102,23 +102,24 @@ var main = {
 
                 _drawMoving = true;
             }
-            else if(_rectMove){
+            else if (_rectMove) {
                 trueLeft = distX - rectAddX;
                 trueTop = distY - rectAddY;
                 //cacheRect = cache.rect[currentRectId];
 
                 // 子欲拖出图片区域之外，我偏不让
                 // 拖到图像区域外松手时，将left值替换成边界值
-                if(trueLeft > imgWidth - currentRect.width - 2){
+                if (trueLeft > imgWidth - currentRect.width - 2) {
                     trueLeft = imgWidth - currentRect.width - 2;
-                }else if(trueLeft < 0){
+                } else if (trueLeft < 0) {
                     trueLeft = 0;
-                };
-                if(trueTop > imgHeight - currentRect.height - 2){
+                }
+
+                if (trueTop > imgHeight - currentRect.height - 2) {
                     trueTop = imgHeight - currentRect.height - 2;
-                }else if(trueTop < 0){
+                } else if (trueTop < 0) {
                     trueTop = 0;
-                };
+                }
 
                 $currentRect.css({
                     left: trueLeft,
@@ -127,21 +128,21 @@ var main = {
 
                 _rectMoving = true;
             }
-            else if(_rectResize){
+            else if (_rectResize) {
                 trueWidth = distX - currentRect.left;
                 trueHeight = distY - currentRect.top;
 
                 // 子欲拖出图片区域之外，我偏不让
-                if(trueWidth > imgWidth - currentRect.left - 2){
+                if (trueWidth > imgWidth - currentRect.left - 2) {
                     trueWidth = imgWidth - currentRect.left - 2;
-                }else if(trueWidth < 10){
+                } else if (trueWidth < 10) {
                     trueWidth = 10;
-                };
-                if(trueHeight > imgHeight - currentRect.top - 2){
+                }
+                if (trueHeight > imgHeight - currentRect.top - 2) {
                     trueHeight = imgHeight - currentRect.top - 2;
-                }else if(trueHeight < 10){
+                } else if (trueHeight < 10) {
                     trueHeight = 10;
-                };
+                }
 
                 $currentRect.css({
                     width: trueWidth,
@@ -149,25 +150,25 @@ var main = {
                 });
 
                 // 热区设置层同步赋值
-                if(!$currentRect.find('.setting-area').hasClass('hide')){
+                if (!$currentRect.find('.setting-area').hasClass('hide')) {
                     $currentRect.find('input[data-type="width"]').val(trueWidth);
                     $currentRect.find('input[data-type="height"]').val(trueHeight);
                 }
 
                 _rectResizing = true;
             }
-        }).mouseup(function(){
-                if(_drawMove){
-                    if(_drawMoving){
-                        if(distX < left || distY < top){
+        }).mouseup(function() {
+                if (_drawMove) {
+                    if (_drawMoving) {
+                        if (distX < left || distY < top) {
                             main.delete(cache.focusRectId);
                         }
                         else{
                             // 超出图片区域之外，将dist值替换成边界值
-                            if(distX > imgWidth - 2){
+                            if (distX > imgWidth - 2) {
                                 distX = imgWidth - 2;
                             }
-                            if(distY > imgHeight - 2){
+                            if (distY > imgHeight - 2) {
                                 distY = imgHeight - 2;
                             }
 
@@ -191,8 +192,8 @@ var main = {
                     rectCreated = false;
                 }
 
-                if(_rectMove){
-                    if(_rectMoving){
+                if (_rectMove) {
+                    if (_rectMoving) {
                         cache.rect[currentRectId].left = trueLeft;
                         cache.rect[currentRectId].top = trueTop;
 
@@ -201,8 +202,8 @@ var main = {
                     _rectMove = false;
                 }
 
-                if(_rectResize){
-                    if(_rectResizing){
+                if (_rectResize) {
+                    if (_rectResizing) {
                         cache.rect[currentRectId].width = trueWidth;
                         cache.rect[currentRectId].height = trueHeight;
 
@@ -210,16 +211,16 @@ var main = {
                     }
                     _rectResize = false;
 
-                    if(cache.drawMap){
+                    if (cache.drawMap) {
                         imgCover.removeClass('resizing');
                     }
                 }
             });
 
         // 热区移动
-        imgCover.delegate('.rect', 'mousedown', function(e){
+        imgCover.delegate('.rect', 'mousedown', function(e) {
             e.stopPropagation();
-            //if(e.button === 2) return;
+            //if (e.button === 2) return;
             currentRectId = this.id;
             focusCurrentBlock(e, currentRectId);
 
@@ -227,13 +228,13 @@ var main = {
         });
 
         // 热区收缩
-        imgCover.delegate('.resize', 'mousedown', function(e){
+        imgCover.delegate('.resize', 'mousedown', function(e) {
             e.stopPropagation();
 
             currentRectId = this.parentNode.id;
             focusCurrentBlock(e, currentRectId);
 
-            if(cache.drawMap){
+            if (cache.drawMap) {
                 imgCover.addClass('resizing');
             }
 
@@ -241,34 +242,34 @@ var main = {
         });
 
         // 热区设置
-        imgCover.delegate('.setting', 'mousedown', function(e){
+        imgCover.delegate('.setting', 'mousedown', function(e) {
             e.stopPropagation();
             var that = $(this),
                 area = that.prev(),
                 rectId = that.parent().attr('id'),
                 rect = cache.rect[rectId];
 
-            if(area.hasClass('hide')){
+            if (area.hasClass('hide')) {
                 area.removeClass('hide');
-                area.find('input').each(function(){
+                area.find('input').each(function() {
                     var curInput = $(this),
                         type = curInput.data('type');
-                    if(curInput.is(':checkbox')){
-                        if(rect[type]){
+                    if (curInput.is(':checkbox')) {
+                        if (rect[type]) {
                             curInput.attr('checked', true);
-                        }else{
+                        } else{
                             curInput.removeAttr('checked');
                         }
-                    }else{
+                    } else{
                         rect[type] && curInput.val(rect[type]);
                     }
                 });
-            }else{
+            } else{
                 area.addClass('hide');
             }
-        }).delegate('.setting-area', 'mousedown', function(e){
+        }).delegate('.setting-area', 'mousedown', function(e) {
                 e.stopPropagation();
-            }).delegate('.rect-setting-column input', 'change', function(e){
+            }).delegate('.rect-setting-column input', 'change', function(e) {
                 var that = $(this),
                     value = that.val(),
                     type = that.data('type'),
@@ -276,19 +277,19 @@ var main = {
                     curRect = $('#' + rectId),
                     rect = cache.rect[rectId];
 
-                if(type === 'open'){
+                if (type === 'open') {
                     value = that.is(':checked');
                 }
-                else if(type === 'width'){
+                else if (type === 'width') {
                     value = parseInt(value);
-                    if(value > cache.img.width - rect.left - 2){
+                    if (value > cache.img.width - rect.left - 2) {
                         value = cache.img.width - rect.left - 2;
                     }
                     curRect.width(value)
                 }
-                else if(type === 'height'){
+                else if (type === 'height') {
                     value = parseInt(value);
-                    if(value > cache.img.height - rect.top - 2){
+                    if (value > cache.img.height - rect.top - 2) {
                         value = cache.img.height - rect.top - 2;
                     }
                     curRect.height(value)
@@ -300,7 +301,7 @@ var main = {
                 e.stopPropagation();
             });
     },
-    reset: function(){
+    reset: function() {
         // 清除旧的热区
         $('#J-image-process-cover').find('.rect').remove();
 
@@ -323,7 +324,7 @@ var main = {
      *     open: Boolean
      * }
      * */
-    add: function(option){
+    add: function(option) {
         var cache = mass.cache,
             rectuuid = cache.rectuuid,
             rectId = 'rect-' + rectuuid,
@@ -349,7 +350,7 @@ var main = {
         cache.rectNum++;
         cache.rect[rectId] = option;
     },
-    focus: function(rectId){
+    focus: function(rectId) {
         var cache = mass.cache,
             imgCover = $('#J-image-process-cover');
 
@@ -361,7 +362,7 @@ var main = {
         imgCover.find('.rect').removeClass('rect-focus');
         $('#' + rectId).addClass('rect-focus');
     },
-    delete: function(rectId){
+    delete: function(rectId) {
         var cache = mass.cache,
             curRect = $('#' + rectId);
 
@@ -373,17 +374,17 @@ var main = {
         curRect.remove();
     },
     // 批量导入热区
-    import: function(rectObj, callback){
-        _.each(rectObj, function(rect){
+    import: function(rectObj, callback) {
+        _.each(rectObj, function(rect) {
             main.add(rect);
         });
 
-        if(callback){
+        if (callback) {
             callback();
         }
     },
     // 检查热区位置
-    check: function(){
+    check: function() {
         var cache = mass.cache,
             lines = cache.line,
             rects = cache.rect,
@@ -396,20 +397,20 @@ var main = {
             blocks,
             res = true;
 
-        if(!cache.rectNum) return res;
+        if (!cache.rectNum) return res;
 
         $('.rect').removeClass('rect-error');
 
-        $.each(rects, function(rectId, rect){
+        $.each(rects, function(rectId, rect) {
             critical.Y.x = rect.left;
             critical.Y.y = rect.left + rect.width;
             critical.X.x = rect.top;
             critical.X.y = rect.top + rect.height;
-            $.each(lines, function(lineId, line){
+            $.each(lines, function(lineId, line) {
                 var type = line.type,
                     pos = line.pos;
 
-                if(pos > critical[type].x && pos < critical[type].y){
+                if (pos > critical[type].x && pos < critical[type].y) {
                     res = false;
                     console.log(rectId, type, critical);
                     console.log(lineId, pos);
@@ -419,17 +420,17 @@ var main = {
             });
         });
 
-        if(res){
-            if(isBig2){
+        if (res) {
+            if (isBig2) {
                 blocks = mass.getCutBlocks('children');
 
-                $.each(blocks, function(i, block){
+                $.each(blocks, function(i, block) {
                     var blockParentIndex = block.parentBlockIndex;
-                    $.each(rects, function(rectId, rect){
+                    $.each(rects, function(rectId, rect) {
                         var topAndSelfHeight = block.y + block.height,
                             leftAndSelfWidth = block.x + block.width;
 
-                        if(block.width > rect.width && block.x < rect.left && block.y < rect.top && (topAndSelfHeight > rect.top + rect.height) && (leftAndSelfWidth > rect.left + rect.width)){
+                        if (block.width > rect.width && block.x < rect.left && block.y < rect.top && (topAndSelfHeight > rect.top + rect.height) && (leftAndSelfWidth > rect.left + rect.width)) {
                             rectInBlock[blockParentIndex] = rectInBlock[blockParentIndex] || [];
                             rectInBlock[blockParentIndex].push({
                                 rect: rect,
@@ -444,12 +445,12 @@ var main = {
             else{
                 blocks = mass.getCutBlocks();
 
-                $.each(blocks, function(i, block){
-                    $.each(rects, function(rectId, rect){
+                $.each(blocks, function(i, block) {
+                    $.each(rects, function(rectId, rect) {
                         var topAndSelfHeight = block.y + block.height,
                             leftAndSelfWidth = block.x + block.width;
 
-                        if(block.width > rect.width && block.x < rect.left && block.y < rect.top && (topAndSelfHeight > rect.top + rect.height) && (leftAndSelfWidth > rect.left + rect.width)){
+                        if (block.width > rect.width && block.x < rect.left && block.y < rect.top && (topAndSelfHeight > rect.top + rect.height) && (leftAndSelfWidth > rect.left + rect.width)) {
                             rectInBlock[i] = rectInBlock[i] || [];
                             rectInBlock[i].push({
                                 rect: rect,
