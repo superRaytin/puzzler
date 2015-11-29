@@ -117,3 +117,7 @@
 ### 如何查看自定义内容区解析后的源代码？
 
 鼠标右键，通过弹出的的「查看源代码」菜单项查看。
+
+---
+
+☞ [发现 Bug, 我要吐槽！](https://github.com/superRaytin/puzzler/issues) ☞ [♥ 提建议 ♥](https://github.com/superRaytin/puzzler/issues)
