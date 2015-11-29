@@ -110,7 +110,8 @@ var Utils = {
     },
 
     // 检测版本
-    checkVersion: function() {
+    // @param 是否要弹出结果提示
+    checkVersion: function(shouldAlert) {
         var currentVersion = config.version;
         var platform = process.platform;
         var mass = global.mass;
@@ -119,10 +120,17 @@ var Utils = {
         request({
             method: 'get',
             uri: config.updateURL
-        }, function(err, res, body){
-            if(err){
+        }, function(err, res, body) {
+            if (err) {
                 console.log('请求失败');
-                console.log(err);
+
+                if (shouldAlert) {
+                    mass.dialog({
+                        width: 250,
+                        content: '网络异常，请检查网络后重试'
+                    });
+                }
+
                 return;
             }
 
@@ -130,6 +138,13 @@ var Utils = {
             try {
                 var data = JSON.parse(body);
             } catch (e) {
+                if (shouldAlert) {
+                    mass.dialog({
+                        width: 250,
+                        content: '服务器异常，请重试'
+                    });
+                }
+
                 return console.log(e);
             }
 
@@ -141,7 +156,15 @@ var Utils = {
             // 是否允许下载
             var isAllowDownload = download.allow;
 
-            if (!isAllowDownload) return;
+            if (!isAllowDownload) {
+                if (shouldAlert) {
+                    mass.dialog({
+                        width: 250,
+                        content: '当前服务不可用，请稍候重试或联系作者'
+                    });
+                }
+                return;
+            }
 
             // 当前系统信息
             var currentOsAndArch = 'osx64';
@@ -181,6 +204,13 @@ var Utils = {
                 }
             } else {
                 console.log('没有可更新的版本');
+
+                if (shouldAlert) {
+                    mass.dialog({
+                        width: 250,
+                        content: '当前是最新版本'
+                    });
+                }
             }
         });
     },

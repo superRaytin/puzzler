@@ -594,7 +594,7 @@ var mass = {
         };
 
         if (typeof msg === 'object') {
-            opt.title = msg.title;
+            opt.title = msg.title || title;
             opt.content = msg.content;
             if (msg.width) {
                 opt.width = msg.width;
@@ -1972,7 +1972,8 @@ var mass = {
         wrapper.on('click', '#J-donate', function() {
             mass.dialog({
                 title: '赞助 ♨',
-                width: 250,
+                width: 520,
+                height: 280,
                 content: _.template($('#template-donate').html())({
 
                 })
@@ -1981,7 +1982,7 @@ var mass = {
 
         // check update
         wrapper.on('click', '#J-about-update', function() {
-            Utils.checkVersion();
+            Utils.checkVersion(true);
         });
 
         // 设置图片质量
