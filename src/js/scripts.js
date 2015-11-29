@@ -2,8 +2,7 @@
  * scripts.
  */
 
-var iconv = require('iconv-lite'),
-    cheerio = require('cheerio');
+var cheerio = require('cheerio');
 
 var gui = require('nw.gui'),
     fs = require('fs'),
@@ -12,6 +11,7 @@ var gui = require('nw.gui'),
     config = require('./js/config');
 
 global.gui = gui;
+global.$ = $;
 
 var Utils = require('./js/lib/utils');
 var ImageProcessor = require('./js/lib/imageProcessor');
@@ -1593,6 +1593,7 @@ var mass = {
         });
     },
 
+    // 检查客户端
     checkClient: function() {
         var self = this;
         var platform = process.platform;
@@ -1619,7 +1620,15 @@ var mass = {
         else {
             console.log('Unexpected platform or architecture:', process.platform, process.arch)
         }
+
+        // 检查用户设置
+        var updateWay = mass.rockSettings.getItemInSetting('update');
+        if (updateWay === 'tip') {
+            // check new version
+            Utils.checkVersion();
+        }
     },
+
     observer: function() {
         var self = this;
         var cache = self.cache;
@@ -1924,7 +1933,7 @@ var mass = {
         $('#J-about').click(function() {
             mass.dialog({
                 title: '关于 Puzzler',
-                width: 250,
+                width: 300,
                 content: _.template($('#template-about').html())({
                     config: config
                 })
@@ -1968,6 +1977,11 @@ var mass = {
 
                 })
             });
+        });
+
+        // check update
+        wrapper.on('click', '#J-about-update', function() {
+            Utils.checkVersion();
         });
 
         // 设置图片质量
@@ -2083,9 +2097,6 @@ var mass = {
         });
     },
     init: function() {
-        global.mass = mass;
-        global.$ = $;
-
         $(function() {
             gui.Window.get().show();
 
@@ -2093,5 +2104,7 @@ var mass = {
         });
     }
 };
+
+global.mass = mass;
 
 mass.init();

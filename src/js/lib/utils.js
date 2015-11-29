@@ -3,12 +3,15 @@
  */
 
 var require = global.require;
+var request = require('request');
 var fs = require('fs');
 var iconv = require('iconv-lite');
+var config = require('./js/config');
 
 var window = global.window;
+var $ = window.$;
+var _ = window._;
 var gui = global.gui;
-var mass = global.mass;
 
 var Utils = {
     // 在本地文件窗口中展示文件
@@ -24,6 +27,7 @@ var Utils = {
     // 载入文件
     loadFile: function(filePath, callback) {
         var self = this;
+        var mass = global.mass;
         var encodings = ['gbk', 'gb2312', 'ascii', 'binary', 'base64'];
 
         // 检查是否存在此文件
@@ -94,6 +98,90 @@ var Utils = {
             }
 
             callback(parsedData);
+        });
+    },
+
+    // 版本号比对
+    compareVersion: function(v1, v2) {
+        var k1 = parseInt(v1.replace(/\./g, ''));
+        var k2 = parseInt(v2.replace(/\./g, ''));
+
+        return k1 > k2;
+    },
+
+    // 检测版本
+    checkVersion: function() {
+        var currentVersion = config.version;
+        var platform = process.platform;
+        var mass = global.mass;
+
+        console.log('发起服务器请求...');
+        request({
+            method: 'get',
+            uri: config.updateURL
+        }, function(err, res, body){
+            if(err){
+                console.log('请求失败');
+                console.log(err);
+                return;
+            }
+
+            // 尝试解析成 JSON
+            try {
+                var data = JSON.parse(body);
+            } catch (e) {
+                return console.log(e);
+            }
+
+            // 服务器上的版本号
+            var serverVersion = data.version;
+
+            var download = data.download;
+
+            // 是否允许下载
+            var isAllowDownload = download.allow;
+
+            if (!isAllowDownload) return;
+
+            // 当前系统信息
+            var currentOsAndArch = 'osx64';
+
+            var downloadInfo;
+
+            // 比对版本信息
+            var isLaterVersion = Utils.compareVersion(serverVersion, currentVersion);
+            if (isLaterVersion) {
+                console.log('检测到新版本');
+
+                // 根据客户端环境定位下载地址
+                if (platform === 'darwin') {
+                    if (process.arch === 'x64') {
+                        currentOsAndArch = 'osx64';
+                    } else {
+                        currentOsAndArch = 'osx32';
+                    }
+                } else if (platform === 'win32') {
+                    currentOsAndArch = 'win32';
+                } else if (platform === 'win64') {
+                    currentOsAndArch = 'win64';
+                }
+
+                downloadInfo = download[currentOsAndArch];
+
+                // 下载页面
+                if (downloadInfo.type === 'page' && downloadInfo.url) {
+                    mass.dialog({
+                        title: '检测到新版本',
+                        width: 250,
+                        content: _.template($('#template-update').html())({
+                            version: serverVersion,
+                            download: downloadInfo
+                        })
+                    });
+                }
+            } else {
+                console.log('没有可更新的版本');
+            }
         });
     },
 

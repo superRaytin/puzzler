@@ -619,11 +619,14 @@ input.rect-input:focus {
   color: #999;
   vertical-align: middle;
 }
-.about .logo {
+.about .logo,
+.update-content .logo {
   margin-bottom: 10px;
   text-align: center;
 }
-.about p {
+.about p,
+.update-content p {
+  text-align: center;
   margin: 0;
   line-height: 2em;
   font-size: 14px;

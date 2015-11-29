@@ -225,6 +225,15 @@
                             </div>
                         </div>
                     </fieldset>
+                    <fieldset>
+                        <legend>升 级</legend>
+                        <div class="fieldset_content">
+                            <input type="radio" name="update" id="update_tip" class="column_radio" data-name="update" value="tip" checked>
+                            <label for="update_tip" class="column_label_radio">有更新提示我升级</label>
+                            <input type="radio" name="update" id="update_never" class="column_radio" data-name="update" value="never">
+                            <label for="update_never" class="column_label_radio">从不自动更新</label>
+                        </div>
+                    </fieldset>
                 </div>
             </div>
         </div>
@@ -267,11 +276,22 @@
         <p>Version: <strong><%= config.version %></strong></p>
         <p>By <a href="https://github.com/superRaytin">@Leon Shi</a></p>
         <p><span class="donate" id="J-donate">工具不错，赞助杯咖啡 ♨</span></p>
+        <p>&nbsp;</p>
+        <p style="text-align: right">
+            <input type="button" id="J-about-update" value="检查更新">
+        </p>
     </div>
 </script>
 <script type="text/template" id="template-donate">
     <div class="donate-content">
         <img src="img/donate.jpg" alt="Donate" width="230" height="231">
+    </div>
+</script>
+<script type="text/template" id="template-update">
+    <div class="update-content">
+        <div class="logo"><img src="img/logo.png"></div>
+        <p>新版本: <strong><%= version %></strong></p>
+        <p><a href="<%= download.url %>">☞ 立即去下载</a></p>
     </div>
 </script>
 <!-- template end -->
