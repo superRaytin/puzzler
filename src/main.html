@@ -24,19 +24,19 @@
         <div class="clearfix">
             <div id="J-selectFile" class="toolbar-item" title="选择图片 (Ctrl+N)">
                 <span class="glyphicon glyphicon-folder-open"></span>
-                <span class="name">选择文件</span>
+                <span class="name">选择图片</span>
             </div>
             <div class="separate"></div>
-            <div id="J-exportPet" class="toolbar-item" title="仅导出图片 (Ctrl+Shift+S)">
+            <div id="J-exportPet" class="toolbar-item" title="仅导出图像切片 (Ctrl+Shift+S)">
                 <span class="glyphicon glyphicon-picture"></span>
-                <span class="name">导出图片</span>
+                <span class="name">导出切片</span>
             </div>
-            <div id="J-exportHTML" class="toolbar-item" title="导出HTML和图片 (Ctrl+S)">
+            <div id="J-exportHTML" class="toolbar-item" title="导出HTML和切片 (Ctrl+S)">
                 <span class="glyphicon glyphicon-file"></span>
                 <span class="name">导出HTML</span>
             </div>
             <div class="separate"></div>
-            <div id="J-getLastLine" class="toolbar-item toolbar-dropmenu" title="切线 (Ctrl+E)">
+            <div id="J-getLastLine" class="toolbar-item toolbar-dropmenu" title="参考线 (Ctrl+E)">
                 <span class="dropdown-toggle" data-toggle="dropdown">
                     <span class="glyphicon glyphicon-pencil"></span>
                     <span class="name">参考线</span>
@@ -52,11 +52,11 @@
                             <li><a data-type="golden_section" data-param="custom" tabindex="-1" href="#">自定义</a></li>
                         </ul>
                     </li>
-                    <li><a data-type="getLastLines" tabindex="-1" href="#this">拉取上次的记录</a></li>
+                    <li><a data-type="getLastLines" tabindex="-1" href="#this">拉取上一次的记录</a></li>
                 </ul>
             </div>
             <div id="J-mapArea" class="toolbar-item" title="画热区 (Ctrl+R)">
-                <span class="glyphicon glyphicon-retweet"></span>
+                <span class="glyphicon glyphicon-th-large"></span>
                 <span class="name">热区</span>
             </div>
             <div id="J-textArea" class="toolbar-item" title="自定义内容区 (Ctrl+T)">
@@ -64,7 +64,7 @@
                 <span class="name">自定义</span>
             </div>
             <div class="separate"></div>
-            <div id="J-reset" class="toolbar-item warning" title="刷子 (Ctrl+D)">
+            <div id="J-reset" class="toolbar-item warning" title="清空画布记录 (Ctrl+D)">
                 <span class="glyphicon glyphicon-ban-circle"></span>
                 <span class="name">刷子</span>
             </div>
@@ -79,12 +79,16 @@
                     <li><a data-type="importUserSetting" tabindex="-1" href="#this">导入用户设置</a></li>
                 </ul>
             </div>
-            <div id="J-help" class="toolbar-item fn-right" title="关于">
+            <div id="J-about" class="toolbar-item fn-right" title="关于">
                 <span class="glyphicon glyphicon-question-sign"></span>
                 <span class="name">关于</span>
             </div>
+            <div id="J-help" class="toolbar-item fn-right" title="使用帮助">
+                <span class="glyphicon glyphicon-heart"></span>
+                <span class="name">帮助</span>
+            </div>
             <div id="J-userSettings" class="toolbar-item fn-right" title="设置">
-                <span class="glyphicon glyphicon-wrench"></span>
+                <span class="glyphicon glyphicon-cog"></span>
                 <span class="name">设置</span>
             </div>
             <div id="J-copyCode" class="toolbar-item stat-success hide fn-right" title="导出成功，复制代码！">
@@ -251,6 +255,11 @@
         212
     </div>
 </div>
+<script type="text/template" id="template-help">
+    <div id="J-help-content" class="help-content">
+        <%= content %>
+    </div>
+</script>
 <script type="text/template" id="template-about">
     <div class="about">
         <div class="logo"><img src="img/logo.png"></div>
