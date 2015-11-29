@@ -6,6 +6,7 @@ var require = global.require;
 var fs = require('fs');
 var iconv = require('iconv-lite');
 
+var window = global.window;
 var gui = global.gui;
 var mass = global.mass;
 
@@ -82,6 +83,18 @@ var Utils = {
         })();
 
         return result;
+    },
+
+    // 将内容解析成 markdown 格式
+    parseMarkdown: function(content, callback) {
+        window.marked(content, function(err, parsedData) {
+            if (err) {
+                callback('');
+                return;
+            }
+
+            callback(parsedData);
+        });
     },
 
     // get file format
