@@ -1,15 +1,15 @@
-![puzzler](src/img/logo.png)
-
-[EN](/README-EN.md)
-
 Puzzler
 ==============
 
 > Puzzler 是一个傻瓜式的 HTML 页面切图工具，它可以将一张图片快速切割成切片并导出 HTML 文件。Puzzler 能让你从重复的 PSD 切图工作中解放出来，不需要安装任何依赖，打开即可运行，它的愿景是拯救切图仔！
 
+[EN](/README-EN.md)
+
 <img src="docs/screenshot.png" width="700">
 
 [帮助文档及常见问题](docs/HELP.md)
+
+![puzzler](src/img/logo.png)
 
 ## 下载地址
 
