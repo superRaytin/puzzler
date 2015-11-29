@@ -1,0 +1,23 @@
+{
+  "name": "Puzzler",
+  "version": "0.8.3",
+  "download": {
+    "allow": true,
+    "win32": {
+      "url": "http://pan.baidu.com/s/1dDBIGmd",
+      "type": "page"
+    },
+    "win64": {
+      "url": "http://pan.baidu.com/s/1gdAsAd1",
+      "type": "page"
+    },
+    "osx32": {
+      "url": "http://pan.baidu.com/s/1mgMZFVq",
+      "type": "page"
+    },
+    "osx64": {
+      "url": "http://pan.baidu.com/s/1gdwL1JX",
+      "type": "page"
+    }
+  }
+}
