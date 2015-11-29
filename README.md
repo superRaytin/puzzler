@@ -13,10 +13,10 @@ Puzzler
 
 ## 下载地址
 
-最新版本: **v0.8.1** [changeLog](docs/CHANGELOG.md)
+最新版本: **v0.8.3** [changeLog](docs/CHANGELOG.md)
 
-- Mac OS X: [32bit](http://pan.baidu.com/s/1mgMZFVq) / [64bit](http://pan.baidu.com/s/1gdwL1JX)
-- Windows: [32bit](http://pan.baidu.com/s/1dDBIGmd) / [64bit](http://pan.baidu.com/s/1gdAsAd1)
+- Mac OS X: [32bit](http://pan.baidu.com/s/1pJCKuSj) / [64bit](http://pan.baidu.com/s/1mgpjPQ4)
+- Windows: [32bit](http://pan.baidu.com/s/1i3uFAT3) / [64bit](http://pan.baidu.com/s/1jGLcb7g)
 
 > 目前提供了 Mac 和 Windows 两个平台的客户端，如果需要在 Linux 系统上使用此工具，欢迎联系我，我将乐于在 Linux 系统上测试提供帮助。
 
