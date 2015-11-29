@@ -1,9 +1,13 @@
 ![puzzler](src/img/logo.png)
 
-puzzler
+Puzzler
 ==============
 
+Puzzler is a desktop App for slicing image into HTML.
+
 ![puzzler](docs/screenshot.png)
+
+[Help documentation and FAQ](docs/HELP.md)
 
 ## Downloads
 
