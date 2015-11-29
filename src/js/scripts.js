@@ -1919,15 +1919,43 @@ var mass = {
             });
         });
 
-        // help
-        $('#J-help').click(function() {
+        // about
+        $('#J-about').click(function() {
             mass.dialog({
                 title: '关于 Puzzler',
                 width: 250,
                 content: _.template($('#template-about').html())({
                     config: config
                 })
-            })
+            });
+        });
+
+        // help
+        $('#J-help').click(function() {
+            function _show(content) {
+                mass.dialog({
+                    title: '帮助',
+                    width: 500,
+                    content: _.template($('#template-help').html())({
+                        config: config,
+                        content: content
+                    })
+                });
+            }
+
+            // 先从缓存中读取
+            if (mass.helpcontent) {
+                _show(mass.helpcontent);
+            } else {
+                // 加载 md 文档
+                Utils.loadFile('./docs/HELP.md', function(data) {
+                    // 解析为 markdown 格式
+                    Utils.parseMarkdown(data, function(htmlcontent) {
+                        _show(htmlcontent);
+                        mass.helpcontent = htmlcontent;
+                    });
+                });
+            }
         });
 
         // 设置图片质量
