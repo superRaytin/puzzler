@@ -9,7 +9,7 @@ module.exports = {
     "name": "Puzzler",
     "desc": "Slicing image into HTML",
     "version": "0.8.3",
-    "updateURL": "https://raw.githubusercontent.com/superRaytin/puzzler/stable/package.json",
+    "updateURL": "https://raw.githubusercontent.com/superRaytin/puzzler/stable/config.json",
     "memory": {
         "lastSaveDir": "", // 最后一次保存目录路径
         "lastDirectory": "", // 最后一次操作路径
