@@ -263,8 +263,15 @@
 <script type="text/template" id="template-about">
     <div class="about">
         <div class="logo"><img src="img/logo.png"></div>
-        <p>Version: <%= config.version %></p>
+        <p>☆ <i><%= config.desc %></i> ☆</p>
+        <p>Version: <strong><%= config.version %></strong></p>
         <p>By <a href="https://github.com/superRaytin">@Leon Shi</a></p>
+        <p><span class="donate" id="J-donate">工具不错，赞助杯咖啡 ♨</span></p>
+    </div>
+</script>
+<script type="text/template" id="template-donate">
+    <div class="donate-content">
+        <img src="img/donate.jpg" alt="Donate" width="230" height="231">
     </div>
 </script>
 <!-- template end -->

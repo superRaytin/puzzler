@@ -633,3 +633,12 @@ input.rect-input:focus {
   padding-right: 10px;
   overflow: auto;
 }
+.donate {
+  cursor: pointer;
+  color: #0088cc;
+  text-decoration: underline;
+}
+.donate:hover,
+.donate:active {
+  color: #005580;
+}

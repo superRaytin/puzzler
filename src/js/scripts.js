@@ -172,15 +172,15 @@ var mass = {
         }, false);
 
         wrapper.addEventListener("drop", function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
             mass.dealDrop(e);
             return false;
         }, false);
     },
     // 处理拖拽进来的文件
     dealDrop: function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-
         var file = e.dataTransfer.files[0];
 
         if (!file) return;
@@ -1623,6 +1623,7 @@ var mass = {
     observer: function() {
         var self = this;
         var cache = self.cache;
+        var wrapper = $('#wrapper');
         var contextmenu;
 
         // 检查客户端
@@ -1934,7 +1935,7 @@ var mass = {
         $('#J-help').click(function() {
             function _show(content) {
                 mass.dialog({
-                    title: '帮助',
+                    title: '使用帮助',
                     width: 500,
                     content: _.template($('#template-help').html())({
                         config: config,
@@ -1956,6 +1957,17 @@ var mass = {
                     });
                 });
             }
+        });
+
+        // donate
+        wrapper.on('click', '#J-donate', function() {
+            mass.dialog({
+                title: '赞助 ♨',
+                width: 250,
+                content: _.template($('#template-donate').html())({
+
+                })
+            });
         });
 
         // 设置图片质量
