@@ -119,6 +119,10 @@
 
 鼠标右键，通过弹出的的「查看源代码」菜单项查看。
 
+### Puzzler 适合切什么类型的页面？
+
+营销活动类和纯展示类的页面，这种页面一般只有图片和链接，没有动态数据，非常适合快速自动化切割。
+
 ---
 
 ☞ [发现 Bug, 我要吐槽！](https://github.com/superRaytin/puzzler/issues) ☞ [♥ 提建议 ♥](https://github.com/superRaytin/puzzler/issues)
