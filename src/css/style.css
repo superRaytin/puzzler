@@ -628,3 +628,8 @@ input.rect-input:focus {
   line-height: 2em;
   font-size: 14px;
 }
+.help-content {
+  max-height: 410px;
+  padding-right: 10px;
+  overflow: auto;
+}
