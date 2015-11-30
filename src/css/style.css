@@ -637,6 +637,17 @@ input.rect-input:focus {
   line-height: 2em;
   font-size: 14px;
 }
+.update-content .changelog {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 3px;
+  background: #eee;
+  color: #999;
+  text-align: left;
+}
+.update-content .changelog p {
+  text-align: left;
+}
 .help-content {
   max-height: 410px;
   padding-right: 10px;

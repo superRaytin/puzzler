@@ -206,7 +206,7 @@ var Utils = {
 
                 // 下载页面
                 if (downloadInfo.type === 'page' && downloadInfo.url) {
-                    var changelog = self.parseChangeLog(data.description);
+                    var changelog = data.description ? self.parseChangeLog(data.description) : '';
 
                     mass.dialog({
                         title: '检测到新版本',

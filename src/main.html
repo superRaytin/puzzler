@@ -295,6 +295,9 @@
     <div class="update-content">
         <div class="logo"><img src="img/logo.png"></div>
         <p>新版本: <strong><%= version %></strong></p>
+        <% if (description) { %>
+        <div class="changelog"><%= description %></div>
+        <% } %>
         <p><a href="<%= download.url %>">☞ 立即去下载</a></p>
     </div>
 </script>

@@ -1,6 +1,7 @@
 {
   "name": "Puzzler",
-  "version": "0.8.3",
+  "version": "0.8.4",
+  "description": "修复了通过拖拽导入文件的问题",
   "download": {
     "allow": true,
     "win32": {
