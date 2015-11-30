@@ -109,9 +109,22 @@ var Utils = {
         return k1 > k2;
     },
 
+    // 解析更新日志
+    parseChangeLog: function(str) {
+        var logs = str.split('|');
+        var arr = [];
+
+        logs.forEach(function(value) {
+            arr.push('<p>☞ '+ value +'</p>');
+        });
+
+        return arr.join('');
+    },
+
     // 检测版本
     // @param 是否要弹出结果提示
     checkVersion: function(shouldAlert) {
+        var self = this;
         var currentVersion = config.version;
         var platform = process.platform;
         var mass = global.mass;
@@ -193,11 +206,14 @@ var Utils = {
 
                 // 下载页面
                 if (downloadInfo.type === 'page' && downloadInfo.url) {
+                    var changelog = self.parseChangeLog(data.description);
+
                     mass.dialog({
                         title: '检测到新版本',
-                        width: 250,
+                        width: 300,
                         content: _.template($('#template-update').html())({
                             version: serverVersion,
+                            description: changelog,
                             download: downloadInfo
                         })
                     });
