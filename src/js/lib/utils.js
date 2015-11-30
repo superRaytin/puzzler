@@ -198,8 +198,9 @@ var Utils = {
                     }
                 } else if (platform === 'win32') {
                     currentOsAndArch = 'win32';
-                } else if (platform === 'win64') {
-                    currentOsAndArch = 'win64';
+                    if (process.arch === 'x64') {
+                        currentOsAndArch = 'win64';
+                    }
                 }
 
                 downloadInfo = download[currentOsAndArch];
