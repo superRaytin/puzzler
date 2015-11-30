@@ -8,7 +8,7 @@ var require = global.require,
 module.exports = {
     "name": "Puzzler",
     "desc": "Slicing image into HTML",
-    "version": "0.8.3",
+    "version": "0.8.4",
     "updateURL": "https://raw.githubusercontent.com/superRaytin/puzzler/stable/config.json",
     "memory": {
         "lastSaveDir": "", // 最后一次保存目录路径

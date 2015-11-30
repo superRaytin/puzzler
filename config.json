@@ -5,19 +5,19 @@
   "download": {
     "allow": true,
     "win32": {
-      "url": "http://pan.baidu.com/s/1i3uFAT3",
+      "url": "http://pan.baidu.com/s/1c0sNYQs",
       "type": "page"
     },
     "win64": {
-      "url": "http://pan.baidu.com/s/1jGLcb7g",
+      "url": "http://pan.baidu.com/s/1bnHS2B1",
       "type": "page"
     },
     "osx32": {
-      "url": "http://pan.baidu.com/s/1pJCKuSj",
+      "url": "http://pan.baidu.com/s/1jGDA2yU",
       "type": "page"
     },
     "osx64": {
-      "url": "http://pan.baidu.com/s/1mgpjPQ4",
+      "url": "http://pan.baidu.com/s/1c0ju7de",
       "type": "page"
     }
   }
