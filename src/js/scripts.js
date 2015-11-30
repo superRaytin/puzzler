@@ -161,41 +161,40 @@ var mass = {
             dom.hide();
         }
     },
+
     // 处理拖拽文件至窗口
     dropFile: function() {
+        var self = this;
         var wrapper = document.getElementById('wrapper');
 
-        wrapper.addEventListener("dragover", function(e) {
-            e.stopPropagation();
+        wrapper.ondragover = function(e) {
             e.preventDefault();
-            mass.overlay('show');
-        }, false);
+        };
 
-        wrapper.addEventListener("drop", function(e) {
-            e.stopPropagation();
+        wrapper.ondrop = function(e) {
             e.preventDefault();
-
-            mass.dealDrop(e);
-            return false;
-        }, false);
+            self.dealDrop(e);
+        };
     },
+
     // 处理拖拽进来的文件
     dealDrop: function(e) {
+        var self = this;
         var file = e.dataTransfer.files[0];
 
         if (!file) return;
-        var fileFormat = file.name.substr(file.name.lastIndexOf('.') + 1);
 
-        if ( this.reg.imgFile.test(fileFormat) ) {
-            mass.cache.fileFormat = fileFormat;
+        var fileFormat = Utils.getFileFormat(file.name);
+
+        if (self.reg.imgFile.test(fileFormat)) {
+            self.cache.fileFormat = fileFormat;
             $('#J-Calculate').attr('src', file.path);
         } else {
             console.log(file.path + ' 文件不符合格式');
-            this.dialog('请选择正确的文件格式 .jpg|.jpeg|.png|.gif', true);
+            self.dialog('请选择正确的文件格式 .jpg|.jpeg|.png', true);
         }
-
-        mass.overlay('hide');
     },
+
     // 设置
     rockSettings: {
         // 显示界面之前初始化
@@ -789,6 +788,7 @@ var mass = {
         }
     },
 
+    // 黄金分割
     golden_section: function(param) {
         var cache = mass.cache,
             img = cache.img,
@@ -802,17 +802,20 @@ var mass = {
         if (!img) return;
 
         if (img.width < 990) {
-            return alertify.log('图片宽度少于990像素就算了吧~', 'error', 5000);
+            return alertify.log('图片宽度少于 990 像素就算了吧~', 'error', 5000);
         }
 
+        // 自定义
         if (param === 'custom') {
             var val = window.prompt('请输入');
             console.log(val);
+
             if (val === null) return;
 
             if (val < 10) {
-                return alertify.log('至少给个10像素吧~', 'error', 5000);
+                return alertify.log('至少给个 10 像素吧~', 'error', 5000);
             }
+
             param = parseInt(val);
 
             // 记住自定义设置的黄金比例值
@@ -885,7 +888,7 @@ var mass = {
 
                 try{
                     parseData = JSON.parse(decodeURIComponent(decodeData));
-                }catch(e) {
+                } catch(e) {
                     mass.dialog('配置文件解析出错！是不是修改过配置文件？请检查是否正确的 JSON 格式<br>' + e, true);
                     return console.log(e);
                 }
@@ -894,10 +897,10 @@ var mass = {
                 mass.Line.import(parseData.line, function(availableLineNum, flowLineNum) {
                     // 上次所有参考线都超出了当前图片区域
                     if (availableLineNum == 0) {
-                        return mass.dialog('所有参考线都超出了当前图片区域，此次操作无参考线导入，是不是修改过origin图片或配置文件？', true);
+                        return mass.dialog('所有参考线都超出了当前图片区域，此次操作无参考线导入，是不是修改过 origin 图片或配置文件？', true);
                     }
                     else if (flowLineNum) {
-                        mass.dialog('导入成功，但有 '+ flowLineNum +' 条参考线超出当前图片范围，已失效，是不是修改过origin图片或配置文件？', true);
+                        mass.dialog('导入成功，但有 '+ flowLineNum +' 条参考线超出当前图片范围，已失效，是不是修改过 origin 图片或配置文件？', true);
                     }
                     mass.Line.store();
                 });
@@ -1802,7 +1805,7 @@ var mass = {
 
                 try{
                     parseData = JSON.parse(decodeData);
-                }catch(e) {
+                } catch(e) {
                     mass.dialog('文件解析出错！请检查是否Json格式<br>' + e, true);
                     return console.log(e);
                 }
@@ -2083,7 +2086,7 @@ var mass = {
                     gui.Clipboard.get().set(cache.clipboard);
                     alertify.log('复制成功。', 'success', 5000);
                 }
-            }catch(e) {
+            } catch(e) {
                 alertify.log('复制异常。', 'error', 5000);
             }
         });

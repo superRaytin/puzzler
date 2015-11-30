@@ -40,6 +40,11 @@
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(120, 120, 120, 0.9);
 }
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
 body {
   overflow: hidden;
   background: #555;
@@ -65,6 +70,7 @@ img {
   overflow: hidden;
 }
 .wrapper {
+  height: 100%;
   cursor: default;
   overflow: hidden;
 }
