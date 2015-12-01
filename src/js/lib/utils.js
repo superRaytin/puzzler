@@ -102,11 +102,28 @@ var Utils = {
     },
 
     // 版本号比对
+    // vX.Y.Z
     compareVersion: function(v1, v2) {
-        var k1 = parseInt(v1.replace(/\./g, ''));
-        var k2 = parseInt(v2.replace(/\./g, ''));
+        var arr1 = v1.split('.');
+        var arr2 = v2.split('.');
 
-        return k1 > k2;
+        arr1.map(function(value) {
+            return parseInt(value);
+        });
+
+        arr2.map(function(value) {
+            return parseInt(value);
+        });
+
+        if (arr1[0] > arr2[0]) {
+            return true;
+        } else if(arr1[1] > arr2[1]) {
+            return true;
+        } else if(arr1[2] > arr2[2]) {
+            return true;
+        }
+
+        return false;
     },
 
     // 解析更新日志
