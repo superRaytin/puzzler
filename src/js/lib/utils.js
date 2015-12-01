@@ -5,6 +5,7 @@
 var require = global.require;
 var request = require('request');
 var fs = require('fs');
+var comparev = require('comparev');
 var iconv = require('iconv-lite');
 var config = require('./js/config');
 
@@ -101,31 +102,6 @@ var Utils = {
         });
     },
 
-    // 版本号比对
-    // vX.Y.Z
-    compareVersion: function(v1, v2) {
-        var arr1 = v1.split('.');
-        var arr2 = v2.split('.');
-
-        arr1.map(function(value) {
-            return parseInt(value);
-        });
-
-        arr2.map(function(value) {
-            return parseInt(value);
-        });
-
-        if (arr1[0] > arr2[0]) {
-            return true;
-        } else if(arr1[1] > arr2[1]) {
-            return true;
-        } else if(arr1[2] > arr2[2]) {
-            return true;
-        }
-
-        return false;
-    },
-
     // 解析更新日志
     parseChangeLog: function(str) {
         var logs = str.split('|');
@@ -202,8 +178,9 @@ var Utils = {
             var downloadInfo;
 
             // 比对版本信息
-            var isLaterVersion = Utils.compareVersion(serverVersion, currentVersion);
-            if (isLaterVersion) {
+            // 1=有新版可更新  0=当前是最新版本  -1=本地版本大于服务器版本
+            var compareVersion = comparev(serverVersion, currentVersion);
+            if (compareVersion === 1) {
                 console.log('检测到新版本');
 
                 // 根据客户端环境定位下载地址
@@ -236,13 +213,22 @@ var Utils = {
                         })
                     });
                 }
-            } else {
+            } else if (compareVersion === 0) {
                 console.log('没有可更新的版本');
 
                 if (shouldAlert) {
                     mass.dialog({
                         width: 250,
                         content: '当前是最新版本'
+                    });
+                }
+            } else if (compareVersion === -1) {
+                console.log('当前处于新版本开发阶段');
+
+                if (shouldAlert) {
+                    mass.dialog({
+                        width: 250,
+                        content: '当前处于新版本「'+ currentVersion +'」开发阶段'
                     });
                 }
             }
