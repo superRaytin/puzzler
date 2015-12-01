@@ -1,7 +1,7 @@
 Puzzler
 ==============
 
-> Puzzler 是一个傻瓜式的 HTML 页面切图工具，它可以将一张图片快速切割成切片并导出 HTML 文件，所有工作都通过可视化拖拽完成。它让你从重复的 PSD 切图工作中解放出来，不需要安装任何依赖环境，Puzzler 的愿景是拯救 ♥ 切图仔！
+> Puzzler 是一个傻瓜式的 HTML 页面切图工具，它可以将一张图片快速切割成切片并导出 HTML 文件，所有工作都通过可视化拖拽完成。它让你从重复的 PSD 切图工作中解放出来，Puzzler 的愿景是拯救 ♥ 切图仔！
 
 [EN](/README-EN.md)
 
@@ -18,7 +18,7 @@ Puzzler
 - Mac OS X: [32bit](http://pan.baidu.com/s/1jGDA2yU) / [64bit](http://pan.baidu.com/s/1c0ju7de)
 - Windows: [32bit](http://pan.baidu.com/s/1c0sNYQs) / [64bit](http://pan.baidu.com/s/1bnHS2B1)
 
-> 目前提供了 Mac 和 Windows 两个平台的客户端，如果需要在 Linux 系统上使用此工具，欢迎联系我，我将乐于在 Linux 系统上测试提供帮助。
+> 下载即可运行，不需要安装任何依赖环境。目前提供了 Mac 和 Windows 两个平台的客户端，如果需要在 Linux 系统上使用此工具，欢迎联系我，我将乐于在 Linux 系统上测试提供帮助。
 
 ## 主要功能特性
 
@@ -80,6 +80,8 @@ Puzzler
 - 目前有「宽度 < 990」、「宽度 > 990」、「宽度 > 990（挖空）」三种
 - 导入图片后，会根据图片尺寸自动判断应用何种模板，也可以手动指定
 - 可以在「设置」中恢复模板的出厂设置
+
+---
 
 # 常见问题
 
@@ -150,7 +152,7 @@ Puzzler
 
 ☞ [发现 Bug, 我要吐槽！](https://github.com/superRaytin/puzzler/issues) ☞ [♥ 提建议 ♥](https://github.com/superRaytin/puzzler/issues)
 
-> 我坚信，一旦你尝到自动化切图的甜头，你就会爱上它！
+> 我坚信，一旦你尝到自动化切图的甜头，你就会爱上它。
 
 # License
 本项目基于 MIT 协议发布
