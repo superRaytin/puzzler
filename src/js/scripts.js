@@ -4,17 +4,18 @@
 
 var cheerio = require('cheerio');
 
-var gui = require('nw.gui'),
-    fs = require('fs'),
-    modPath = require('path'),
-    template = require('./js/template'),
-    config = require('./js/config');
+var gui = require('nw.gui');
+var fs = require('fs');
+var modPath = require('path');
+var ImageClipper = require('image-clipper');
+
+var template = require('./js/template');
+var config = require('./js/config');
 
 global.gui = gui;
 global.$ = $;
 
 var Utils = require('./js/lib/utils');
-var ImageProcessor = require('./js/lib/imageProcessor');
 
 // 滚动条 Y 的宽度
 var scrollYWidth = 11;
@@ -1054,7 +1055,7 @@ var mass = {
             folder = callback ? (fileSeparator + 'images') : '',
             imgName, exportPathByImgName, blocks, markBlocks;
 
-        var imageProcessor = cache.imageProcessor;
+        var imageClipper = cache.imageClipper;
 
         blocks = self.getCutBlocks();
 
@@ -1093,8 +1094,8 @@ var mass = {
                 }
 
                 // 裁切图片后保存为文件
-                imageProcessor.crop(item.x, item.y, item.width, item.height, function(dataUrl) {
-                    imageProcessor.toFile(exportFileName, dataUrl, function() {
+                imageClipper.crop(item.x, item.y, item.width, item.height, function(dataUrl) {
+                    imageClipper.toFile(exportFileName, dataUrl, function() {
                         console.log('z-success', exportFileName);
                         arg.callee();
                     });
@@ -1159,12 +1160,12 @@ var mass = {
                     var cleanWidth = item.cleanArea.x1 - item.cleanArea.x0 - 40;
                     var cleanHeight = item.cleanArea.y1 - item.cleanArea.y0;
 
-                    imageProcessor
-                        .cleanArea(cleanX, cleanY, cleanWidth, cleanHeight)
+                    imageClipper
+                        .clearArea(cleanX, cleanY, cleanWidth, cleanHeight)
                         .crop(item.x, item.y, item.width, item.height, function(dataUrl) {
                         // 抹除画布部分像素数据后，需要重置画布
                         // 将挖空的大背景区域保存为文件
-                        imageProcessor.reset().toFile(exportFileName, dataUrl, function() {
+                        imageClipper.reset().toFile(exportFileName, dataUrl, function() {
                             console.log('success2', exportFileName);
                             clipChild(item.children, blockIndex - 1, arg.callee);
                         });
@@ -1174,8 +1175,8 @@ var mass = {
                 else {
 
                     // 裁切图片后保存为文件
-                    imageProcessor.crop(item.x, item.y, item.width, item.height, function(dataUrl) {
-                        imageProcessor.toFile(exportFileName, dataUrl, function() {
+                    imageClipper.crop(item.x, item.y, item.width, item.height, function(dataUrl) {
+                        imageClipper.toFile(exportFileName, dataUrl, function() {
                             console.log('success3', exportFileName);
                             arg.callee();
                         });
@@ -1401,17 +1402,17 @@ var mass = {
         var cache = this.cache;
         var $image = $('#J-image');
         var img = $image.get(0);
-        var imageProcessor = cache.imageProcessor;
+        var imageClipper = cache.imageClipper;
 
         // 销毁之前的实例
-        if (imageProcessor) {
-            cache.imageProcessor.destroy();
+        if (imageClipper) {
+            cache.imageClipper.destroy();
         }
 
-        imageProcessor = cache.imageProcessor = new ImageProcessor(img);
+        imageClipper = cache.imageClipper = new ImageClipper();
 
         // 初始化图片质量
-        imageProcessor.quality(cache.imageQuality);
+        imageClipper.loadImageFromMemory(img).quality(cache.imageQuality);
     },
 
     // 导出HTML
@@ -1992,14 +1993,14 @@ var mass = {
         $('#J-quality').change(function() {
             var current = $(this);
             var quality = parseInt(current.val());
-            var imageProcessor = mass.cache.imageProcessor;
+            var imageClipper = mass.cache.imageClipper;
 
-            if (quality && imageProcessor) {
+            if (quality && imageClipper) {
                 // quality 介于 1 ~ 92 之间
                 // 为什么是 92 ？超过 92 压缩之后出来的图片会比原图更大，100 时甚至会超过原图几倍！
                 quality = quality > 92 ? 92 : quality < 1 ? 1 : quality;
 
-                imageProcessor.quality(quality / 100);
+                imageClipper.quality(quality / 100);
             }
         });
 
