@@ -150,7 +150,7 @@ Puzzler
 
 ---
 
-☞ [发现 Bug, 我要吐槽！](https://github.com/superRaytin/puzzler/issues) ☞ [♥ 提建议 ♥](https://github.com/superRaytin/puzzler/issues)
+☞ [发现 Bug, 我要吐槽！](https://github.com/superRaytin/puzzler/issues/new) ☞ [♥ 提建议 ♥](https://github.com/superRaytin/puzzler/issues/new)
 
 > 我坚信，一旦你尝到自动化切图的甜头，你就会爱上它。
 

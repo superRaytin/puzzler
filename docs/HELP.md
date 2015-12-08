@@ -125,4 +125,4 @@
 
 ---
 
-☞ [发现 Bug, 我要吐槽！](https://github.com/superRaytin/puzzler/issues) ☞ [♥ 提建议 ♥](https://github.com/superRaytin/puzzler/issues)
+☞ [发现 Bug, 我要吐槽！](https://github.com/superRaytin/puzzler/issues/new) ☞ [♥ 提建议 ♥](https://github.com/superRaytin/puzzler/issues/new)
