@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
+
 <img id="J-Calculate" alt="Puzzler" class="hide" />
 <input type="file" class="hide" id="J-hi-select">
 <input type="file" class="hide" id="J-hi-saveDiretory" nwdirectory>
@@ -123,15 +124,19 @@
             </div>
         </div>
     </div>
-    <!--<div class="textzone">
+    <!--
+    <div class="textzone">
         <textarea>1212</textarea>
         <div class="resize"></div>
         <div class="setting"><span class="glyphicon glyphicon-eye-open"></span></div>
         <div class="cover hide"></div>
-    </div>-->
+    </div>
+    -->
 </div>
+
 <div id="backing"><img src="img/blue.jpg"></div>
 <div id="overlay"></div>
+
 <!-- template start -->
 <script type="template/dialog" id="J-settings">
     <div id="dialogWrap" class="dialogWrap">
@@ -190,22 +195,6 @@
                     </fieldset>
 
                 </div>
-                <!--<div class="tab_content_column">
-                    占坑
-                    <fieldset class="hide">
-                        <legend>标签栏</legend>
-                        <div class="fieldset_content">
-                            <div class="tab_content_column">
-                                <input id="dblclickClose" type="checkbox" class="column_checkbox" data-name="tag_dblclickClose">
-                                <label for="dblclickClose" class="column_label_check">双击关闭标签</label>
-                            </div>
-                            <div class="tab_content_column">
-                                <input id="lockTag" type="checkbox" class="column_checkbox" data-name="tag_lock">
-                                <label for="lockTag" class="column_label_check">锁定(不允许拖放)</label>
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>-->
             </div>
             <div class="tab_content_item hide">
                 <div class="tab_content_column">
@@ -229,9 +218,9 @@
                         <legend>升 级</legend>
                         <div class="fieldset_content">
                             <input type="radio" name="update" id="update_tip" class="column_radio" data-name="update" value="tip" checked>
-                            <label for="update_tip" class="column_label_radio">有更新提示我升级</label>
+                            <label for="update_tip" class="column_label_radio">有更新时提示我升级</label>
                             <input type="radio" name="update" id="update_never" class="column_radio" data-name="update" value="never">
-                            <label for="update_never" class="column_label_radio">从不自动更新</label>
+                            <label for="update_never" class="column_label_radio">从不提示我升级</label>
                         </div>
                     </fieldset>
                 </div>
@@ -275,14 +264,12 @@
         <p>☞ <i><%= config.desc %></i> ☜</p>
         <p>Version: <strong><%= config.version %></strong></p>
         <p>By <a href="https://github.com/superRaytin">@Leon Shi</a></p>
-        <p>&nbsp;</p>
-        <p>如果这个软件有帮助到你，可以用以下两种方式鼓励一下作者：</p>
-        <p>方式一：给一个 <a href="https://github.com/superRaytin/puzzler">☆ Star ☆</a></p>
-        <p>方式二：<span class="donate" id="J-donate">赞助一杯咖啡 ♨</span></p>
-        <p>&nbsp;</p>
-        <p>
-            <input type="button" id="J-about-update" value="检查更新">
-        </p>
+        <div class="donate">
+            <p>Puzzler 是开源项目，如果这个软件有帮助到你，可以用以下两种方式鼓励一下作者：</p>
+            <p>方式一：<a class="donate-link" href="https://github.com/superRaytin/puzzler">☆ Star ☆</a> 该项目</p>
+            <p>方式二：<span class="donate-coffee" id="J-donate">赞助一杯咖啡 ♨</span></p>
+        </div>
+        <p><input type="button" id="J-about-update" value="检查更新"></p>
     </div>
 </script>
 <script type="text/template" id="template-donate">
@@ -294,7 +281,7 @@
 <script type="text/template" id="template-update">
     <div class="update-content">
         <div class="logo"><img src="img/logo.png"></div>
-        <p>新版本: <strong><%= version %></strong></p>
+        <p>发现新版本: <strong><%= version %></strong></p>
         <% if (description) { %>
         <div class="changelog"><%= description %></div>
         <% } %>
@@ -302,6 +289,7 @@
     </div>
 </script>
 <!-- template end -->
+
 <script type="text/javascript" src="../lib/js/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="../lib/js/alertify.min.js"></script>
 <script type="text/javascript" src="../lib/js/jquery.artDialog.min.js"></script>
@@ -311,5 +299,6 @@
 <script type="text/javascript" src="../lib/js/marked.js"></script>
 <script type="text/javascript" src="../lib/js/underscore.js"></script>
 <script type="text/javascript" src="js/scripts.js"></script>
+
 </body>
 </html>
