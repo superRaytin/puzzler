@@ -11,10 +11,10 @@ Puzzler
 
 ## Downloads
 
-Latest: **v0.8.4** [changeLog](docs/CHANGELOG.md)
+Latest: **v0.8.5** [changeLog](docs/CHANGELOG.md)
 
-- Mac OS X: [32bit](http://pan.baidu.com/s/1jGDA2yU) / [64bit](http://pan.baidu.com/s/1c0ju7de)
-- Windows: [32bit](http://pan.baidu.com/s/1c0sNYQs) / [64bit](http://pan.baidu.com/s/1bnHS2B1)
+- Mac OS X: [32bit](http://pan.baidu.com/s/1HtNMA) / [64bit](http://pan.baidu.com/s/1kUgJUmV)
+- Windows: [32bit](http://pan.baidu.com/s/1sklXwbN) / [64bit](http://pan.baidu.com/s/1jGTUIZ8)
 
 ## Features
 

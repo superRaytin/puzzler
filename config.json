@@ -1,23 +1,23 @@
 {
   "name": "Puzzler",
-  "version": "0.8.4",
-  "description": "修复了通过拖拽导入文件的问题",
+  "version": "0.8.5",
+  "description": "优化启动界面|引入 image-clipper 模块处理图片|bug-fix",
   "download": {
     "allow": true,
     "win32": {
-      "url": "http://pan.baidu.com/s/1c0sNYQs",
+      "url": "http://pan.baidu.com/s/1sklXwbN",
       "type": "page"
     },
     "win64": {
-      "url": "http://pan.baidu.com/s/1bnHS2B1",
+      "url": "http://pan.baidu.com/s/1jGTUIZ8",
       "type": "page"
     },
     "osx32": {
-      "url": "http://pan.baidu.com/s/1jGDA2yU",
+      "url": "http://pan.baidu.com/s/1HtNMA",
       "type": "page"
     },
     "osx64": {
-      "url": "http://pan.baidu.com/s/1c0ju7de",
+      "url": "http://pan.baidu.com/s/1kUgJUmV",
       "type": "page"
     }
   }
