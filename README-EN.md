@@ -18,10 +18,10 @@ Latest: **v0.8.4** [changeLog](docs/CHANGELOG.md)
 
 ## Features
 
-- Support import image via drag & drop, with `.jpg` and `.png` supported
+- Import image via Drag & Drop, with `.jpg` and `.png` supported
 - Flexible reference line operation
-- Support export image slices and HTML, also support quality setting, custom export template
-- Support create map area and completely settings
+- Export image slices and HTML, also support quality setting and custom template
+- Support create map areas, completely settings
 - Set user data Conveniently
 - Custom content area, support Markdown format
 
