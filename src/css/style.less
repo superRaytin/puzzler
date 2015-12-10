@@ -394,6 +394,9 @@ input.rect-input {
   line-height: 52px;
   text-align: center;
   font-size: 24px;
+  &.uninit {
+    display: none;
+  }
 }
 
 .tool-item {
@@ -684,10 +687,20 @@ input.rect-input {
 }
 
 .donate {
-  cursor: pointer;
-  color: #0088cc;
-  text-decoration: underline;
-  &:hover, &:active {
-    color: #005580;
+  margin: 20px 0;
+  color: #888;
+  p {
+    font-size: 13px;
+  }
+  .donate-link {
+    text-decoration: underline;
+  }
+  .donate-coffee {
+    cursor: pointer;
+    color: #0088cc;
+    text-decoration: underline;
+    &:hover, &:active {
+      color: #005580;
+    }
   }
 }

@@ -381,6 +381,9 @@ input.rect-input:focus {
   text-align: center;
   font-size: 24px;
 }
+.addImg.uninit {
+  display: none;
+}
 .tool-item {
   background: #333;
   margin-bottom: 3px;
@@ -654,11 +657,21 @@ input.rect-input:focus {
   overflow: auto;
 }
 .donate {
+  margin: 20px 0;
+  color: #888;
+}
+.donate p {
+  font-size: 13px;
+}
+.donate .donate-link {
+  text-decoration: underline;
+}
+.donate .donate-coffee {
   cursor: pointer;
   color: #0088cc;
   text-decoration: underline;
 }
-.donate:hover,
-.donate:active {
+.donate .donate-coffee:hover,
+.donate .donate-coffee:active {
   color: #005580;
 }
