@@ -3,7 +3,7 @@ Puzzler
 
 > Puzzler is a desktop App for slicing image into HTML. Let you freed from repetitive labor of converting PSD files into HTML page.
 
-![puzzler](docs/screenshot.png)
+<img src="docs/screenshot.png" width="700">
 
 [Help documentation and FAQ](docs/HELP.md)
 

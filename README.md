@@ -8,7 +8,7 @@ Puzzler
 
 <img src="docs/screenshot.png" width="700">
 
-[帮助文档及常见问题](docs/HELP.md)
+[帮助文档及常见问题](#使用帮助)
 
 ![puzzler](src/img/logo.png)
 
