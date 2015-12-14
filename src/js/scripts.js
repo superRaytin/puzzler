@@ -7,7 +7,7 @@ var cheerio = require('cheerio');
 var gui = require('nw.gui');
 var fs = require('fs');
 var modPath = require('path');
-var ImageClipper = require('image-clipper');
+var Clipper = require('image-clipper');
 
 var template = require('./js/template');
 var config = require('./js/config');
@@ -1058,7 +1058,7 @@ var mass = {
         folder = callback ? (fileSeparator + 'images') : '',
         imgName, exportPathByImgName, blocks, markBlocks;
 
-    var imageClipper = cache.imageClipper;
+    var clipper = cache.clipper;
 
     blocks = self.getCutBlocks();
 
@@ -1097,7 +1097,7 @@ var mass = {
         }
 
         // 裁切图片后保存为文件
-        imageClipper
+        clipper
             .reset()
             .crop(item.x, item.y, item.width, item.height)
             .toFile(exportFileName, function () {
@@ -1165,7 +1165,7 @@ var mass = {
 
           // 在同一个实例上多次执行 crop, clear 等操作
           // 需要先执行 reset 以恢复初始的画布
-          imageClipper
+          clipper
               .reset()
               .clear(cleanX, cleanY, cleanWidth, cleanHeight)
               .crop(item.x, item.y, item.width, item.height)
@@ -1182,7 +1182,7 @@ var mass = {
         else {
 
           // 裁切图片后保存为文件
-          imageClipper
+          clipper
               .reset()
               .crop(item.x, item.y, item.width, item.height)
               .toFile(exportFileName, function () {
@@ -1410,18 +1410,17 @@ var mass = {
     var cache = this.cache;
     var $image = $('#J-image');
     var img = $image.get(0);
-    var imageClipper = cache.imageClipper;
+    var clipper = cache.clipper;
 
     // 销毁之前的实例
-    if (imageClipper) {
-      cache.imageClipper.destroy();
+    if (clipper) {
+      cache.clipper.destroy();
     }
 
-    imageClipper = cache.imageClipper = new ImageClipper();
+    clipper = cache.clipper = Clipper();
 
     // 初始化图片质量
-    imageClipper.loadImageFromMemory(img).quality(cache.imageQuality);
-    //imageClipper.quality(cache.imageQuality);
+    clipper.image(img).quality(cache.imageQuality);
   },
 
   // 导出 HTML 和切片
@@ -2005,14 +2004,14 @@ var mass = {
     $('#J-quality').change(function () {
       var current = $(this);
       var quality = parseInt(current.val());
-      var imageClipper = mass.cache.imageClipper;
+      var clipper = mass.cache.clipper;
 
-      if (quality && imageClipper) {
+      if (quality && clipper) {
         // quality 介于 1 ~ 92 之间
         // 为什么是 92 ？超过 92 压缩之后出来的图片会比原图更大，100 时甚至会超过原图几倍！
         quality = quality > 92 ? 92 : quality < 1 ? 1 : quality;
 
-        imageClipper.quality(quality);
+        clipper.quality(quality);
       }
     });
 
