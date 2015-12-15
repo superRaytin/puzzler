@@ -1,7 +1,7 @@
 {
   "name": "Puzzler",
-  "version": "0.8.5",
-  "description": "优化启动界面|引入 image-clipper 模块处理图片|bug-fix",
+  "version": "0.8.6",
+  "description": "修复无法识别后缀名为大写的图片文件的问题|细节优化",
   "download": {
     "allow": true,
     "win32": {
