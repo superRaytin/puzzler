@@ -5,19 +5,19 @@
   "download": {
     "allow": true,
     "win32": {
-      "url": "http://pan.baidu.com/s/1sklXwbN",
+      "url": "https://www.dropbox.com/s/on830y6pg9qgni2/Puzzler-0.8.5-win32.zip?dl=0",
       "type": "page"
     },
     "win64": {
-      "url": "http://pan.baidu.com/s/1jGTUIZ8",
+      "url": "https://www.dropbox.com/s/ep5uwfts1ninw79/Puzzler-0.8.5-win64.zip?dl=0",
       "type": "page"
     },
     "osx32": {
-      "url": "http://pan.baidu.com/s/1HtNMA",
+      "url": "https://www.dropbox.com/s/muamnjurj8e8wkp/Puzzler-0.8.5-osx32.zip?dl=0",
       "type": "page"
     },
     "osx64": {
-      "url": "http://pan.baidu.com/s/1kUgJUmV",
+      "url": "https://www.dropbox.com/s/eh307dromw9z1fq/Puzzler-0.8.5-osx64.zip?dl=0",
       "type": "page"
     }
   }
