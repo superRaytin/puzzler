@@ -11,10 +11,7 @@ Puzzler
 
 ## Downloads
 
-Latest: **v0.8.5** [changeLog](docs/CHANGELOG.md)
-
-- Mac OS X: [32bit](https://www.dropbox.com/s/muamnjurj8e8wkp/Puzzler-0.8.5-osx32.zip?dl=0) / [64bit](https://www.dropbox.com/s/eh307dromw9z1fq/Puzzler-0.8.5-osx64.zip?dl=0)
-- Windows: [32bit](https://www.dropbox.com/s/on830y6pg9qgni2/Puzzler-0.8.5-win32.zip?dl=0) / [64bit](https://www.dropbox.com/s/ep5uwfts1ninw79/Puzzler-0.8.5-win64.zip?dl=0)
+Prebuilt binaries and debug symbols of Puzzler for Windows and OS X can be found on the [releases](https://github.com/superRaytin/puzzler/releases) page.
 
 ## Features
 
