@@ -239,7 +239,7 @@ var Utils = {
   getFileFormat: function (str) {
     var format = str.substr(str.lastIndexOf('.') + 1);
 
-    return format;
+    return format.toLowerCase();
   }
 };
 

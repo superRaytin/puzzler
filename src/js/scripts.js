@@ -84,7 +84,7 @@ var mass = {
   },
 
   reg: {
-    imgFile: /^(jpg|jpeg|png|gif)$/
+    imgFile: /^(jpg|jpeg|png)$/i
   },
 
   resizeHandler: function () {
@@ -420,6 +420,7 @@ var mass = {
       }
     }
   },
+
   // 导入导出用户设置
   exportUserSetting: function () {
     if (window.localStorage.setting) {
@@ -428,9 +429,11 @@ var mass = {
       alertify.log('没有任何用户设置可导出。');
     }
   },
+
   importUserSetting: function () {
     $('#J-hi-saveDiretoryForUserImport').trigger('click');
   },
+
   // 标尺
   ruler: function () {
     var offsetWrap = $('#J-offset'),
@@ -553,6 +556,7 @@ var mass = {
       imgCover.addClass('lineMoving' + _type);
     });
   },
+
   ruler_convert: function () {
     var scale = $('.scale'),
         scaleNum = 0,
@@ -579,6 +583,7 @@ var mass = {
       }
     }
   },
+
   // 对话框
   dialog: function (msg, buttons) {
     var title = '提 示';
@@ -617,6 +622,7 @@ var mass = {
     console.log('dialog: ' + msg);
     return $.artDialog(opt);
   },
+
   dialog_commonInit: function () {
     var dialogParent = $('.d-outer').parent();
 
@@ -624,6 +630,7 @@ var mass = {
 
     dialogParent.find('.d-button').addClass('custom-appearance');
   },
+
   /*
    * content: 文本
    * callback: 点击确定回调
@@ -660,6 +667,7 @@ var mass = {
       }
     });
   },
+
   // 获取排好序的X Y坐标
   getSortPos: function (type) {
     var res = [],
@@ -1417,6 +1425,7 @@ var mass = {
       cache.clipper.destroy();
     }
 
+    // 创建图片裁剪实例
     clipper = cache.clipper = Clipper();
 
     // 初始化图片质量
@@ -1432,11 +1441,13 @@ var mass = {
     });
   },
 
+  // 软件关闭之前调用
   beforeClose: function () {
     this.Line.store();
     return true;
   },
 
+  // 键盘输入监听
   keyboardMonitor: function () {
     var kibo = new Kibo(),
         cache = this.cache,
@@ -2112,10 +2123,11 @@ var mass = {
       }
     });
   },
+
+  // 初始化方法
   init: function () {
     $(function () {
       gui.Window.get().show();
-
       mass.observer();
     });
   }
