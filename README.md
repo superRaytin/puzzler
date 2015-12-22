@@ -4,6 +4,8 @@ Puzzler
 > Puzzler 是一个高效快速的前端页面切图工具，用于将一张图片快速切割成切片并导出 HTML 文件，
 所有的工作都通过可视化拖拽完成，让你从重复的 PSD 切图工作中解放出来。Puzzler 的愿景是拯救 ♥ 切图仔！
 
+图片处理部分 Powered by [image-clipper](https://github.com/superRaytin/image-clipper)
+
 [EN](/README-EN.md)
 
 <img src="docs/screenshot.png" width="700">
