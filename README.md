@@ -28,6 +28,7 @@ Puzzler
 - 便利地用户设置，支持多种常用设置
 - 可创建自定义文字内容，文字内容支持 Markdown 格式
 
+不知道怎么开始？那不妨看看 [小明是怎么切图的](http://superraytin.github.io/2015/12/14/an-elegant-way-to-slice-image/)
 
 # License
 本项目基于 MIT 协议发布
