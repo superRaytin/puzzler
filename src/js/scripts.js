@@ -1037,14 +1037,7 @@ var mass = {
     var imageQuality = this.cache.imageQuality;
     var fileFormat = this.cache.fileFormat;
 
-    imageToSlices(imagePath, lineXArray, lineYArray, {
-      saveToDir: exportPath,
-      middleBoundaryMode: isMiddleBoundaryMode,
-      clipperOptions: {
-        quality: imageQuality
-      }
-    }, function() {
-
+    function afterSliced() {
       if (willExportHtml) {
         callback();
       }
@@ -1068,7 +1061,16 @@ var mass = {
 
       self.rockSettings.itemInMemory('lastSaveDir', exportPath);
       $('#J-hi-saveDiretory').val('');
+    }
 
+    imageToSlices(imagePath, lineXArray, lineYArray, {
+      saveToDir: exportPath,
+      middleBoundaryMode: isMiddleBoundaryMode,
+      clipperOptions: {
+        quality: imageQuality
+      }
+    }, function() {
+      afterSliced();
     });
   },
 
