@@ -6,7 +6,7 @@
     "icon": "src/img/logo.png",
     "show": false,
     "position": "center",
-    "toolbar": false,
+    "toolbar": true,
     "frame": true,
     "min_width": 700,
     "min_height": 500,
@@ -17,7 +17,9 @@
     "cheerio": "0.19.0",
     "request": "2.21.0",
     "comparev": "0.1.3",
-    "image-clipper": "0.4.1",
+    "object-assign": "4.0.1",
+    "image-to-slices": "0.1.1",
+    "image-clipper": "0.4.2",
     "iconv-lite": "0.4.13"
   }
 }
