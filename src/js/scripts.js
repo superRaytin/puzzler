@@ -10,6 +10,7 @@ var modPath = require('path');
 var Slices = require('slices');
 var imageToSlices = require('image-to-slices');
 var Clipper = require('image-clipper');
+var PSD = require('psd');
 
 var template = require('./js/template');
 var config = require('./js/config');
@@ -86,7 +87,7 @@ var mass = {
   },
 
   reg: {
-    imgFile: /^(jpg|jpeg|png)$/i
+    imgFile: /^(jpg|jpeg|png|psd)$/i
   },
 
   resizeHandler: function () {
@@ -192,12 +193,79 @@ var mass = {
 
     var fileFormat = Utils.getFileFormat(file.name);
 
-    if (self.reg.imgFile.test(fileFormat)) {
-      self.cache.fileFormat = fileFormat;
-      $('#J-Calculate').attr('src', file.path);
-    } else {
-      console.log(file.path + ' 文件不符合格式');
-      self.dialog('请选择 jpg、jpeg 或 png 格式的文件', true);
+    // 检查 path 合法性
+    if(self.checkImagePath(file.path) === false) {
+      return;
+    }
+
+    // 拖入 jpg 或 png
+    if (fileFormat !== 'psd') {
+      load(fileFormat, file.path);
+    }
+    // psd 文件
+    else {
+      self.dealPsdFile(file.path);
+    }
+
+    function load(format, path) {
+      self.cache.fileFormat = format;
+      self.loadImageFromPath(path);
+    }
+  },
+
+  // 处理 psd 文件
+  dealPsdFile: function(filePath) {
+    var self = this;
+    // 用户的 psd 设置
+    var psdConvertWay = self.rockSettings.getItemInSetting('psd_convert');
+
+    // 先将文件转换为 jpg 或 png
+    PSD.open(filePath).then(function(psd) {
+      var outputFileFormat = 'jpg';
+      var fileDir = modPath.dirname(filePath);
+      var fileName = modPath.basename(filePath, '.psd');
+      var outputPath = modPath.join(fileDir, fileName + '_tmp.' + outputFileFormat);
+
+      // psd_convert = jpg || png
+      if (psdConvertWay === 'jpg' || psdConvertWay === 'png') {
+        saveImageToBinary(psd, psdConvertWay, outputPath);
+      }
+      // 询问用户
+      else if (psdConvertWay === '') {
+        self.dialog({
+          title: 'PSD 转换格式确认',
+          content: 'Puzzler 需要先将 ' + (fileName + '.psd') + ' 转换为 jpg 或 png 后才能继续工作，推荐选择 jpg（jpg 支持压缩）' +
+          '<br><br>提示 1：如果此 psd 保存时没有采用兼容模式，则可能会载入一张空白图片' +
+          '<br>提示 2：转换过程不会影响原来的 psd 文件' +
+          '<br>提示 3：可到「设置」-「常用」中关闭本提示'
+        }, [
+          {
+            value: 'jpg(推荐)',
+            callback: function () {
+              saveImageToBinary(psd, outputFileFormat, outputPath);
+            },
+            focus: true
+          },
+          {
+            value: 'png',
+            callback: function () {
+              outputFileFormat = 'png';
+              outputPath = modPath.join(fileDir, fileName + '_tmp.' + outputFileFormat);
+              saveImageToBinary(psd, outputFileFormat, outputPath);
+            }
+          },
+          {
+            value: '取消'
+          }
+        ]);
+      }
+    });
+
+    function saveImageToBinary(psd, format, path) {
+      psd.image.saveAsPng(path).then(function() {
+        self.cache.fileFormat = format;
+        self.loadImageFromPath(path);
+      });
     }
   },
 
@@ -1489,6 +1557,22 @@ var mass = {
     }
   },
 
+  // 载入图片
+  loadImageFromPath: function(path) {
+    $('#J-Calculate').attr('src', path);
+  },
+
+  // 检查图片 path 合法性
+  checkImagePath: function(path) {
+    var fileFormat = Utils.getFileFormat(path);
+    if (!this.reg.imgFile.test(fileFormat)) {
+      this.dialog('请选择 jpg、jpeg、png 或 psd 格式的文件', true);
+      return false;
+    }
+
+    return true;
+  },
+
   observer: function () {
     var self = this;
     var cache = self.cache;
@@ -1591,18 +1675,21 @@ var mass = {
       var filePath = this.value;
 
       if (filePath == '') return;
-
-      fileFormat = Utils.getFileFormat(filePath);
+      console.log(filePath);
 
       // 检查 path 合法性
-      if (!self.reg.imgFile.test(fileFormat)) {
-        self.dialog('请选择 jpg、jpeg 或 png 格式的文件', true);
+      if(self.checkImagePath(filePath) === false) {
         return;
       }
 
-      console.log(filePath);
+      var fileFormat = Utils.getFileFormat(filePath);
 
-      hideImgCalculate.attr('src', filePath);
+      if (fileFormat === 'psd') {
+        self.dealPsdFile(filePath);
+      } else {
+        // 载入图片
+        self.loadImageFromPath(filePath);
+      }
     });
 
     // 导出切片
