@@ -1928,8 +1928,13 @@ var mass = {
     });
 
     // check update
-    wrapper.on('click', '#J-about-update', function () {
-      Utils.checkVersion(true);
+    wrapper.on('click', '#J-about-update', function (e) {
+      var current = $(e.currentTarget);
+
+      current.attr('disabled', true);
+      Utils.checkVersion(true, function() {
+        current.attr('disabled', false);
+      });
     });
 
     // 设置图片质量

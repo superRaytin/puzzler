@@ -116,7 +116,7 @@ var Utils = {
 
   // 检测版本
   // @param 是否要弹出结果提示
-  checkVersion: function (shouldAlert) {
+  checkVersion: function (shouldAlert, callback) {
     var self = this;
     var currentVersion = config.version;
     var platform = process.platform;
@@ -127,6 +127,8 @@ var Utils = {
       method: 'get',
       uri: config.updateURL
     }, function (err, res, body) {
+      callback && callback();
+
       if (err) {
         console.log('请求失败');
 
@@ -169,6 +171,7 @@ var Utils = {
             content: '当前服务不可用，请稍候重试或联系作者'
           });
         }
+
         return;
       }
 
