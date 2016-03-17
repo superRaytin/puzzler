@@ -1,7 +1,7 @@
 {
   "name": "Puzzler",
-  "version": "0.8.6",
-  "description": "修复无法识别后缀名为大写的图片文件的问题|细节优化",
+  "version": "0.8.7",
+  "description": "增加 PSD 文件支持 <a href='https://github.com/superRaytin/puzzler/issues/3'>#3</a>",
   "download": {
     "allow": true,
     "win32": {

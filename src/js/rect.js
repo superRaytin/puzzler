@@ -422,7 +422,7 @@ var main = {
 
     if (res) {
       if (isBig2) {
-        blocks = mass.getCutBlocks('children');
+        blocks = mass.getChildBlocks();
 
         $.each(blocks, function (i, block) {
           var blockParentIndex = block.parentBlockIndex;

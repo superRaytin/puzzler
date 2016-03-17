@@ -7,7 +7,10 @@ var cheerio = require('cheerio');
 var gui = require('nw.gui');
 var fs = require('fs');
 var modPath = require('path');
+var Slices = require('slices');
+var imageToSlices = require('image-to-slices');
 var Clipper = require('image-clipper');
+var PSD = require('psd');
 
 var template = require('./js/template');
 var config = require('./js/config');
@@ -84,7 +87,7 @@ var mass = {
   },
 
   reg: {
-    imgFile: /^(jpg|jpeg|png)$/i
+    imgFile: /^(jpg|jpeg|png|psd)$/i
   },
 
   resizeHandler: function () {
@@ -190,12 +193,79 @@ var mass = {
 
     var fileFormat = Utils.getFileFormat(file.name);
 
-    if (self.reg.imgFile.test(fileFormat)) {
-      self.cache.fileFormat = fileFormat;
-      $('#J-Calculate').attr('src', file.path);
-    } else {
-      console.log(file.path + ' 文件不符合格式');
-      self.dialog('请选择 jpg、jpeg 或 png 格式的文件', true);
+    // 检查 path 合法性
+    if(self.checkImagePath(file.path) === false) {
+      return;
+    }
+
+    // 拖入 jpg 或 png
+    if (fileFormat !== 'psd') {
+      load(fileFormat, file.path);
+    }
+    // psd 文件
+    else {
+      self.dealPsdFile(file.path);
+    }
+
+    function load(format, path) {
+      self.cache.fileFormat = format;
+      self.loadImageFromPath(path);
+    }
+  },
+
+  // 处理 psd 文件
+  dealPsdFile: function(filePath) {
+    var self = this;
+    // 用户的 psd 设置
+    var psdConvertWay = self.rockSettings.getItemInSetting('psd_convert');
+
+    // 先将文件转换为 jpg 或 png
+    PSD.open(filePath).then(function(psd) {
+      var outputFileFormat = 'jpg';
+      var fileDir = modPath.dirname(filePath);
+      var fileName = modPath.basename(filePath, '.psd');
+      var outputPath = modPath.join(fileDir, fileName + '_tmp.' + outputFileFormat);
+
+      // psd_convert = jpg || png
+      if (psdConvertWay === 'jpg' || psdConvertWay === 'png') {
+        saveImageToBinary(psd, psdConvertWay, outputPath);
+      }
+      // 询问用户
+      else if (psdConvertWay === '') {
+        self.dialog({
+          title: 'PSD 转换格式确认',
+          content: 'Puzzler 需要先将 ' + (fileName + '.psd') + ' 转换为 jpg 或 png 后才能继续工作，推荐选择 jpg（jpg 支持压缩）' +
+          '<br><br>提示 1：如果此 psd 保存时没有采用兼容模式，则可能会载入一张空白图片' +
+          '<br>提示 2：转换过程不会影响原来的 psd 文件' +
+          '<br>提示 3：可到「设置」-「常用」中关闭本提示'
+        }, [
+          {
+            value: 'jpg(推荐)',
+            callback: function () {
+              saveImageToBinary(psd, outputFileFormat, outputPath);
+            },
+            focus: true
+          },
+          {
+            value: 'png',
+            callback: function () {
+              outputFileFormat = 'png';
+              outputPath = modPath.join(fileDir, fileName + '_tmp.' + outputFileFormat);
+              saveImageToBinary(psd, outputFileFormat, outputPath);
+            }
+          },
+          {
+            value: '取消'
+          }
+        ]);
+      }
+    });
+
+    function saveImageToBinary(psd, format, path) {
+      psd.image.saveAsPng(path).then(function() {
+        self.cache.fileFormat = format;
+        self.loadImageFromPath(path);
+      });
     }
   },
 
@@ -789,6 +859,7 @@ var mass = {
       mass.Line.store();
     });
   },
+
   // 工具栏下拉菜单
   dropMenu: function (e) {
     var target = $(e.target),
@@ -878,9 +949,8 @@ var mass = {
   checkConfigFile: function () {
     var cache = mass.cache,
         img = cache.img,
-        imgDirectory = modPath.dirname(img.path),
-        fileSeparator = this.clientInfo.fileSeparator,
-        configPath = imgDirectory + fileSeparator + 'config.json';
+        imgDirectory = modPath.dirname(img.path);
+    var configPath = modPath.join(imgDirectory, 'config.json');
 
     if (fs.existsSync(configPath)) {
       alertify.log('检测到配置文件，已自动适配：' + configPath);
@@ -928,279 +998,148 @@ var mass = {
     }
   },
 
-  // 获取切片
-  getCutBlocks: function (children) {
-    var cache = mass.cache,
-        lineX = cache.lineX,
-        lineY = cache.lineY,
-        plusTop = 0, plusLeft,
-        blocks = [],
-        allChildBlocks = [],
-        posArrX, posArrY, curX, curY;
+  // 是否中间分割模式
+  isMiddleBoundaryMode: function() {
+    var cache = mass.cache;
+    var lineYLength = cache.lineY;
+    var imageWidth = cache.img.width;
 
-    var isBig2 = !!(cache.img.width > 990 && lineY > 1), temp,
-        parentBlockIndex = 0,
-        option;
+    var result = !!(imageWidth > 990 && lineYLength > 1);
 
-    // 获取排好序的 X 轴参考线
-    posArrX = mass.getSortPos('X');
-
-    // 获取排好序的 Y 轴参考线
-    posArrY = mass.getSortPos('Y');
-
-    // 生成参考线的 X Y 方向的边界
-    posArrX.push(cache.img.height);
-    posArrY.push(cache.img.width);
-
-    // X 轴上有参考线
-    if (lineX) {
-      for (var x = 0, xLen = posArrX.length; x < xLen; x++) {
-        curX = posArrX[x];
-
-        plusLeft = 0;
-
-        // Y 轴上也有参考线
-        if (lineY) {
-          if (isBig2) {
-            plusLeft = posArrY[0];
-            temp = {
-              width: cache.img.width,
-              height: curX - plusTop,
-              x: 0,
-              y: x == 0 ? 0 : plusTop,
-              children: [],
-              // 需要抹擦去的图片区域
-              cleanArea: {
-                x0: posArrY[0],
-                y0: x == 0 ? 0 : plusTop,
-                x1: posArrY[posArrY.length - 2],
-                y1: curX
-              }
-            };
-            blocks.push(temp);
-
-            for (var y = 1, yLen = posArrY.length - 1; y < yLen; y++) {
-              curY = posArrY[y];
-
-              option = {
-                width: curY - plusLeft,
-                height: curX - plusTop,
-                x: plusLeft,
-                y: x == 0 ? 0 : plusTop,
-                left: y == 1 ? 0 : plusLeft - posArrY[0],
-                top: 0,
-                parentBlockIndex: parentBlockIndex,
-                index: y - 1
-              };
-              temp.children.push(option);
-              allChildBlocks.push(option);
-
-              plusLeft = curY;
-            }
-
-            parentBlockIndex++;
-          }
-          else {
-            for (var y = 0, yLen = posArrY.length; y < yLen; y++) {
-              curY = posArrY[y];
-
-              blocks.push({
-                width: curY - plusLeft,
-                height: curX - plusTop,
-                x: plusLeft,
-                y: x == 0 ? 0 : plusTop
-              });
-
-              plusLeft = curY;
-            }
-          }
-        }
-        // 只有 X 轴的情况
-        else {
-          blocks.push({
-            width: cache.img.width,
-            height: curX - plusTop,
-            x: 0,
-            y: x == 0 ? 0 : plusTop
-          });
-        }
-
-        plusTop = curX;
-      }
-    }
-    // 只有 Y 轴的情况
-    else {
-      plusLeft = 0;
-      for (var y = 0, yLen = posArrY.length; y < yLen; y++) {
-        curY = posArrY[y];
-
-        blocks.push({
-          width: curY - plusLeft,
-          height: cache.img.height,
-          x: x == 0 ? 0 : plusLeft,
-          y: 0
-        });
-
-        plusLeft = curY;
-      }
-    }
-
-    return children ? allChildBlocks : blocks;
+    return result;
   },
 
-  // 切割
-  clipImage: function (dir, callback) {
-    alertify.log('正在导出切片...');
+  // 获取切片
+  getCutBlocks: function() {
+    var cache = mass.cache;
+    var imageWidth = cache.img.width;
+    var imageHeight = cache.img.height;
 
-    var self = this;
+    var lineXArray = mass.getSortPos('X');
+    var lineYArray = mass.getSortPos('Y');
 
-    // 保存锁，避免疯狂保存的情况
-    self.cache.saveLock = true;
+    var isMiddleBoundaryMode = this.isMiddleBoundaryMode();
 
+    var blocks = Slices(imageWidth, imageHeight, lineXArray, lineYArray, {
+      middleBoundaryMode: isMiddleBoundaryMode
+    });
+
+    return blocks;
+  },
+
+  getChildBlocks: function() {
+    var blocks = this.getCutBlocks();
+    var isMiddleBoundaryMode = this.isMiddleBoundaryMode();
+    var result = [];
+
+    if (isMiddleBoundaryMode) {
+      $.each(blocks, function(i, block) {
+        result = result.concat(block.children);
+      });
+    }
+
+    return result;
+  },
+
+  // 获取导出路径
+  getExportPath: function(dir, willExportHtml) {
+    var cache = this.cache;
+    var newFolder = this.rockSettings.getItemInSetting('exportOption');
     var exportPath = dir;
 
-    var fileSeparator = this.clientInfo.fileSeparator;
-
-    var cache = self.cache,
-        newFolder = self.rockSettings.getItemInSetting('exportOption'),
-        folder = callback ? (fileSeparator + 'images') : '',
-        imgName, exportPathByImgName, blocks, markBlocks;
-
-    var clipper = cache.clipper;
-
-    blocks = self.getCutBlocks();
-
-    markBlocks = blocks.slice();
-
     // 快捷导出
-    if (cache.quickSavePath && callback) {
+    if (cache.quickSavePath && willExportHtml) {
+      // 用户设置了快捷导出目录
       exportPath = cache.quickSavePath;
     }
     else {
       // 根据用户设置是否创建新文件夹存放
       if (newFolder && newFolder === 'newfolder') {
-        imgName = modPath.basename(cache.img.path, '.' + cache.fileFormat);
-        exportPathByImgName = exportPath + fileSeparator + imgName;
+
+        // 得到图片名称
+        // ('path/to/aaa.jpg', '.jpg') => 'aaa'
+        var imageName = modPath.basename(cache.img.path, '.' + cache.fileFormat);
+
+        var exportPathByImgName = modPath.join(exportPath, imageName);
+
+        // 没有此图片名称命名的文件夹，则新建一个
         if (!fs.existsSync(exportPathByImgName)) {
           fs.mkdirSync(exportPathByImgName);
         }
+
         exportPath = exportPathByImgName;
       }
     }
 
-    // 按顺序切割子区域
-    var clipChild = function (children, parentBlockIndex, callback) {
-      var target = children.slice();
-      var childBlockIndex = 1;
+    return exportPath;
+  },
 
-      (function () {
-        var arg = arguments;
-        var item = target.shift();
-        var exportFileName = exportPath + folder + fileSeparator + 'section-' + parentBlockIndex + '-' + (childBlockIndex++) + '.' + cache.fileFormat;
+  clipImage: function(dir, callback) {
+    alertify.log('正在导出切片...');
 
-        // 没有孩子节点
-        if (!item) {
-          callback();
-          return;
-        }
+    var self = this;
+    var willExportHtml = !!callback;
+    var exportPath = this.getExportPath(dir, willExportHtml);
 
-        // 裁切图片后保存为文件
-        clipper
-            .reset()
-            .crop(item.x, item.y, item.width, item.height)
-            .toFile(exportFileName, function () {
-              console.log('z-success', exportFileName);
-              arg.callee();
-            });
+    // 保存锁，避免疯狂保存的情况
+    self.cache.saveLock = true;
 
-      })();
-    };
+    var folder = '';
+    if (willExportHtml) {
+      folder = 'images';
+    }
 
-    //console.log('blocks', JSON.parse(JSON.stringify(blocks)));
+    exportPath = modPath.join(exportPath, folder);
 
-    if (blocks.length) {
-      // 不存在images文件夹就新建一个
-      if (callback && !fs.existsSync(exportPath + folder)) {
-        fs.mkdirSync(exportPath + folder);
+    // 不存在 images 文件夹就新建一个
+    if (!fs.existsSync(exportPath)) {
+      fs.mkdirSync(exportPath);
+    }
+
+    var $image = $('#J-image');
+    var imagePath = $image.attr('src');
+
+    var lineXArray = mass.getSortPos('X');
+    var lineYArray = mass.getSortPos('Y');
+    var isMiddleBoundaryMode = this.isMiddleBoundaryMode();
+    var imageQuality = this.cache.imageQuality;
+    var fileFormat = this.cache.fileFormat;
+
+    function afterSliced() {
+      if (willExportHtml) {
+        callback();
+      }
+      // 仅导出切片
+      else {
+        self.dialog('切片完成！<br>文件位置：' + exportPath, [
+          {
+            value: '打开文件位置',
+            callback: function () {
+              Utils.showFileInFolder(modPath.join(exportPath, 'section-1.' + fileFormat));
+            },
+            focus: true
+          },
+          {
+            value: '确定'
+          }
+        ]);
+
+        mass.cache.saveLock = false;
       }
 
-      // 按顺序切割区域
-      var blockIndex = 1;
-      (function () {
-        var arg = arguments;
-        var item = blocks.shift();
-        var exportFileName = exportPath + folder + fileSeparator + 'section-' + (blockIndex++) + '.' + cache.fileFormat;
-
-        // 所有区块切割完成
-        if (!item) {
-          // 导出切片和 HTML
-          if (callback) {
-            callback(markBlocks, exportPath);
-          }
-          // 仅导出切片
-          else {
-            self.dialog('切片完成！<br>文件位置：' + exportPath, [
-              {
-                value: '打开文件位置',
-                callback: function () {
-                  Utils.showFileInFolder(exportPath + folder + fileSeparator + 'section-1.' + cache.fileFormat);
-                },
-                focus: true
-              },
-              {
-                value: '确定'
-              }
-            ]);
-
-            mass.cache.saveLock = false;
-          }
-
-          self.rockSettings.itemInMemory('lastSaveDir', exportPath);
-          $('#J-hi-saveDiretory').val('');
-          return;
-        }
-
-        // 区块下有子区块
-        if (item.children) {
-
-          // 裁切图片后保存为文件
-          // 先将大背景图导出，并抹除其中的主体部分像素
-          // x 轴留出 20 像素是为了背景图和切出的图片融合效果更加完美
-          var cleanX = item.cleanArea.x0 + 20;
-          var cleanY = item.cleanArea.y0;
-          var cleanWidth = item.cleanArea.x1 - item.cleanArea.x0 - 40;
-          var cleanHeight = item.cleanArea.y1 - item.cleanArea.y0;
-
-          // 在同一个实例上多次执行 crop, clear 等操作
-          // 需要先执行 reset 以恢复初始的画布
-          clipper
-              .reset()
-              .clear(cleanX, cleanY, cleanWidth, cleanHeight)
-              .crop(item.x, item.y, item.width, item.height)
-            // 将挖空的大背景区域保存为文件
-              .toFile(exportFileName, function () {
-                // 抹除画布部分像素数据后，需要再次重置画布
-                this.reset();
-
-                console.log('success2', exportFileName);
-                clipChild(item.children, blockIndex - 1, arg.callee);
-              });
-
-        }
-        else {
-
-          // 裁切图片后保存为文件
-          clipper
-              .reset()
-              .crop(item.x, item.y, item.width, item.height)
-              .toFile(exportFileName, function () {
-                console.log('success3', exportFileName);
-                arg.callee();
-              });
-
-        }
-      })();
+      self.rockSettings.itemInMemory('lastSaveDir', exportPath);
+      $('#J-hi-saveDiretory').val('');
     }
+
+    imageToSlices(imagePath, lineXArray, lineYArray, {
+      saveToDir: exportPath,
+      middleBoundaryMode: isMiddleBoundaryMode,
+      clipperOptions: {
+        quality: imageQuality
+      }
+    }, function() {
+      afterSliced();
+    });
   },
 
   // 生成 HTML
@@ -1211,8 +1150,6 @@ var mass = {
         img = cache.img,
         isBig = !!(img.width > 990 && cache.lineY === 0),
         isBig2 = !!(img.width > 990 && cache.lineY > 1);
-
-    var fileSeparator = this.clientInfo.fileSeparator;
 
     // 1. 加载预览模板
     Utils.loadFile('./src/preview.html', function (data) {
@@ -1292,28 +1229,7 @@ var mass = {
         }
 
         allBlockStyles.push(temp);
-
       });
-
-      /*_.each(allBlockStyles, function(block, blockIndex) {
-       //console.log(1);
-       _.each(block.children, function(child, childIndex) {
-       //return console.log(child.rect);
-       if (!child.rect) {
-       console.log('norect')
-       } else {
-       //console.log(child.rect);
-       _.each(child.rect, function(rect) {
-       //console.log(rect.rect.url);
-       console.log('hasrect============');
-       console.log(rect.rect);
-       console.log(rect.rect.url);
-       //console.log(rect.rect);
-       console.log('hasrect============ end');
-       });
-       }
-       });
-       });*/
 
       if (isBig) {
         localTemplateSet = mass.rockSettings.getItemInSetting('big', 'template');
@@ -1349,16 +1265,15 @@ var mass = {
       cache.clipboard = bodyCon;
 
       // 生成页面
-      fs.writeFile(exportDirectoryPath + fileSeparator + 'index.html', cheer.html(), function (err) {
+      var saveFileName = modPath.join(exportDirectoryPath, 'index.html');
+      fs.writeFile(saveFileName, cheer.html(), function (err) {
         if (err) return console.log(err);
 
         mass.dialog('导出切片和 HTML 成功！<br>文件位置：' + exportDirectoryPath, [
           {
             value: '浏览器中预览',
             callback: function () {
-              //gui.Shell.openExternal(exportDirectoryPath + '\\index.html');
-              //gui.Shell.openItem(exportDirectoryPath + fileSeparator + 'index.html');
-              Utils.openFileExternal(exportDirectoryPath + fileSeparator + 'index.html');
+              Utils.openFileExternal(saveFileName);
               return false;
             },
             focus: true
@@ -1366,8 +1281,7 @@ var mass = {
           {
             value: '打开文件位置',
             callback: function () {
-              //gui.Shell.showItemInFolder(exportDirectoryPath + fileSeparator + 'index.html');
-              Utils.showFileInFolder(exportDirectoryPath + fileSeparator + 'index.html');
+              Utils.showFileInFolder(saveFileName);
               return false;
             }
           },
@@ -1382,8 +1296,9 @@ var mass = {
         // 已经有过导出操作，跳过此步
         if (!cache.quickSavePath) {
           // 生成origin图片
+          var originImageFileName = modPath.join(exportDirectoryPath, 'origin.' + cache.fileFormat);
           var readStream = fs.createReadStream(img.path);
-          var writeStream = fs.createWriteStream(exportDirectoryPath + fileSeparator + 'origin.' + cache.fileFormat);
+          var writeStream = fs.createWriteStream(originImageFileName);
 
           readStream.pipe(writeStream);
           writeStream.on('close', function () {
@@ -1394,16 +1309,12 @@ var mass = {
         // 生成config文件
         var configContent = '{\n' +
             '\t"line": ' + JSON.stringify(cache.line) + ',\n' +
-              //'\t"lineuuid": '+ cache.lineuuid +',\n' +
-              //'\t"lineX": '+ cache.lineX +',\n' +
-              //'\t"lineY": '+ cache.lineY +',\n' +
-              //'\t"rectNum": '+ cache.rectNum +',\n' +
-              //'\t"rectuuid": '+ cache.rectuuid +',\n' +
             '\t"rect": ' + JSON.stringify(cache.rect) + ',\n' +
             '\t"textArea": ' + encodeURIComponent(JSON.stringify(cache.textArea)) + '\n' +
             '}';
 
-        fs.createWriteStream(exportDirectoryPath + fileSeparator + 'config.json').write(configContent);
+        var configFileName = modPath.join(exportDirectoryPath, 'config.json');
+        fs.createWriteStream(configFileName).write(configContent);
 
         // 解锁
         cache.saveLock = false;
@@ -1415,29 +1326,22 @@ var mass = {
 
   // 初始化画布
   initCanvas: function () {
-    var cache = this.cache;
-    var $image = $('#J-image');
-    var img = $image.get(0);
-    var clipper = cache.clipper;
-
-    // 销毁之前的实例
-    if (clipper) {
-      cache.clipper.destroy();
-    }
-
-    // 创建图片裁剪实例
-    clipper = cache.clipper = Clipper();
-
-    // 初始化图片质量
-    clipper.image(img).quality(cache.imageQuality);
+    console.log('initCanvas');
   },
 
   // 导出 HTML 和切片
-  exportHTML: function (exportDirectoryPath) {
+  exportHTML: function(exportDirectoryPath) {
+    var self = this;
+    var blocks = this.getCutBlocks();
+
     alertify.log('正在导出 HTML 包...');
-    mass.clipImage(exportDirectoryPath, function (blocks, exportDirectoryPath2) {
+
+    mass.clipImage(exportDirectoryPath, function() {
+
+      var exportPath = self.getExportPath(exportDirectoryPath, true);
+
       $('#J-hi-saveDiretoryForHtml').val('');
-      mass.buildHTML(blocks, exportDirectoryPath2);
+      mass.buildHTML(blocks, exportPath);
     });
   },
 
@@ -1653,6 +1557,22 @@ var mass = {
     }
   },
 
+  // 载入图片
+  loadImageFromPath: function(path) {
+    $('#J-Calculate').attr('src', path);
+  },
+
+  // 检查图片 path 合法性
+  checkImagePath: function(path) {
+    var fileFormat = Utils.getFileFormat(path);
+    if (!this.reg.imgFile.test(fileFormat)) {
+      this.dialog('请选择 jpg、jpeg、png 或 psd 格式的文件', true);
+      return false;
+    }
+
+    return true;
+  },
+
   observer: function () {
     var self = this;
     var cache = self.cache;
@@ -1755,18 +1675,21 @@ var mass = {
       var filePath = this.value;
 
       if (filePath == '') return;
-
-      fileFormat = Utils.getFileFormat(filePath);
+      console.log(filePath);
 
       // 检查 path 合法性
-      if (!self.reg.imgFile.test(fileFormat)) {
-        self.dialog('请选择 jpg、jpeg 或 png 格式的文件', true);
+      if(self.checkImagePath(filePath) === false) {
         return;
       }
 
-      console.log(filePath);
+      var fileFormat = Utils.getFileFormat(filePath);
 
-      hideImgCalculate.attr('src', filePath);
+      if (fileFormat === 'psd') {
+        self.dealPsdFile(filePath);
+      } else {
+        // 载入图片
+        self.loadImageFromPath(filePath);
+      }
     });
 
     // 导出切片
@@ -1855,16 +1778,14 @@ var mass = {
           that = this,
           path = that.value;
 
-      var fileSeparator = this.clientInfo.fileSeparator;
-
       if (localSet) {
-        fs.createWriteStream(path + fileSeparator + 'settings.json').write(localSet);
+        var settingFileName = modPath.join(path, 'settings.json');
+        fs.createWriteStream(settingFileName).write(localSet);
         mass.dialog('用户设置导出成功！<br>文件位置：' + path, [
           {
             value: '打开文件位置',
             callback: function () {
-              //gui.Shell.showItemInFolder(path + fileSeparator + 'settings.json');
-              Utils.showFileInFolder(path + fileSeparator + 'settings.json');
+              Utils.showFileInFolder(settingFileName);
               return false;
             },
             focus: true
@@ -2007,22 +1928,26 @@ var mass = {
     });
 
     // check update
-    wrapper.on('click', '#J-about-update', function () {
-      Utils.checkVersion(true);
+    wrapper.on('click', '#J-about-update', function (e) {
+      var current = $(e.currentTarget);
+
+      current.attr('disabled', true);
+      Utils.checkVersion(true, function() {
+        current.attr('disabled', false);
+      });
     });
 
     // 设置图片质量
     $('#J-quality').change(function () {
       var current = $(this);
       var quality = parseInt(current.val());
-      var clipper = mass.cache.clipper;
 
-      if (quality && clipper) {
+      if (quality) {
         // quality 介于 1 ~ 92 之间
         // 为什么是 92 ？超过 92 压缩之后出来的图片会比原图更大，100 时甚至会超过原图几倍！
         quality = quality > 92 ? 92 : quality < 1 ? 1 : quality;
 
-        clipper.quality(quality);
+        mass.cache.imageQuality = quality;
       }
     });
 
